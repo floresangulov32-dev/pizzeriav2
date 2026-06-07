@@ -10,6 +10,7 @@ import pizzeria.model.Inventario;
 import pizzeria.model.Insumo;
 import pizzeria.util.ArchivoMenu;
 import pizzeria.model.Producto;
+import pizzeria.model.TipoProducto;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
@@ -60,6 +61,8 @@ public class PVerProductos extends javax.swing.JPanel {
         btnAgregarI = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        btnFiltrar = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -128,11 +131,26 @@ public class PVerProductos extends javax.swing.JPanel {
         jTable1.setRowHeight(30);
         jScrollPane1.setViewportView(jTable1);
 
+        jComboBox1.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pizzas", "Refrescos" }));
+        jComboBox1.addActionListener(this::jComboBox1ActionPerformed);
+
+        btnFiltrar.setBackground(new java.awt.Color(168, 27, 29));
+        btnFiltrar.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        btnFiltrar.setForeground(new java.awt.Color(255, 255, 255));
+        btnFiltrar.setText("Filtrar");
+        btnFiltrar.addActionListener(this::btnFiltrarActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 994, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(451, 451, 451)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnFiltrar, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(230, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(7, 7, 7)
@@ -157,7 +175,12 @@ public class PVerProductos extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 561, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(75, 75, 75)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnFiltrar, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(441, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(4, 4, 4)
@@ -282,6 +305,54 @@ public class PVerProductos extends javax.swing.JPanel {
         cargarPanel(panel);
     }//GEN-LAST:event_btnAgregarIActionPerformed
 
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void btnFiltrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarActionPerformed
+         String seleccion = (String) jComboBox1.getSelectedItem();
+    
+    // Convertir el String del combo al enum correspondiente
+        TipoProducto tipoBuscado;
+        switch (seleccion) {
+            case "Pizzas":    tipoBuscado = TipoProducto.PRODUCTO;    break;
+            case "Refrescos": tipoBuscado = TipoProducto.REFRESCO; break;
+            default:          cargarTablaProductos(); return; // si hubiera un "Todos"
+        }
+    
+        filtrarTablaProductos(tipoBuscado);        // TODO add your handling code here:
+    }//GEN-LAST:event_btnFiltrarActionPerformed
+
+    
+    private void filtrarTablaProductos(TipoProducto tipo) {
+        DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
+        modelo.setRowCount(0);
+
+        for (Producto p : menu.getProductos()) {
+            if (p.getTipo() != tipo) continue;
+
+            modelo.addRow(new Object[]{
+                p.getID(),
+                p.getNombre(),
+                String.format("%.2f", p.getPrecio()),
+                p.getDescripcion(),
+                construirIngredientes(p)
+            });
+        }
+    }
+    private String construirIngredientes(Producto p) {
+        if (p.getIngredientes() == null || p.getIngredientes().isEmpty()) {
+            return "(ninguno)";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < p.getIngredientes().size(); i++) {
+            int idIng = p.getIngredientes().get(i);
+            Insumo ins = (inventario != null) ? inventario.buscarId(idIng) : null;
+            sb.append(ins != null ? ins.getNombre() : "ID " + idIng);
+            if (i < p.getIngredientes().size() - 1) sb.append(", ");
+        }
+        return sb.toString();
+    }
     private void cargarPanel(JPanel panel) {
     interfaz.removeAll();
     interfaz.setLayout(new BorderLayout());
@@ -291,37 +362,19 @@ public class PVerProductos extends javax.swing.JPanel {
 }
     
     private void cargarTablaProductos(){
-     DefaultTableModel modelo =
-            (DefaultTableModel) jTable1.getModel();
+     DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
+    modelo.setRowCount(0);
 
-    modelo.setRowCount(0); // Limpia las filas
-
-        for(Producto p : menu.getProductos()){
-            String ingredientes;
-        if (p.getIngredientes() == null || p.getIngredientes().isEmpty()) {
-            ingredientes = "(ninguno)";
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < p.getIngredientes().size(); i++) {
-                int idIng = p.getIngredientes().get(i);
-                if (inventario != null) {
-                    Insumo ins = inventario.buscarId(idIng);
-                    sb.append(ins != null ? ins.getNombre() : "ID " + idIng);
-                } else {
-                    sb.append("ID " + idIng);
-                }
-                if (i < p.getIngredientes().size() - 1) sb.append(", ");
-            }
-            ingredientes = sb.toString();
-        }
-            
-            modelo.addRow(new Object[]{
+    for (Producto p : menu.getProductos()) {
+        modelo.addRow(new Object[]{
             p.getID(),
             p.getNombre(),
             String.format("%.2f", p.getPrecio()),
-            p.getDescripcion(), ingredientes 
-            });
-        }
+            p.getDescripcion(),
+            construirIngredientes(p)   // ← reutiliza el helper
+        });
+    }
+
         jTable1.setModel(modelo);
         jTable1.getColumnModel().getColumn(0).setPreferredWidth(20);
         jTable1.getColumnModel().getColumn(1).setPreferredWidth(100);
@@ -359,7 +412,9 @@ public class PVerProductos extends javax.swing.JPanel {
     private javax.swing.JButton btnAgregarP;
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnEliminarP;
+    private javax.swing.JButton btnFiltrar;
     private javax.swing.JTextField idBuscar;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
