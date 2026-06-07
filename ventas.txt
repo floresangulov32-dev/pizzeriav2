@@ -1,0 +1,4 @@
+# Sistema Pizzería — Ventas
+# Formato: id|fecha|idCajero|metodoPago|total|cambio|estado|nombreCliente|items...
+1|2026-05-30 13:44|1|EFECTIVO|120.00|80.00|PENDIENTE|Brayan|1~Fuga Z rellena~120.00~1
+2|2026-05-30 13:50|1|EFECTIVO|120.00|10.00|PENDIENTE|Brayan|1~Fuga Z rellena~120.00~1

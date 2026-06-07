@@ -1,0 +1,10 @@
+# Sistema Pizzeria — Deudas y compromisos
+# Formato: id|tipo|descripcion|monto|proveedor|yyyy-MM-dd HH:mm|estado
+1|CompraInsumo|10 kg harina de trigo|180.00|Molino del Sur|2026-03-28 00:00|PENDIENTE
+2|CompraInsumo|5 kg queso mozzarella|250.00|Lácteos La Vaca|2026-03-30 00:00|PENDIENTE
+3|Salario|Pago quincenal empleados|1500.00|Empleados Pizzería|2026-04-05 00:00|PAGADA
+4|CompraInsumo|Salsa de tomate y especias|120.00|Distribuidora Gourmet|2026-04-10 00:00|PAGADA
+5|Otro|Mantenimiento de horno|300.00|Servicios Técnicos SR|2026-04-15 00:00|PAGADA
+6|CompraInsumo|20 cajas de bebidas|280.00|Bebidas del Valle|2026-03-29 00:00|PAGADA
+7|Salario|Pago a repartidores|400.00|Equipo de reparto|2026-03-25 00:00|PAGADA
+8|CompraInsumo|Leche y derivados|150.00|Lácteos La Vaca|2026-03-20 00:00|PAGADA
