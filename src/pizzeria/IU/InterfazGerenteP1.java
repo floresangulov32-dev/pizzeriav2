@@ -600,6 +600,8 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
         Rol.setForeground(new java.awt.Color(255, 255, 255));
         Rol.setText("Rol: Usuario");
 
+        jPanel1.setBackground(new java.awt.Color(125, 0, 2));
+
         jLabel3.setText("LOGO");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -716,7 +718,10 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMenuActionPerformed
 
     private void btnInvetarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInvetarioActionPerformed
-        new InventarioPantallaInicial(rolUsuario, nombreUsuario).setVisible(true);
+        InventarioPantallaInicial inventario = new InventarioPantallaInicial(rolUsuario, nombreUsuario);
+        inventario.setSize(this.getSize());          
+        inventario.setLocation(this.getLocation());   
+        inventario.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnInvetarioActionPerformed
 

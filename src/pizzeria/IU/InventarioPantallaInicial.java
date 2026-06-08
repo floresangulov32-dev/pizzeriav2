@@ -3,11 +3,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package pizzeria.IU;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import pizzeria.model.Inventario;
 import pizzeria.model.Insumo;
 import javax.swing.ImageIcon;
 import java.awt.Image;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.table.DefaultTableCellRenderer;
 /**
  *
  * @author BENJAMIN
@@ -18,6 +23,7 @@ public class InventarioPantallaInicial extends javax.swing.JFrame {
     private final Inventario inventario = new Inventario();
     private String rolUsuario;
     private String nombreUsuario;
+    private javax.swing.JPanel panelActivo = null;
     /**
      * Creates new form Inventario
      */
@@ -28,17 +34,21 @@ public class InventarioPantallaInicial extends javax.swing.JFrame {
         jLabel3.setPreferredSize(new java.awt.Dimension(90, 90));
         cargarImagen(jLabel3, "resources/imagenes/logoCasaDelSabor.jpeg");
         mostrarUsuario();
+        configurarEstiloTabla();
+        configurarEncabezado();
     }
     public InventarioPantallaInicial(String rol, String nombre) {
-    initComponents();
-    this.rolUsuario = rol;
-    this.nombreUsuario = nombre;
-    Rol.setText(rol + ": " + nombre);
-    inventario.cargarArchivo();
-    configurarTabla();
-    jLabel3.setPreferredSize(new java.awt.Dimension(90, 90));
-    cargarImagen(jLabel3, "resources/imagenes/logoCasaDelSabor.jpeg");
-    mostrarUsuario();
+        initComponents();
+        this.rolUsuario = rol;
+        this.nombreUsuario = nombre;
+        Rol.setText(rol + ": " + nombre);
+        inventario.cargarArchivo();
+        configurarTabla();
+        jLabel3.setPreferredSize(new java.awt.Dimension(90, 90));
+        cargarImagen(jLabel3, "resources/imagenes/logoCasaDelSabor.jpeg");
+        mostrarUsuario();
+        configurarEstiloTabla();
+        configurarEncabezado();
     }
     
     /**
@@ -258,7 +268,10 @@ public class InventarioPantallaInicial extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarInsumoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarInsumoActionPerformed
-        new BuscarInsumos().setVisible(true);
+        BuscarInsumos buscar = new BuscarInsumos(rolUsuario, nombreUsuario);
+        buscar.setSize(this.getSize());          
+        buscar.setLocation(this.getLocation());   
+        buscar.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnBuscarInsumoActionPerformed
 
@@ -278,23 +291,11 @@ public class InventarioPantallaInicial extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVolverPerformed
 
     private void btnAgregarInsumoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarInsumoActionPerformed
-        jScrollPane1.setVisible(false);
-        AgregarInsumo panelAgregar = new AgregarInsumo(this);
-        panelAgregar.setBounds(jScrollPane1.getBounds());
-        getContentPane().add(panelAgregar);
-        panelAgregar.setVisible(true);
-        revalidate();
-        repaint();
+        reemplazarPanel(new AgregarInsumo(this));
     }//GEN-LAST:event_btnAgregarInsumoActionPerformed
 
     private void btnInvetario1btnInsumoBajoStockPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInvetario1btnInsumoBajoStockPerformed
-        jScrollPane1.setVisible(false);
-        InsumosBajoStock panel = new InsumosBajoStock(this);
-        panel.setBounds(jScrollPane1.getBounds());
-        getContentPane().add(panel);
-        panel.setVisible(true);
-        revalidate();
-        repaint();
+        reemplazarPanel(new InsumosBajoStock(this));
     }//GEN-LAST:event_btnInvetario1btnInsumoBajoStockPerformed
     
     public Inventario getInventario(){
@@ -336,10 +337,68 @@ public class InventarioPantallaInicial extends javax.swing.JFrame {
     jTable1.getColumnModel().getColumn(6).setPreferredWidth(120);
 }
     
+    private void configurarEstiloTabla() {
+    jTable1.getTableHeader().setBackground(new Color(0, 0, 0));
+    jTable1.getTableHeader().setForeground(Color.BLACK);
+    jTable1.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+    jTable1.getTableHeader().setPreferredSize(new Dimension(0, 35));
+
+    jTable1.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(
+                javax.swing.JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (isSelected) {
+                    setBackground(new Color(168, 27, 29));
+                    setForeground(Color.WHITE);
+                } else if (row % 2 == 0) {
+                    setBackground(new Color(245, 245, 245));
+                    setForeground(Color.BLACK);
+                } else {
+                    setBackground(Color.WHITE);
+                    setForeground(Color.BLACK);
+                }
+                setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+                return this;
+            }
+        });
+
+        jTable1.setRowHeight(30);
+        jTable1.setShowGrid(false);
+        jTable1.setIntercellSpacing(new Dimension(0, 0));
+    }
+    
+    private void configurarEncabezado() {
+     Encabezado.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(217, 217, 217)));
+     BarraNav.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(217, 217, 217)));
+    }
+    
     public void mostrarTabla() {
+        if (panelActivo != null) {
+            getContentPane().remove(panelActivo);
+            panelActivo = null;
+        }
         jScrollPane1.setVisible(true);
         revalidate();
         repaint();
+    }
+    
+    private void reemplazarPanel(javax.swing.JPanel nuevoPan) {
+    if (panelActivo != null) {
+        getContentPane().remove(panelActivo);
+    }
+    jScrollPane1.setVisible(false);
+    panelActivo = nuevoPan;
+    panelActivo.setBounds(
+        jScrollPane1.getX(),
+        jScrollPane1.getY(),
+        getContentPane().getWidth() - BarraNav.getWidth() - 10,
+        getContentPane().getHeight() - Encabezado.getHeight() - PiePag.getHeight() - 10
+    );
+    getContentPane().add(panelActivo);
+    panelActivo.setVisible(true);
+    revalidate();
     }
     
     private void cargarImagen(JLabel label, String ruta){
