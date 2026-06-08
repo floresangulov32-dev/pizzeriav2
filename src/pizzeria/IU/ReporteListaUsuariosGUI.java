@@ -2,16 +2,9 @@ package pizzeria.IU;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -24,79 +17,57 @@ public class ReporteListaUsuariosGUI extends JPanel {
     
     private GestorUsuarios gestorUsuarios;
     private DefaultTableModel modeloTabla;
-    //private JTable jTable1;
-    private JTextField txtBuscar;
-    private JLabel lblTotal, lblEmpleados, lblClientes;
-    private JButton btnCerrar;
     
     public ReporteListaUsuariosGUI() {
         gestorUsuarios = new GestorUsuarios();
         gestorUsuarios.cargarDesdeArchivo();
         
+        initComponents(); // NetBeans crea todos los componentes
+        
+        // Personalizar después de initComponents
+        personalizarComponentes();
+        configurarTabla();
+        cargarDatos();
+    }
+    
+    private void personalizarComponentes() {
         // Configurar el panel principal
         setLayout(new BorderLayout());
         setOpaque(false);
         setBorder(new EmptyBorder(5, 5, 5, 5));
         
-        // Panel Superior (Norte)
-        JPanel panelSuperior = new JPanel(new BorderLayout());
-        panelSuperior.setOpaque(false);
-        
-        // Título
-        JLabel lblTitulo = new JLabel("LISTA DE USUARIOS");
+        // Personalizar títulos y textos
+        lblTitulo.setText("LISTA DE USUARIOS");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTitulo.setForeground(new Color(168, 27, 29));
         
-        // Panel de búsqueda
-        JPanel panelBusqueda = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        panelBusqueda.setOpaque(false);
-        
-        JLabel lblBuscar = new JLabel("Buscar:");
+        lblBuscar.setText("Buscar:");
         lblBuscar.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         
-        txtBuscar = new JTextField(10);
-        txtBuscar.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        txtBuscar.setBorder(BorderFactory.createCompoundBorder(
+        // Configurar campo de búsqueda
+        txtBuscar2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        txtBuscar2.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(200, 200, 200)),
             BorderFactory.createEmptyBorder(3, 5, 3, 5)
         ));
-        txtBuscar.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+        
+        // Agregar el listener de búsqueda al txtBuscar2 (el que crea NetBeans)
+        txtBuscar2.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { filtrar(); }
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filtrar(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filtrar(); }
         });
         
-        panelBusqueda.add(lblBuscar);
-        panelBusqueda.add(txtBuscar);
+        // Personalizar estadísticas
+        lblTotal1.setText("Total: 0");
+        lblEmpleados2.setText("Empleados: 0");
+        lblClientes2.setText("Clientes: 0");
+        lblTotal1.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        lblEmpleados2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        lblClientes2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
         
-        // Panel de estadísticas
-        JPanel panelEstadisticas = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        panelEstadisticas.setOpaque(false);
-        panelEstadisticas.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200)),
-            BorderFactory.createEmptyBorder(2, 6, 2, 6)
-        ));
-        
-        lblTotal = new JLabel("Total: 0");
-        lblEmpleados = new JLabel("Empleados: 0");
-        lblClientes = new JLabel("Clientes: 0");
-        
-        lblTotal.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        lblEmpleados.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        lblClientes.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        
-        panelEstadisticas.add(lblTotal);
-        panelEstadisticas.add(lblEmpleados);
-        panelEstadisticas.add(lblClientes);
-        
-        panelSuperior.add(lblTitulo, BorderLayout.WEST);
-        panelSuperior.add(panelBusqueda, BorderLayout.CENTER);
-        panelSuperior.add(panelEstadisticas, BorderLayout.EAST);
-        
-        // Panel Central - Tabla
-        JPanel panelCentral = new JPanel(new BorderLayout());
-        panelCentral.setOpaque(false);
-        panelCentral.setBorder(BorderFactory.createTitledBorder(
+        // Personalizar borde del panel central
+        PanelCentral.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(new Color(200, 200, 200)),
             "Usuarios Registrados",
             TitledBorder.LEFT,
@@ -105,7 +76,24 @@ public class ReporteListaUsuariosGUI extends JPanel {
             new Color(80, 80, 80)
         ));
         
-        // Configurar tabla
+        // Personalizar botón
+        btnCerrar2.setText("Volver a Reportes");
+        btnCerrar2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btnCerrar2.setBackground(new Color(168, 27, 29));
+        btnCerrar2.setForeground(Color.WHITE);
+        btnCerrar2.setBorder(BorderFactory.createEmptyBorder(5, 12, 5, 12));
+        btnCerrar2.setFocusPainted(false);
+        btnCerrar2.addActionListener(e -> volverAReportes());
+        
+        // Panel de estadísticas - hacerlo visible
+        PanelEstadisticas.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 200, 200)),
+            BorderFactory.createEmptyBorder(2, 6, 2, 6)
+        ));
+    }
+    
+    private void configurarTabla() {
+        // Crear el modelo de la tabla
         String[] columnas = {"ID", "NOMBRE", "USUARIO", "ROL"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
@@ -114,54 +102,36 @@ public class ReporteListaUsuariosGUI extends JPanel {
             }
         };
         
-        jTable1 = new JTable(modeloTabla);
+        // Asignar el modelo a la tabla que creó NetBeans
+        jTable1.setModel(modeloTabla);
         jTable1.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         jTable1.setRowHeight(22);
         jTable1.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
         jTable1.getTableHeader().setBackground(new Color(240, 240, 240));
         jTable1.getTableHeader().setReorderingAllowed(false);
         
-        // Anchos de columnas
-        jTable1.getColumnModel().getColumn(0).setPreferredWidth(35);
-        jTable1.getColumnModel().getColumn(0).setMaxWidth(50);
-        jTable1.getColumnModel().getColumn(1).setPreferredWidth(160);
-        jTable1.getColumnModel().getColumn(2).setPreferredWidth(90);
-        jTable1.getColumnModel().getColumn(3).setPreferredWidth(70);
-        
-        JScrollPane scrollPane = new JScrollPane(jTable1);
-        scrollPane.setBorder(null);
-        
-        panelCentral.add(scrollPane, BorderLayout.CENTER);
-        
-        // Panel Inferior
-        JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        panelInferior.setOpaque(false);
-        panelInferior.setBorder(new EmptyBorder(5, 0, 0, 0));
-        
-        btnCerrar = new JButton("Volver a Reportes");
-        btnCerrar.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btnCerrar.setBackground(new Color(168, 27, 29));
-        btnCerrar.setForeground(Color.WHITE);
-        btnCerrar.setBorder(BorderFactory.createEmptyBorder(5, 12, 5, 12));
-        btnCerrar.setFocusPainted(false);
-        btnCerrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnCerrar.addActionListener(e -> volverAReportes());
-        
-        panelInferior.add(btnCerrar);
-        
-        // Agregar todos los paneles
-        add(panelSuperior, BorderLayout.NORTH);
-        add(panelCentral, BorderLayout.CENTER);
-        add(panelInferior, BorderLayout.SOUTH);
+        // Configurar anchos de columnas (después de que la tabla tenga datos)
+        // Esto se hace mejor después de cargar datos
+    }
+    
+    private void ajustarAnchosColumnas() {
+        if (jTable1.getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setPreferredWidth(35);
+            jTable1.getColumnModel().getColumn(0).setMaxWidth(50);
+            jTable1.getColumnModel().getColumn(1).setPreferredWidth(160);
+            jTable1.getColumnModel().getColumn(2).setPreferredWidth(90);
+            jTable1.getColumnModel().getColumn(3).setPreferredWidth(70);
+        }
     }
     
     private void cargarDatos() {
         actualizarTabla();
         actualizarEstadisticas();
+        ajustarAnchosColumnas();
     }
     
     private void filtrar() {
-        String texto = txtBuscar.getText().trim().toLowerCase();
+        String texto = txtBuscar2.getText().trim().toLowerCase();
         modeloTabla.setRowCount(0);
         
         for (Usuario u : gestorUsuarios.getListaUsuarios()) {
@@ -193,9 +163,9 @@ public class ReporteListaUsuariosGUI extends JPanel {
                 .filter(u -> u.getRol() != Rol.CLIENTE).count();
         long clientes = total - empleados;
         
-        lblTotal.setText("Total: " + total);
-        lblEmpleados.setText("Empleados: " + empleados);
-        lblClientes.setText("Clientes: " + clientes);
+        lblTotal1.setText("Total: " + total);
+        lblEmpleados2.setText("Empleados: " + empleados);
+        lblClientes2.setText("Clientes: " + clientes);
     }
     
     private void volverAReportes() {
