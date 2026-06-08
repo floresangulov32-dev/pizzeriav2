@@ -1,0 +1,80 @@
+# Sistema Pizzeria — Movimientos de caja
+# Formato: id|TIPO|monto|yyyy-MM-dd HH:mm|categoria|descripcion
+1|INGRESO|1500,00|2026-02-20 10:30|Venta|Venta del día - 5 pizzas familiares
+2|EGRESO|350,00|2026-02-20 15:45|CompraInsumo|Compra de harina, queso y salsa
+3|INGRESO|2500,00|2026-02-21 12:00|Venta|Fin de semana - Pedidos especiales
+4|EGRESO|800,00|2026-03-21 18:30|Salario|Pago a empleados - semana 1
+5|INGRESO|1800,00|2026-03-22 14:15|Venta|Ventas del día - 8 pizzas
+6|EGRESO|420,00|2026-03-23 16:20|CompraInsumo|Compra de bebidas y complementos
+7|EGRESO|250,00|2026-03-24 09:00|Otro|Pago de luz y agua
+8|INGRESO|3200,00|2026-03-25 20:00|Venta|Evento especial - 12 pizzas
+9|EGRESO|500,00|2026-03-26 21:30|Salario|Pago a empleados - semana 2
+10|EGRESO|150,00|2026-03-27 11:00|CompraInsumo|Compra de verduras
+11|INGRESO|950,00|2026-03-27 19:45|Venta|Ventas del día
+12|EGRESO|180,00|2026-03-28 14:30|Otro|Mantenimiento del horno
+13|INGRESO|2100,00|2026-03-29 21:00|Venta|Fin de semana - pedidos a domicilio
+14|EGRESO|23,00|2026-03-30 21:52|CompraInsumo|leche
+15|EGRESO|1500,00|2026-03-27 22:03|Salario|Pago deuda #3 - Pago quincenal empleados
+16|EGRESO|300,00|2026-03-27 22:05|Otro|Pago deuda #5 - Mantenimiento de horno
+17|EGRESO|20,40|2026-03-29 19:45|Salario|pago
+18|INGRESO|80,00|2026-04-04 14:18|Venta|Venta #23
+19|EGRESO|20,00|2026-04-04 14:18|Otro|Cambio venta #23
+20|INGRESO|301,63|2026-04-04 14:29|Venta|Venta #24
+21|INGRESO|40,00|2026-04-04 14:29|Venta|Venta #25
+22|INGRESO|200,00|2026-04-05 01:39|Venta|Reserva #1
+23|EGRESO|100,00|2026-04-05 01:39|Otro|Cambio entregado de Reserva #1
+24|EGRESO|160,00|2026-04-05 01:40|Otro|Reembolso venta #1
+25|INGRESO|240,00|2026-04-05 01:45|Venta|Reserva #2
+26|EGRESO|60,00|2026-04-05 01:45|Otro|Cambio entregado de Reserva #2
+27|INGRESO|160,00|2026-04-05 10:00|Venta|Venta inmediata #26
+28|EGRESO|40,00|2026-04-05 10:00|Otro|Cambio entregado de Venta inmediata #26
+29|EGRESO|180,00|2026-04-05 16:59|Otro|Reembolso venta #11
+30|INGRESO|110,00|2026-04-05 17:35|Venta|Reserva #3
+31|EGRESO|30,60|2026-04-05 20:23|Otro|otro
+32|EGRESO|120,00|2026-04-05 20:25|CompraInsumo|Pago deuda #4 - Salsa de tomate y especias
+33|INGRESO|80,00|2026-04-05 20:51|Venta|Venta inmediata #27
+34|INGRESO|40,00|2026-04-05 20:52|Venta|Reserva #4
+35|EGRESO|60,00|2026-04-05 20:52|Otro|Cambio entregado de Reserva #4
+36|INGRESO|20,00|2026-04-05 20:53|Venta|Venta inmediata #28
+37|EGRESO|30,00|2026-04-05 20:53|Otro|Cambio entregado de Venta inmediata #28
+38|EGRESO|120,00|2026-04-05 20:57|Otro|Reembolso venta #19
+39|EGRESO|40,00|2026-04-05 20:59|Otro|Reembolso reserva #4
+40|EGRESO|180,00|2026-04-05 21:08|CompraInsumo|Pago deuda #1 - 10 kg harina de trigo
+41|EGRESO|100,00|2026-04-05 21:09|CompraInsumo|sedtug
+42|INGRESO|80,00|2026-04-05 21:15|Venta|Venta inmediata #29
+43|EGRESO|20,00|2026-04-05 21:15|Otro|Cambio entregado de Venta inmediata #29
+44|INGRESO|100,00|2026-04-05 21:27|Venta|Venta inmediata #30
+45|EGRESO|20,00|2026-04-05 21:27|Otro|Cambio entregado de Venta inmediata #30
+46|INGRESO|20,00|2026-04-05 21:48|Venta|Venta inmediata #31
+47|EGRESO|30,00|2026-04-05 21:48|Otro|Cambio entregado de Venta inmediata #31
+48|INGRESO|20,00|2026-04-05 21:57|Venta|Venta inmediata #1
+49|EGRESO|80,00|2026-04-05 21:57|Otro|Cambio entregado de Venta inmediata #1
+50|INGRESO|20,00|2026-04-05 21:58|Venta|Venta inmediata #31
+51|EGRESO|80,00|2026-04-05 21:58|Otro|Cambio entregado de Venta inmediata #31
+52|INGRESO|20,00|2026-04-05 22:07|Venta|Venta inmediata #31
+53|EGRESO|80,00|2026-04-05 22:07|Otro|Cambio entregado de Venta inmediata #31
+54|INGRESO|20,00|2026-04-05 22:12|Venta|Venta inmediata #31
+55|EGRESO|80,00|2026-04-05 22:12|Otro|Cambio entregado de Venta inmediata #31
+56|INGRESO|160,00|2026-04-05 22:13|Venta|Reserva #5
+57|EGRESO|340,00|2026-04-05 22:13|Otro|Cambio entregado de Reserva #5
+58|INGRESO|130,00|2026-04-11 20:33|Venta|Venta inmediata #32
+59|INGRESO|120,00|2026-04-12 21:09|Venta|Reserva #6
+60|EGRESO|30,00|2026-04-12 21:09|Otro|Cambio entregado de Reserva #6
+61|INGRESO|120,00|2026-04-12 21:19|Venta|Reserva #7
+62|INGRESO|240,00|2026-05-07 21:43|Venta|Venta inmediata #1
+63|EGRESO|60,00|2026-05-07 21:43|Otro|Cambio entregado de Venta inmediata #1
+64|INGRESO|120,00|2026-05-30 13:44|Venta|Venta inmediata #1
+65|EGRESO|80,00|2026-05-30 13:44|Otro|Cambio entregado de Venta inmediata #1
+66|INGRESO|120,00|2026-05-30 13:50|Venta|Venta inmediata #2
+67|EGRESO|10,00|2026-05-30 13:50|Otro|Cambio entregado de Venta inmediata #2
+68|INGRESO|120,00|2026-05-30 16:05|Venta|Venta inmediata #33
+69|EGRESO|110,00|2026-05-30 16:05|Otro|Cambio entregado de Venta inmediata #33
+70|INGRESO|120,00|2026-05-30 16:19|Venta|Venta inmediata #34
+71|EGRESO|180,00|2026-05-30 16:19|Otro|Cambio entregado de Venta inmediata #34
+72|INGRESO|80,00|2026-05-30 16:38|Venta|Venta inmediata #35
+73|EGRESO|220,00|2026-05-30 16:38|Otro|Cambio entregado de Venta inmediata #35
+74|EGRESO|220,00|2026-06-01 17:34|CompraInsumo|Pago deuda #17 - Refrescos (variedad)
+75|INGRESO|9100,00|2026-06-01 17:46|Venta|Venta inmediata #38
+76|INGRESO|1130,00|2026-06-01 17:48|Venta|Venta inmediata #39
+77|EGRESO|57,00|2026-06-01 17:55|Salario|pp
+78|EGRESO|180,00|2026-06-01 18:09|CompraInsumo|Pago deuda #15 - Aceite de oli
