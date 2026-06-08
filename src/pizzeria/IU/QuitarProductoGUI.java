@@ -18,42 +18,26 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
     /**
      * Creates new form MenuGerente
      */
-    public QuitarProductoGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        
-        cargarPedidoActual();
-        configurarBusquedaYSeleccion();
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    }
     
-   
-    
-    public QuitarProductoGUI(String rol, String nombre) {
+    public QuitarProductoGUI(){
         initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+        this.rolUsuario = "Cajero";
+        this.nombreUsuario = "";
+
+        inicializarVentanaQuitarProducto();
+        }
+        public QuitarProductoGUI(String rol, String nombre) {
+        initComponents();
+
         this.rolUsuario = rol;
         this.nombreUsuario = nombre;
-        mostrarUsuario();
-        configurarHover();        
-        activarBoton(btnInicio);
 
-        cargarPedidoActual();
-        configurarBusquedaYSeleccion();
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-
+        inicializarVentanaQuitarProducto();
     }
+            
+        
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -534,8 +518,15 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
                     .quitarCombo(indiceCombo);
         }
 
-        new NuevoPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
-        this.dispose();
+            javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "Elemento quitado del pedido correctamente.",
+            "Elemento eliminado",
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+    );
+
+    new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -545,9 +536,292 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
     
+    
+    
+    
+    private void inicializarVentanaQuitarProducto() {
+    aplicarEstructuraVisualCajero();
+    reconstruirInterfazQuitarProducto();
+
+    mostrarUsuario();
+    configurarHover();
+    activarBoton(btnInicio);
+
+    configurarTablaQuitarPedido();
+    cargarPedidoActual();
+    configurarBusquedaYSeleccion();
+
+    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+}
+    
+    
+    private void aplicarEstructuraVisualCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    if (lblLogo != null) {
+        lblLogo.setPreferredSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMinimumSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMaximumSize(new java.awt.Dimension(75, 75));
+    }
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    Encabezado.setMinimumSize(new java.awt.Dimension(1280, 100));
+
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    PiePag.setMinimumSize(new java.awt.Dimension(1280, 47));
+
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMinimumSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMaximumSize(new java.awt.Dimension(280, 573));
+
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setMinimumSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+
+    reconstruirEstructuraBaseCajero();
+
+    revalidate();
+    repaint();
+}
+    
+    
+    
+    private void reconstruirEstructuraBaseCajero() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout(0, 0));
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    configurarBarraLateral();
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout(0, 0));
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.setPreferredSize(new java.awt.Dimension(1280, 573));
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+}
+    
+    
+    
+    private void configurarBarraLateral() {
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    configurarBotonLateral(btnInicio, tamBoton);
+    configurarBotonLateral(btnUsuarios, tamBoton);
+    configurarBotonLateral(btnReportes, tamBoton);
+    configurarBotonLateral(btnCerrar, tamBoton);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+}
+    
+    
+    private void configurarBotonLateral(javax.swing.JButton boton, java.awt.Dimension tamano) {
+    boton.setPreferredSize(tamano);
+    boton.setMinimumSize(tamano);
+    boton.setMaximumSize(tamano);
+
+    boton.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    boton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+
+    boton.setFocusPainted(false);
+    boton.setContentAreaFilled(true);
+    boton.setOpaque(true);
+    boton.setBorderPainted(false);
+}
+    
+    
+    private void reconstruirInterfazQuitarProducto() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout());
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 45, 20, 45));
+
+    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    panelContenido.setOpaque(false);
+    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.BorderLayout());
+    panelBotones.setOpaque(false);
+    panelBotones.setMaximumSize(new java.awt.Dimension(820, 42));
+    panelBotones.setPreferredSize(new java.awt.Dimension(820, 42));
+    panelBotones.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jButton2.setPreferredSize(new java.awt.Dimension(180, 40));
+    jButton1.setPreferredSize(new java.awt.Dimension(220, 40));
+
+    panelBotones.add(jButton2, java.awt.BorderLayout.WEST);
+    panelBotones.add(jButton1, java.awt.BorderLayout.EAST);
+
+    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel7.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel6.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jTextField1.setPreferredSize(new java.awt.Dimension(370, 32));
+    jTextField1.setMaximumSize(new java.awt.Dimension(370, 32));
+    jTextField1.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    reconstruirPanelProductosPedido();
+    reconstruirPanelProductoSeleccionado();
+
+    panelContenido.add(panelBotones);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(16));
+    panelContenido.add(jLabel19);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(jLabel7);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(20));
+    panelContenido.add(jLabel6);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(jTextField1);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(16));
+    panelContenido.add(jPanel2);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(14));
+    panelContenido.add(jPanel3);
+
+    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+    
+    private void reconstruirPanelProductosPedido() {
+    jPanel2.removeAll();
+    jPanel2.setBackground(java.awt.Color.WHITE);
+    jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(16, 22, 16, 22)
+    ));
+    jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
+    jPanel2.setMaximumSize(new java.awt.Dimension(820, 205));
+    jPanel2.setPreferredSize(new java.awt.Dimension(820, 205));
+    jPanel2.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jLabel9.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jScrollPane1.setPreferredSize(new java.awt.Dimension(700, 120));
+    jScrollPane1.setMaximumSize(new java.awt.Dimension(700, 120));
+    jScrollPane1.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jPanel2.add(jLabel9);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(10));
+    jPanel2.add(jScrollPane1);
+
+    jPanel2.revalidate();
+    jPanel2.repaint();
+}
+    
+    
+    
+    private void reconstruirPanelProductoSeleccionado() {
+    jPanel3.removeAll();
+    jPanel3.setBackground(new java.awt.Color(252, 235, 235));
+    jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(14, 22, 14, 22)
+    ));
+    jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.Y_AXIS));
+    jPanel3.setMaximumSize(new java.awt.Dimension(820, 90));
+    jPanel3.setPreferredSize(new java.awt.Dimension(820, 90));
+    jPanel3.setMinimumSize(new java.awt.Dimension(820, 90));
+    jPanel3.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    javax.swing.JPanel filaSeleccion = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 8, 0));
+    filaSeleccion.setOpaque(false);
+    filaSeleccion.setMaximumSize(new java.awt.Dimension(760, 32));
+    filaSeleccion.setPreferredSize(new java.awt.Dimension(760, 32));
+    filaSeleccion.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jTextField2.setEditable(false);
+    jTextField2.setPreferredSize(new java.awt.Dimension(480, 30));
+    jTextField2.setMaximumSize(new java.awt.Dimension(480, 30));
+
+    filaSeleccion.add(jLabel3);
+    filaSeleccion.add(jTextField2);
+
+    jLabel8.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jPanel3.add(filaSeleccion);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(10));
+    jPanel3.add(jLabel8);
+
+    jPanel3.revalidate();
+    jPanel3.repaint();
+}
+    
+    private void configurarTablaQuitarPedido() {
+    javax.swing.table.DefaultTableModel modelo = new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{
+                "#", "Producto / Combo", "Cantidad", "Subtotal"
+            }
+    ) {
+        boolean[] canEdit = new boolean[]{
+            false, false, false, false
+        };
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return canEdit[columnIndex];
+        }
+    };
+
+    jTable1.setModel(modelo);
+    jTable1.setRowHeight(28);
+    jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+    if (jTable1.getColumnModel().getColumnCount() >= 4) {
+        jTable1.getColumnModel().getColumn(0).setPreferredWidth(50);
+        jTable1.getColumnModel().getColumn(1).setPreferredWidth(360);
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(100);
+        jTable1.getColumnModel().getColumn(3).setPreferredWidth(140);
+    }
+}
+    
+    
+    
+    
+    
+    
+    
     private void mostrarUsuario() {
     
-        Rol.setText(rolUsuario + ": " + nombreUsuario);
+                if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+            rolUsuario = "Cajero";
+        }
+
+        if (nombreUsuario == null) {
+            nombreUsuario = "";
+        }
+
+        if (nombreUsuario.trim().isEmpty()) {
+            Rol.setText(rolUsuario);
+        } else {
+            Rol.setText(rolUsuario + ": " + nombreUsuario);
+        }
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -699,9 +973,10 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
     }
     
     private void filtrarPedido() {
-        String filtro = jTextField1.getText().trim();
-        cargarPedidoActual(filtro);
-        jTextField2.setText("");
+            String filtro = jTextField1.getText().trim();
+    cargarPedidoActual(filtro);
+    jTextField2.setText("");
+    jTable1.clearSelection();
     }
     
     

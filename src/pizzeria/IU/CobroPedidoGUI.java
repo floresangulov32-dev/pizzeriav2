@@ -18,41 +18,24 @@ public class CobroPedidoGUI extends javax.swing.JFrame {
     /**
      * Creates new form MenuGerente
      */
-    public CobroPedidoGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        cargarResumenCobro();
-        configurarEventosCobro();
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    }
     
-   
-    
-    public CobroPedidoGUI(String rol, String nombre) {
-    initComponents();
-    setSize(1280, 720);
-    setLocationRelativeTo(null);
-    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-    BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-    this.rolUsuario = rol;
-    this.nombreUsuario = nombre;
-    mostrarUsuario();
-    configurarHover();        
-    activarBoton(btnInicio);
-    
-    cargarResumenCobro();
-    configurarEventosCobro();
-    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    
-}
+        public CobroPedidoGUI() {
+            initComponents();
+
+            this.rolUsuario = "Cajero";
+            this.nombreUsuario = "";
+
+            inicializarVentanaCobro();
+        }
+
+        public CobroPedidoGUI(String rol, String nombre) {
+            initComponents();
+
+            this.rolUsuario = rol;
+            this.nombreUsuario = nombre;
+
+            inicializarVentanaCobro();
+        }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -596,178 +579,66 @@ public class CobroPedidoGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         
-        pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
+            pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
             .getGestorVenta()
             .getVentaActual();
 
-        if (venta == null || (venta.getItems().isEmpty() && venta.getCombos().isEmpty())) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No hay productos ni combos en el pedido.",
-                    "Pedido vacío",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        String cliente = txtClienteCobro.getText().trim();
-
-        if (cliente.isEmpty()) {
-            cliente = "Sin nombre";
-        }
-
-        pizzeria.model.MetodoPago metodoEnum = obtenerMetodoPagoSeleccionado();
-        String metodoPago = metodoEnum.getNombre();
-
-        String tipoPedido;
-
-        if (rbReserva.isSelected()) {
-            tipoPedido = "Reserva";
-        } else {
-            tipoPedido = "Venta inmediata";
-        }
-
-        double montoRecibido = 0.0;
-        double cambio = 0.0;
-
-        if (rbEfectivo.isSelected()) {
-            try {
-                montoRecibido = Double.parseDouble(txtMontoRecibido.getText().trim());
-
-                if (montoRecibido < venta.getTotal()) {
-                    javax.swing.JOptionPane.showMessageDialog(
-                            this,
-                            "El monto recibido es menor al total del pedido.",
-                            "Monto insuficiente",
-                            javax.swing.JOptionPane.WARNING_MESSAGE
-                    );
-                    return;
-                }
-
-                cambio = montoRecibido - venta.getTotal();
-
-                if (cambio < 0) {
-                    cambio = 0.0;
-                }
-
-            } catch (NumberFormatException e) {
-                javax.swing.JOptionPane.showMessageDialog(
-                        this,
-                        "Ingrese un monto recibido válido.",
-                        "Monto inválido",
-                        javax.swing.JOptionPane.WARNING_MESSAGE
-                );
-                return;
-            }
-        } else {
-            montoRecibido = venta.getTotal();
-            cambio = 0.0;
-        }
-
-        ContextoVentasGUI.getInstancia().guardarDatosCobro(
-                cliente,
-                metodoPago,
-                tipoPedido,
-                montoRecibido,
-                cambio
-        );
-
-        if (rbReserva.isSelected()) {
-
-        String telefono = javax.swing.JOptionPane.showInputDialog(
-                this,
-                "Ingrese el teléfono del cliente:",
-                "Datos de reserva",
-                javax.swing.JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (telefono == null) {
-            return;
-        }
-
-        if (telefono.trim().isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Debe ingresar un teléfono para registrar la reserva.",
-                    "Teléfono requerido",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        java.time.format.DateTimeFormatter formato =
-                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        String fechaTexto = javax.swing.JOptionPane.showInputDialog(
-                this,
-                "Ingrese fecha y hora de la reserva:\nFormato: yyyy-MM-dd HH:mm",
-                java.time.LocalDateTime.now().plusHours(1).format(formato)
-        );
-
-        if (fechaTexto == null) {
-            return;
-        }
-
-        java.time.LocalDateTime fechaReserva;
-
-        try {
-            fechaReserva = java.time.LocalDateTime.parse(fechaTexto.trim(), formato);
-        } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Formato de fecha inválido. Use: yyyy-MM-dd HH:mm",
-                    "Fecha inválida",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        pizzeria.model.Reserva reserva = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .registrarReservaPagadaGUI(
-                        metodoEnum,
-                        montoRecibido,
-                        cliente,
-                        telefono,
-                        fechaReserva
-                );
-
-        if (reserva == null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo registrar la reserva. Revise el pedido, el pago o los datos ingresados.",
-                    "Error al registrar reserva",
-                    javax.swing.JOptionPane.ERROR_MESSAGE
-            );
-            return;
-        }
-
-        ContextoVentasGUI.getInstancia().setUltimaReservaRegistrada(reserva);
-
-        new ReservaRegistradaGUI(rolUsuario,nombreUsuario).setVisible(true);
-        this.dispose();
-        return;
-    }
-
-    pizzeria.model.Venta ventaFinalizada = ContextoVentasGUI.getInstancia()
-            .getGestorVenta()
-            .finalizarVentaInmediataGUI(metodoEnum, montoRecibido, cliente);
-
-    if (ventaFinalizada == null) {
+    if (venta == null || (venta.getItems().isEmpty() && venta.getCombos().isEmpty())) {
         javax.swing.JOptionPane.showMessageDialog(
                 this,
-                "No se pudo registrar la venta. Revise el pedido o el monto recibido.",
-                "Error al registrar venta",
-                javax.swing.JOptionPane.ERROR_MESSAGE
+                "No hay productos ni combos en el pedido.",
+                "Pedido vacío",
+                javax.swing.JOptionPane.WARNING_MESSAGE
         );
         return;
     }
 
-    ContextoVentasGUI.getInstancia().setUltimaVentaRegistrada(ventaFinalizada);
+    venta.calcularTotal();
 
-    new VentaRegistradaGUI(rolUsuario,nombreUsuario).setVisible(true);
-    this.dispose();
-      
+    String cliente = txtClienteCobro.getText().trim();
+
+    if (cliente.isEmpty()) {
+        cliente = "Sin nombre";
+    }
+
+    pizzeria.model.MetodoPago metodoEnum = obtenerMetodoPagoSeleccionado();
+    String metodoPago = metodoEnum.getNombre();
+
+    boolean esReserva = rbReserva.isSelected();
+
+    String tipoPedido = esReserva ? "Reserva" : "Venta inmediata";
+
+    double montoRecibido;
+    double cambio;
+
+    try {
+        double[] datosPago = validarYObtenerDatosPago(venta);
+        montoRecibido = datosPago[0];
+        cambio = datosPago[1];
+    } catch (IllegalArgumentException e) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                e.getMessage(),
+                "Pago inválido",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    ContextoVentasGUI.getInstancia().guardarDatosCobro(
+            cliente,
+            metodoPago,
+            tipoPedido,
+            montoRecibido,
+            cambio
+    );
+
+    if (esReserva) {
+        registrarReservaDesdeCobro(metodoEnum, metodoPago, montoRecibido, cliente);
+        return;
+    }
+
+    registrarVentaInmediataDesdeCobro(metodoEnum, montoRecibido, cliente);
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -789,7 +660,19 @@ public class CobroPedidoGUI extends javax.swing.JFrame {
     
     private void mostrarUsuario() {
     
+         if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+        rolUsuario = "Cajero";
+    }
+
+    if (nombreUsuario == null) {
+        nombreUsuario = "";
+    }
+
+    if (nombreUsuario.trim().isEmpty()) {
+        Rol.setText(rolUsuario);
+    } else {
         Rol.setText(rolUsuario + ": " + nombreUsuario);
+    }
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -892,47 +775,68 @@ public class CobroPedidoGUI extends javax.swing.JFrame {
     
     
     private void calcularCambio() {
-        pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .getVentaActual();
+                pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .getVentaActual();
 
-        if (venta == null) {
+    if (venta == null) {
+        lblCambioCobro.setText("Bs. 0.00");
+        return;
+    }
+
+    venta.calcularTotal();
+
+    if (!rbEfectivo.isSelected()) {
+        lblCambioCobro.setText("Bs. 0.00");
+        return;
+    }
+
+    try {
+        String texto = txtMontoRecibido.getText().trim();
+
+        if (texto.isEmpty()) {
             lblCambioCobro.setText("Bs. 0.00");
             return;
         }
 
-        if (!rbEfectivo.isSelected()) {
+        double montoRecibido = Double.parseDouble(texto);
+        double cambio = montoRecibido - venta.getTotal();
+
+        if (cambio < 0) {
             lblCambioCobro.setText("Bs. 0.00");
-            return;
+        } else {
+            lblCambioCobro.setText("Bs. " + String.format("%.2f", cambio));
         }
 
-        try {
-            double montoRecibido = Double.parseDouble(txtMontoRecibido.getText().trim());
-            double total = venta.getTotal();
-            double cambio = montoRecibido - total;
-
-            if (cambio < 0) {
-                lblCambioCobro.setText("Bs. 0.00");
-            } else {
-                lblCambioCobro.setText("Bs. " + String.format("%.2f", cambio));
-            }
-
-        } catch (NumberFormatException e) {
-            lblCambioCobro.setText("Bs. 0.00");
-        }
+    } catch (NumberFormatException e) {
+        lblCambioCobro.setText("Bs. 0.00");
+    }
     }
     
     private void configurarEventosCobro() {
-        txtMontoRecibido.addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                calcularCambio();
-            }
+            txtMontoRecibido.addKeyListener(new java.awt.event.KeyAdapter() {
+        @Override
+        public void keyReleased(java.awt.event.KeyEvent e) {
+            calcularCambio();
+        }
         });
 
-        rbEfectivo.addActionListener(e -> calcularCambio());
-        rbQR.addActionListener(e -> calcularCambio());
-        rbTarjeta.addActionListener(e -> calcularCambio());
+        rbEfectivo.addActionListener(e -> {
+            txtMontoRecibido.setEnabled(true);
+            calcularCambio();
+        });
+
+        rbQR.addActionListener(e -> {
+            txtMontoRecibido.setText("");
+            txtMontoRecibido.setEnabled(false);
+            calcularCambio();
+        });
+
+        rbTarjeta.addActionListener(e -> {
+            txtMontoRecibido.setText("");
+            txtMontoRecibido.setEnabled(false);
+            calcularCambio();
+        });
     }
     
     private pizzeria.model.MetodoPago obtenerMetodoPagoSeleccionado() {
@@ -966,6 +870,753 @@ public class CobroPedidoGUI extends javax.swing.JFrame {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
     }
+    
+    private void inicializarVentanaCobro() {
+        aplicarEstructuraVisualCajero();
+        reconstruirInterfazCobro();
+
+        mostrarUsuario();
+        configurarHover();
+        activarBoton(btnInicio);
+
+        configurarTablaResumenCobro();
+        cargarResumenCobro();
+        configurarEventosCobro();
+
+        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+    }
+    
+    
+    
+    private void aplicarEstructuraVisualCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    if (lblLogo != null) {
+        lblLogo.setPreferredSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMinimumSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMaximumSize(new java.awt.Dimension(75, 75));
+    }
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    Encabezado.setMinimumSize(new java.awt.Dimension(1280, 100));
+
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    PiePag.setMinimumSize(new java.awt.Dimension(1280, 47));
+
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMinimumSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMaximumSize(new java.awt.Dimension(280, 573));
+
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setMinimumSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+
+    reconstruirEstructuraBaseCajero();
+
+    revalidate();
+    repaint();
+}
+    
+    private void reconstruirEstructuraBaseCajero() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout(0, 0));
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    configurarBarraLateral();
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout(0, 0));
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.setPreferredSize(new java.awt.Dimension(1280, 573));
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+}
+    
+    
+    private void configurarBarraLateral() {
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    configurarBotonLateral(btnInicio, tamBoton);
+    configurarBotonLateral(btnUsuarios, tamBoton);
+    configurarBotonLateral(btnReportes, tamBoton);
+    configurarBotonLateral(btnCerrar, tamBoton);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+}
+    
+    private void configurarBotonLateral(javax.swing.JButton boton, java.awt.Dimension tamano) {
+    boton.setPreferredSize(tamano);
+    boton.setMinimumSize(tamano);
+    boton.setMaximumSize(tamano);
+    boton.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    boton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+    boton.setFocusPainted(false);
+}
+    
+    
+    private void reconstruirInterfazCobro() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout());
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 35, 25, 35));
+
+    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    panelContenido.setOpaque(false);
+    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+
+    // ===== BOTONES SUPERIORES =====
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.BorderLayout());
+    panelBotones.setOpaque(false);
+    panelBotones.setMaximumSize(new java.awt.Dimension(900, 45));
+    panelBotones.setPreferredSize(new java.awt.Dimension(900, 45));
+    panelBotones.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jButton2.setPreferredSize(new java.awt.Dimension(180, 42));
+    jButton1.setPreferredSize(new java.awt.Dimension(210, 42));
+
+    panelBotones.add(jButton2, java.awt.BorderLayout.WEST);
+    panelBotones.add(jButton1, java.awt.BorderLayout.EAST);
+
+    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel7.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    reconstruirPanelDatosCobro();
+    reconstruirPanelResumenCobro();
+
+    // ===== PANELES CENTRALES CON TAMAÑOS DIFERENTES =====
+    javax.swing.JPanel panelCentral = new javax.swing.JPanel();
+    panelCentral.setOpaque(false);
+    panelCentral.setLayout(new javax.swing.BoxLayout(panelCentral, javax.swing.BoxLayout.X_AXIS));
+    panelCentral.setMaximumSize(new java.awt.Dimension(900, 390));
+    panelCentral.setPreferredSize(new java.awt.Dimension(900, 390));
+    panelCentral.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jPanel3.setMaximumSize(new java.awt.Dimension(390, 390));
+    jPanel3.setPreferredSize(new java.awt.Dimension(390, 390));
+    jPanel3.setMinimumSize(new java.awt.Dimension(390, 390));
+
+    panel1.setMaximumSize(new java.awt.Dimension(490, 390));
+    panel1.setPreferredSize(new java.awt.Dimension(490, 390));
+    panel1.setMinimumSize(new java.awt.Dimension(490, 390));
+
+    panelCentral.add(jPanel3);
+    panelCentral.add(javax.swing.Box.createHorizontalStrut(20));
+    panelCentral.add(panel1);
+
+    panelContenido.add(panelBotones);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(16));
+    panelContenido.add(jLabel19);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(jLabel7);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(16));
+    panelContenido.add(panelCentral);
+
+    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+        
+    
+    private void reconstruirPanelDatosCobro() {
+    jPanel3.removeAll();
+    jPanel3.setBackground(java.awt.Color.WHITE);
+    jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(22, 25, 22, 25)
+    ));
+    jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.Y_AXIS));
+
+    jPanel3.add(jLabel3);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(16));
+
+    jPanel3.add(jLabel6);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(5));
+
+    txtClienteCobro.setMaximumSize(new java.awt.Dimension(330, 28));
+    txtClienteCobro.setPreferredSize(new java.awt.Dimension(330, 28));
+    jPanel3.add(txtClienteCobro);
+
+    jPanel3.add(javax.swing.Box.createVerticalStrut(16));
+    jPanel3.add(jLabel8);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(5));
+
+    javax.swing.JPanel filaTipoPedido = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 20, 0));
+    filaTipoPedido.setOpaque(false);
+    filaTipoPedido.add(rbVentaInmediata);
+    filaTipoPedido.add(rbReserva);
+    filaTipoPedido.setMaximumSize(new java.awt.Dimension(330, 30));
+    jPanel3.add(filaTipoPedido);
+
+    jPanel3.add(javax.swing.Box.createVerticalStrut(16));
+    jPanel3.add(jLabel9);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(5));
+
+    javax.swing.JPanel filaMetodoPago = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 20, 0));
+    filaMetodoPago.setOpaque(false);
+    filaMetodoPago.add(rbEfectivo);
+    filaMetodoPago.add(rbQR);
+    filaMetodoPago.add(rbTarjeta);
+    filaMetodoPago.setMaximumSize(new java.awt.Dimension(330, 30));
+    jPanel3.add(filaMetodoPago);
+
+    jPanel3.add(javax.swing.Box.createVerticalStrut(16));
+
+    javax.swing.JPanel filaMonto = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 18, 0));
+    filaMonto.setOpaque(false);
+    filaMonto.add(jLabel10);
+
+    txtMontoRecibido.setPreferredSize(new java.awt.Dimension(130, 28));
+    filaMonto.add(txtMontoRecibido);
+    filaMonto.setMaximumSize(new java.awt.Dimension(330, 32));
+    jPanel3.add(filaMonto);
+
+    jPanel3.add(javax.swing.Box.createVerticalStrut(12));
+
+    javax.swing.JPanel filaCambio = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 18, 0));
+    filaCambio.setOpaque(false);
+    filaCambio.add(jLabel12);
+    filaCambio.add(lblCambioCobro);
+    filaCambio.setMaximumSize(new java.awt.Dimension(330, 32));
+    jPanel3.add(filaCambio);
+
+    jPanel3.add(javax.swing.Box.createVerticalStrut(14));
+
+    jButton3.setPreferredSize(new java.awt.Dimension(150, 34));
+    jButton3.setMaximumSize(new java.awt.Dimension(150, 34));
+    jPanel3.add(jButton3);
+
+    jPanel3.revalidate();
+    jPanel3.repaint();
+}
+    
+
+        private void reconstruirPanelResumenCobro() {
+    panel1.removeAll();
+    panel1.setBackground(java.awt.Color.WHITE);
+    panel1.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(22, 25, 22, 25)
+    ));
+    panel1.setLayout(new java.awt.BorderLayout(0, 12));
+
+    javax.swing.JPanel panelSuperior = new javax.swing.JPanel();
+    panelSuperior.setOpaque(false);
+    panelSuperior.setLayout(new javax.swing.BoxLayout(panelSuperior, javax.swing.BoxLayout.Y_AXIS));
+
+    jLabel14.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    panelSuperior.add(jLabel14);
+    panelSuperior.add(javax.swing.Box.createVerticalStrut(10));
+
+    jScrollPane1.setPreferredSize(new java.awt.Dimension(440, 170));
+    jScrollPane1.setMaximumSize(new java.awt.Dimension(440, 170));
+    jScrollPane1.setMinimumSize(new java.awt.Dimension(440, 170));
+    jScrollPane1.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    tblResumenCobro.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+    tblResumenCobro.setRowHeight(28);
+
+    panelSuperior.add(jScrollPane1);
+
+    javax.swing.JPanel panelTotales = new javax.swing.JPanel();
+    panelTotales.setOpaque(false);
+    panelTotales.setLayout(new javax.swing.BoxLayout(panelTotales, javax.swing.BoxLayout.Y_AXIS));
+
+    javax.swing.JPanel filaSubtotal = new javax.swing.JPanel(new java.awt.BorderLayout());
+    filaSubtotal.setOpaque(false);
+    filaSubtotal.setMaximumSize(new java.awt.Dimension(440, 28));
+    filaSubtotal.setPreferredSize(new java.awt.Dimension(440, 28));
+    filaSubtotal.add(jLabel17, java.awt.BorderLayout.WEST);
+    filaSubtotal.add(lblSubtotalCobro, java.awt.BorderLayout.EAST);
+
+    javax.swing.JPanel filaTotal = new javax.swing.JPanel(new java.awt.BorderLayout());
+    filaTotal.setOpaque(false);
+    filaTotal.setMaximumSize(new java.awt.Dimension(440, 34));
+    filaTotal.setPreferredSize(new java.awt.Dimension(440, 34));
+    filaTotal.add(jLabel18, java.awt.BorderLayout.WEST);
+    filaTotal.add(lblTotalCobro, java.awt.BorderLayout.EAST);
+
+    jLabel21.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+
+    panelTotales.add(filaSubtotal);
+    panelTotales.add(javax.swing.Box.createVerticalStrut(10));
+    panelTotales.add(filaTotal);
+    panelTotales.add(javax.swing.Box.createVerticalStrut(14));
+    panelTotales.add(jLabel21);
+
+    panel1.add(panelSuperior, java.awt.BorderLayout.CENTER);
+    panel1.add(panelTotales, java.awt.BorderLayout.SOUTH);
+
+    panel1.revalidate();
+    panel1.repaint();
+}
+        
+        
+    private void configurarTablaResumenCobro() {
+    javax.swing.table.DefaultTableModel modelo = new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{"Detalle", "Subtotal"}
+    ) {
+        boolean[] canEdit = new boolean[]{false, false};
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return canEdit[columnIndex];
+        }
+    };
+
+    tblResumenCobro.setModel(modelo);
+    tblResumenCobro.setRowHeight(28);
+    tblResumenCobro.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    tblResumenCobro.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+    if (tblResumenCobro.getColumnModel().getColumnCount() >= 2) {
+        tblResumenCobro.getColumnModel().getColumn(0).setPreferredWidth(320);
+        tblResumenCobro.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tblResumenCobro.getColumnModel().getColumn(0).setMinWidth(280);
+        tblResumenCobro.getColumnModel().getColumn(1).setMinWidth(90);
+    }
+}
+    
+    
+    private double[] validarYObtenerDatosPago(pizzeria.model.Venta venta) {
+    double montoRecibido;
+    double cambio;
+
+    if (rbEfectivo.isSelected()) {
+        String montoTexto = txtMontoRecibido.getText().trim();
+
+        if (montoTexto.isEmpty()) {
+            throw new IllegalArgumentException("Ingrese el monto recibido.");
+        }
+
+        try {
+            montoRecibido = Double.parseDouble(montoTexto);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Ingrese un monto recibido válido.");
+        }
+
+        if (montoRecibido < venta.getTotal()) {
+            throw new IllegalArgumentException("El monto recibido es menor al total del pedido.");
+        }
+
+        cambio = montoRecibido - venta.getTotal();
+
+        if (cambio < 0) {
+            cambio = 0.0;
+        }
+
+    } else {
+        montoRecibido = venta.getTotal();
+        cambio = 0.0;
+    }
+
+    return new double[]{montoRecibido, cambio};
+}
+    
+    private void registrarReservaDesdeCobro(
+        pizzeria.model.MetodoPago metodoEnum,
+        String metodoPago,
+        double montoRecibido,
+        String cliente
+) {
+    String telefono = pedirTelefonoReserva();
+
+    if (telefono == null) {
+        return;
+    }
+
+    java.time.LocalDateTime fechaReserva = java.time.LocalDateTime.now();
+
+    pizzeria.model.Reserva reserva = ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .registrarReservaPagadaGUI(
+                    metodoEnum,
+                    montoRecibido,
+                    cliente,
+                    telefono,
+                    fechaReserva
+            );
+
+    if (reserva == null) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se pudo registrar la reserva. Revise el pedido, el pago o los datos ingresados.",
+                "Error al registrar reserva",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+        return;
+    }
+
+    preguntarYEmitirFacturaReserva(reserva, metodoPago);
+
+    ContextoVentasGUI.getInstancia().setUltimaReservaRegistrada(reserva);
+
+    new ReservaRegistradaGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
+}
+    
+    
+    private void registrarVentaInmediataDesdeCobro(
+        pizzeria.model.MetodoPago metodoEnum,
+        double montoRecibido,
+        String cliente
+) {
+    pizzeria.model.Venta ventaFinalizada = ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .finalizarVentaInmediataGUI(
+                    metodoEnum,
+                    montoRecibido,
+                    cliente
+            );
+
+    if (ventaFinalizada == null) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se pudo registrar la venta. Revise el pedido o el monto recibido.",
+                "Error al registrar venta",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+        return;
+    }
+
+    preguntarYEmitirFacturaVenta(ventaFinalizada);
+
+    ContextoVentasGUI.getInstancia().setUltimaVentaRegistrada(ventaFinalizada);
+
+    new VentaRegistradaGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
+}
+    
+    private String pedirTelefonoReserva() {
+    javax.swing.JTextField txtTelefono = new javax.swing.JTextField(15);
+
+    ((javax.swing.text.AbstractDocument) txtTelefono.getDocument())
+            .setDocumentFilter(new javax.swing.text.DocumentFilter() {
+                @Override
+                public void insertString(
+                        javax.swing.text.DocumentFilter.FilterBypass fb,
+                        int offset,
+                        String string,
+                        javax.swing.text.AttributeSet attr
+                ) throws javax.swing.text.BadLocationException {
+                    if (string != null && string.matches("\\d+")) {
+                        super.insertString(fb, offset, string, attr);
+                    }
+                }
+
+                @Override
+                public void replace(
+                        javax.swing.text.DocumentFilter.FilterBypass fb,
+                        int offset,
+                        int length,
+                        String text,
+                        javax.swing.text.AttributeSet attrs
+                ) throws javax.swing.text.BadLocationException {
+                    if (text != null && text.matches("\\d*")) {
+                        super.replace(fb, offset, length, text, attrs);
+                    }
+                }
+            });
+
+    javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 0, 8));
+    panel.add(new javax.swing.JLabel("Ingrese teléfono del cliente:"));
+    panel.add(txtTelefono);
+    panel.add(new javax.swing.JLabel("Solo números. Ejemplo: 70707070"));
+
+    while (true) {
+        int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                panel,
+                "Datos de reserva",
+                javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta != javax.swing.JOptionPane.OK_OPTION) {
+            return null;
+        }
+
+        String telefono = txtTelefono.getText().trim();
+
+        if (telefonoValido(telefono)) {
+            return telefono;
+        }
+
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Ingrese un teléfono válido.\nDebe contener solo números y tener 7 u 8 dígitos.",
+                "Teléfono inválido",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+    }
+}
+    
+    
+    private boolean telefonoValido(String telefono) {
+    if (telefono == null) {
+        return false;
+    }
+
+    return telefono.trim().matches("\\d{7,8}");
+}
+    
+    
+    private void preguntarYEmitirFacturaVenta(pizzeria.model.Venta venta) {
+    int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿El cliente desea factura?",
+            "Emitir factura",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    DatosFactura datos = pedirDatosFactura();
+
+    if (datos == null) {
+        return;
+    }
+
+    mostrarFacturaVenta(venta, datos.nit, datos.nombre);
+}
+    
+    
+    private void mostrarFacturaVenta(pizzeria.model.Venta venta, String nit, String nombreFactura) {
+    StringBuilder factura = new StringBuilder();
+
+    factura.append("====================================\n");
+    factura.append("       FACTURA - LA CASA DEL SABOR\n");
+    factura.append("====================================\n");
+    factura.append("NIT: ").append(nit).append("\n");
+    factura.append("Nombre/Razón Social: ").append(nombreFactura).append("\n");
+    factura.append("Venta N.º: ").append(String.format("%03d", venta.getId())).append("\n");
+    factura.append("Cliente: ").append(venta.getNombreCliente()).append("\n");
+    factura.append("Método de pago: ").append(venta.getMetodoPago()).append("\n");
+    factura.append("------------------------------------\n");
+    factura.append("DETALLE:\n");
+
+    for (pizzeria.model.DetalleVenta item : venta.getItems()) {
+        factura.append(item.getCantidad())
+                .append(" x ")
+                .append(item.getProducto().getNombre())
+                .append(" = Bs. ")
+                .append(String.format("%.2f", item.getSubTotal()))
+                .append("\n");
+    }
+
+    for (pizzeria.model.DetalleCombo combo : venta.getCombos()) {
+        factura.append(combo.getCantidad())
+                .append(" x Combo #")
+                .append(combo.getNroCombo())
+                .append(" = Bs. ")
+                .append(String.format("%.2f", combo.getSubTotal()))
+                .append("\n");
+    }
+
+    factura.append("------------------------------------\n");
+    factura.append("TOTAL: Bs. ").append(String.format("%.2f", venta.getTotal())).append("\n");
+    factura.append("====================================\n");
+    factura.append("Gracias por su compra.\n");
+
+    mostrarFacturaTexto(factura.toString(), "Factura de venta");
+}
+    
+    
+    private void preguntarYEmitirFacturaReserva(pizzeria.model.Reserva reserva, String metodoPago) {
+    int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿El cliente desea factura por la reserva?",
+            "Emitir factura",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    DatosFactura datos = pedirDatosFactura();
+
+    if (datos == null) {
+        return;
+    }
+
+    mostrarFacturaReserva(reserva, datos.nit, datos.nombre, metodoPago);
+}
+    
+    private void mostrarFacturaReserva(
+        pizzeria.model.Reserva reserva,
+        String nit,
+        String nombreFactura,
+        String metodoPago
+) {
+    StringBuilder factura = new StringBuilder();
+
+    factura.append("====================================\n");
+    factura.append("    FACTURA RESERVA - LA CASA DEL SABOR\n");
+    factura.append("====================================\n");
+    factura.append("NIT: ").append(nit).append("\n");
+    factura.append("Nombre/Razón Social: ").append(nombreFactura).append("\n");
+    factura.append("Reserva N.º: ").append(String.format("%03d", reserva.getId())).append("\n");
+    factura.append("Cliente: ").append(reserva.getNombreCliente()).append("\n");
+    factura.append("Teléfono: ").append(reserva.getTelefono()).append("\n");
+    factura.append("Fecha reserva: ").append(reserva.getFechaReserva()).append("\n");
+    factura.append("Método de pago: ").append(metodoPago).append("\n");
+    factura.append("------------------------------------\n");
+    factura.append("DETALLE:\n");
+
+    for (pizzeria.model.DetalleVenta item : reserva.getPedido()) {
+        factura.append(item.getCantidad())
+                .append(" x ")
+                .append(item.getProducto().getNombre())
+                .append(" = Bs. ")
+                .append(String.format("%.2f", item.getSubTotal()))
+                .append("\n");
+    }
+
+    factura.append("------------------------------------\n");
+    factura.append("TOTAL: Bs. ").append(String.format("%.2f", reserva.calcularTotal())).append("\n");
+    factura.append("====================================\n");
+    factura.append("Gracias por su reserva.\n");
+
+    mostrarFacturaTexto(factura.toString(), "Factura de reserva");
+}
+    
+    
+    private DatosFactura pedirDatosFactura() {
+    javax.swing.JTextField txtNit = new javax.swing.JTextField(15);
+    javax.swing.JTextField txtNombre = new javax.swing.JTextField(20);
+
+    ((javax.swing.text.AbstractDocument) txtNit.getDocument())
+            .setDocumentFilter(new javax.swing.text.DocumentFilter() {
+                @Override
+                public void insertString(
+                        javax.swing.text.DocumentFilter.FilterBypass fb,
+                        int offset,
+                        String string,
+                        javax.swing.text.AttributeSet attr
+                ) throws javax.swing.text.BadLocationException {
+                    if (string != null && string.matches("\\d+")) {
+                        super.insertString(fb, offset, string, attr);
+                    }
+                }
+
+                @Override
+                public void replace(
+                        javax.swing.text.DocumentFilter.FilterBypass fb,
+                        int offset,
+                        int length,
+                        String text,
+                        javax.swing.text.AttributeSet attrs
+                ) throws javax.swing.text.BadLocationException {
+                    if (text != null && text.matches("\\d*")) {
+                        super.replace(fb, offset, length, text, attrs);
+                    }
+                }
+            });
+
+    javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 0, 8));
+    panel.add(new javax.swing.JLabel("NIT:"));
+    panel.add(txtNit);
+    panel.add(new javax.swing.JLabel("Nombre o razón social:"));
+    panel.add(txtNombre);
+
+    while (true) {
+        int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                panel,
+                "Datos de factura",
+                javax.swing.JOptionPane.OK_CANCEL_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta != javax.swing.JOptionPane.OK_OPTION) {
+            return null;
+        }
+
+        String nit = txtNit.getText().trim();
+        String nombre = txtNombre.getText().trim();
+
+        if (!nit.matches("\\d+")) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "El NIT debe contener solo números.",
+                    "NIT inválido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            continue;
+        }
+
+        if (nombre.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "Debe ingresar el nombre o razón social.",
+                    "Dato requerido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            continue;
+        }
+
+        return new DatosFactura(nit, nombre);
+    }
+}
+    
+    private void mostrarFacturaTexto(String textoFactura, String titulo) {
+    javax.swing.JTextArea area = new javax.swing.JTextArea(textoFactura);
+    area.setEditable(false);
+    area.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
+
+    javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(area);
+    scroll.setPreferredSize(new java.awt.Dimension(560, 400));
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            scroll,
+            titulo,
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+    );
+}
+    
+    
+    private static class DatosFactura {
+    private final String nit;
+    private final String nombre;
+
+    private DatosFactura(String nit, String nombre) {
+        this.nit = nit;
+        this.nombre = nombre;
+    }
+}
+    
     
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

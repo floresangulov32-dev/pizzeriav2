@@ -18,40 +18,23 @@ public class ReservaRegistradaGUI extends javax.swing.JFrame {
     /**
      * Creates new form MenuGerente
      */
+    
     public ReservaRegistradaGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        
-        cargarDatosReservaRegistrada();
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    }
-    
-   
-    
-    public ReservaRegistradaGUI(String rol, String nombre) {
     initComponents();
-    setSize(1280, 720);
-    setLocationRelativeTo(null);
-    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-    BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+
+    this.rolUsuario = "Cajero";
+    this.nombreUsuario = "";
+
+    inicializarVentanaReservaRegistrada();
+}
+
+public ReservaRegistradaGUI(String rol, String nombre) {
+    initComponents();
+
     this.rolUsuario = rol;
     this.nombreUsuario = nombre;
-    mostrarUsuario();
-    configurarHover();        
-    activarBoton(btnInicio);
-    
-    cargarDatosReservaRegistrada();
-    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    
-    
+
+    inicializarVentanaReservaRegistrada();
 }
 
     /**
@@ -463,20 +446,39 @@ public class ReservaRegistradaGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        ContextoVentasGUI.getInstancia().getGestorVenta().crearVenta(1);
-        new NuevoPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
-        this.dispose();
+         ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .cancelarArmadoPedido();
+
+    ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .crearVenta(1);
+
+    new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        new VentasGUI(rolUsuario,nombreUsuario).setVisible(true);
-        this.dispose();
+         new ConsultarReservasGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
     
     private void mostrarUsuario() {
     
+          if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+        rolUsuario = "Cajero";
+    }
+
+    if (nombreUsuario == null) {
+        nombreUsuario = "";
+    }
+
+    if (nombreUsuario.trim().isEmpty()) {
+        Rol.setText(rolUsuario);
+    } else {
         Rol.setText(rolUsuario + ": " + nombreUsuario);
+    }
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -533,28 +535,39 @@ public class ReservaRegistradaGUI extends javax.swing.JFrame {
     
     
         /////////////////
-        private void cargarDatosReservaRegistrada() {
-        pizzeria.model.Reserva reserva = ContextoVentasGUI.getInstancia()
-                .getUltimaReservaRegistrada();
+    private void cargarDatosReservaRegistrada() {
+         pizzeria.model.Reserva reserva = ContextoVentasGUI.getInstancia()
+            .getUltimaReservaRegistrada();
 
-        ContextoVentasGUI contexto = ContextoVentasGUI.getInstancia();
+    ContextoVentasGUI contexto = ContextoVentasGUI.getInstancia();
 
-        if (reserva == null) {
-            lblNumeroReservaRegistrada.setText("Reserva N.º -");
-            lblClienteReservaRegistrada.setText("Cliente: -");
-            lblTelefonoReservaRegistrada.setText("Teléfono: -");
-            lblFechaReservaRegistrada.setText("Fecha: -");
-            lblMetodoPagoReservaRegistrada.setText("Método de pago: " + contexto.getMetodoPagoCobro());
-            lblTotalReservaRegistrada.setText("Bs. 0.00");
-            return;
-        }
+    String clienteContexto = textoSeguro(contexto.getClienteCobro(), "Sin nombre");
+    String metodoContexto = textoSeguro(contexto.getMetodoPagoCobro(), "No especificado");
 
-        lblNumeroReservaRegistrada.setText("Reserva N.º " + String.format("%03d", reserva.getId()));
-        lblClienteReservaRegistrada.setText("Cliente: " + reserva.getNombreCliente());
-        lblTelefonoReservaRegistrada.setText("Teléfono: " + reserva.getTelefono());
-        lblFechaReservaRegistrada.setText("Fecha: " + reserva.getFechaReserva());
-        lblMetodoPagoReservaRegistrada.setText("Método de pago: " + contexto.getMetodoPagoCobro());
-        lblTotalReservaRegistrada.setText("Bs. " + String.format("%.2f", reserva.calcularTotal()));
+    if (reserva == null) {
+        lblNumeroReservaRegistrada.setText("Reserva N.º -");
+        lblClienteReservaRegistrada.setText("Cliente: " + clienteContexto);
+        lblTelefonoReservaRegistrada.setText("Teléfono: -");
+        lblFechaReservaRegistrada.setText("Fecha: -");
+        lblMetodoPagoReservaRegistrada.setText("Método de pago: " + metodoContexto);
+        lblEstadoRegistrado.setText("Estado: Registrada");
+        lblTotalReservaRegistrada.setText("Bs. 0.00");
+        return;
+    }
+
+    String cliente = textoSeguro(reserva.getNombreCliente(), clienteContexto);
+    String telefono = textoSeguro(reserva.getTelefono(), "-");
+    String fecha = reserva.getFechaReserva() == null
+            ? "-"
+            : reserva.getFechaReserva().toString();
+
+    lblNumeroReservaRegistrada.setText("Reserva N.º " + String.format("%03d", reserva.getId()));
+    lblClienteReservaRegistrada.setText("Cliente: " + cliente);
+    lblTelefonoReservaRegistrada.setText("Teléfono: " + telefono);
+    lblFechaReservaRegistrada.setText("Fecha: " + fecha);
+    lblMetodoPagoReservaRegistrada.setText("Método de pago: " + metodoContexto);
+    lblEstadoRegistrado.setText("Estado: " + obtenerEstadoReservaRegistradaVisual(reserva));
+    lblTotalReservaRegistrada.setText("Bs. " + String.format("%.2f", reserva.calcularTotal()));
     }
     
         private void cargarImagen(JLabel label, String ruta){
@@ -577,6 +590,229 @@ public class ReservaRegistradaGUI extends javax.swing.JFrame {
     }
     }
     
+        private void inicializarVentanaReservaRegistrada() {
+    aplicarEstructuraVisualCajero();
+    reconstruirInterfazReservaRegistrada();
+
+    mostrarUsuario();
+    configurarHover();
+    activarBoton(btnUsuarios);
+
+    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+    cargarDatosReservaRegistrada();
+}
+        
+       
+        private void aplicarEstructuraVisualCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    if (lblLogo != null) {
+        lblLogo.setPreferredSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMinimumSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMaximumSize(new java.awt.Dimension(75, 75));
+    }
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    Encabezado.setMinimumSize(new java.awt.Dimension(1280, 100));
+
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    PiePag.setMinimumSize(new java.awt.Dimension(1280, 47));
+
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMinimumSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMaximumSize(new java.awt.Dimension(280, 573));
+
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+
+    reconstruirEstructuraBaseCajero();
+
+    revalidate();
+    repaint();
+}
+        
+        
+        
+        private void reconstruirEstructuraBaseCajero() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout(0, 0));
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    configurarBarraLateral();
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout(0, 0));
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.setPreferredSize(new java.awt.Dimension(1280, 573));
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+}
+        
+        
+        private void configurarBarraLateral() {
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    configurarBotonLateral(btnInicio, tamBoton);
+    configurarBotonLateral(btnUsuarios, tamBoton);
+    configurarBotonLateral(btnReportes, tamBoton);
+    configurarBotonLateral(btnCerrar, tamBoton);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+}
+        
+        private void configurarBotonLateral(javax.swing.JButton boton, java.awt.Dimension tamano) {
+    boton.setPreferredSize(tamano);
+    boton.setMinimumSize(tamano);
+    boton.setMaximumSize(tamano);
+    boton.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    boton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+    boton.setFocusPainted(false);
+}
+        
+    
+    private void reconstruirInterfazReservaRegistrada() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout());
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(45, 70, 45, 70));
+
+    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    panelContenido.setOpaque(false);
+    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+
+    jLabel19.setText("RESERVA REGISTRADA");
+    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jButton2.setText("VER RESERVAS");
+
+    jPanel2.removeAll();
+    jPanel2.setBackground(java.awt.Color.WHITE);
+    jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(25, 35, 25, 35)
+    ));
+    jPanel2.setMaximumSize(new java.awt.Dimension(720, 440));
+    jPanel2.setPreferredSize(new java.awt.Dimension(720, 440));
+    jPanel2.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jPanel2.setLayout(new java.awt.BorderLayout());
+
+    javax.swing.JPanel panelSuperior = new javax.swing.JPanel();
+    panelSuperior.setOpaque(false);
+    panelSuperior.setLayout(new javax.swing.BoxLayout(panelSuperior, javax.swing.BoxLayout.Y_AXIS));
+
+    jLabel7.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    jLabel6.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    jSeparator1.setMaximumSize(new java.awt.Dimension(620, 10));
+
+    panelSuperior.add(jLabel7);
+    panelSuperior.add(javax.swing.Box.createVerticalStrut(5));
+    panelSuperior.add(jLabel6);
+    panelSuperior.add(javax.swing.Box.createVerticalStrut(10));
+    panelSuperior.add(jSeparator1);
+
+    javax.swing.JPanel panelDatos = new javax.swing.JPanel();
+    panelDatos.setOpaque(false);
+    panelDatos.setLayout(new javax.swing.BoxLayout(panelDatos, javax.swing.BoxLayout.Y_AXIS));
+    panelDatos.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 0, 10, 0));
+
+    panelDatos.add(lblNumeroReservaRegistrada);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(14));
+    panelDatos.add(lblClienteReservaRegistrada);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(14));
+    panelDatos.add(lblTelefonoReservaRegistrada);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(14));
+    panelDatos.add(lblFechaReservaRegistrada);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(14));
+    panelDatos.add(lblMetodoPagoReservaRegistrada);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(14));
+    panelDatos.add(lblEstadoRegistrado);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(20));
+
+    javax.swing.JPanel panelTotal = new javax.swing.JPanel(new java.awt.BorderLayout());
+    panelTotal.setOpaque(false);
+    panelTotal.add(jLabel13, java.awt.BorderLayout.WEST);
+    panelTotal.add(lblTotalReservaRegistrada, java.awt.BorderLayout.EAST);
+    panelDatos.add(panelTotal);
+
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel();
+    panelBotones.setOpaque(false);
+    panelBotones.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 55, 0));
+    panelBotones.add(jButton1);
+    panelBotones.add(jButton2);
+
+    jButton1.setPreferredSize(new java.awt.Dimension(245, 42));
+    jButton2.setPreferredSize(new java.awt.Dimension(210, 42));
+
+    jPanel2.add(panelSuperior, java.awt.BorderLayout.NORTH);
+    jPanel2.add(panelDatos, java.awt.BorderLayout.CENTER);
+    jPanel2.add(panelBotones, java.awt.BorderLayout.SOUTH);
+
+    panelContenido.add(jLabel19);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(12));
+    panelContenido.add(jPanel2);
+
+    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+
+
+private String textoSeguro(String valor, String defecto) {
+    if (valor == null || valor.trim().isEmpty()) {
+        return defecto;
+    }
+
+    return valor.trim();
+}
+
+private String obtenerEstadoReservaRegistradaVisual(pizzeria.model.Reserva reserva) {
+    if (reserva == null || reserva.getEstado() == null) {
+        return "Registrada";
+    }
+
+    switch (reserva.getEstado()) {
+        case PENDIENTE:
+            return "Pendiente";
+        case EN_COCINA:
+            return "En cocina";
+        case LISTA:
+            return "Lista";
+        case ENTREGADA:
+            return "Entregada";
+        case CANCELADA:
+            return "Cancelada";
+        default:
+            return reserva.getEstado().name();
+    }
+}
+    
+        
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

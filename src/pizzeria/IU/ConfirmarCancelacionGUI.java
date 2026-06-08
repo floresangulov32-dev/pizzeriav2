@@ -18,38 +18,27 @@ public class ConfirmarCancelacionGUI extends javax.swing.JFrame {
     /**
      * Creates new form MenuGerente
      */
-    public ConfirmarCancelacionGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    }
-    
    
     
-    public ConfirmarCancelacionGUI(String rol, String nombre) {
-    initComponents();
-    setSize(1280, 720);
-    setLocationRelativeTo(null);
-    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-    BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-    this.rolUsuario = rol;
-    this.nombreUsuario = nombre;
-    mostrarUsuario();
-    configurarHover();        
-    activarBoton(btnInicio);
-    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    
-    
-    
-}
+   
+        
+        public ConfirmarCancelacionGUI() {
+            initComponents();
+
+            this.rolUsuario = "Cajero";
+            this.nombreUsuario = "";
+
+            inicializarVentanaConfirmarCancelacion();
+        }
+
+        public ConfirmarCancelacionGUI(String rol, String nombre) {
+            initComponents();
+
+            this.rolUsuario = rol;
+            this.nombreUsuario = nombre;
+
+            inicializarVentanaConfirmarCancelacion();
+        }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -420,7 +409,19 @@ public class ConfirmarCancelacionGUI extends javax.swing.JFrame {
     
     private void mostrarUsuario() {
     
+         if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+        rolUsuario = "Cajero";
+    }
+
+    if (nombreUsuario == null) {
+        nombreUsuario = "";
+    }
+
+    if (nombreUsuario.trim().isEmpty()) {
+        Rol.setText(rolUsuario);
+    } else {
         Rol.setText(rolUsuario + ": " + nombreUsuario);
+    }
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -494,6 +495,176 @@ public class ConfirmarCancelacionGUI extends javax.swing.JFrame {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
     }
+    
+    private void inicializarVentanaConfirmarCancelacion() {
+        aplicarEstructuraVisualCajero();
+        reconstruirInterfazConfirmarCancelacion();
+
+        mostrarUsuario();
+        configurarHover();
+        activarBoton(btnInicio);
+
+        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+    }
+    
+    private void aplicarEstructuraVisualCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    if (lblLogo != null) {
+        lblLogo.setPreferredSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMinimumSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMaximumSize(new java.awt.Dimension(75, 75));
+    }
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    Encabezado.setMinimumSize(new java.awt.Dimension(1280, 100));
+
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    PiePag.setMinimumSize(new java.awt.Dimension(1280, 47));
+
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMinimumSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMaximumSize(new java.awt.Dimension(280, 573));
+
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+
+    reconstruirEstructuraBaseCajero();
+
+    revalidate();
+    repaint();
+}
+    
+    private void reconstruirEstructuraBaseCajero() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout(0, 0));
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    configurarBarraLateral();
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout(0, 0));
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.setPreferredSize(new java.awt.Dimension(1280, 573));
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+}
+    
+    private void configurarBarraLateral() {
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    configurarBotonLateral(btnInicio, tamBoton);
+    configurarBotonLateral(btnUsuarios, tamBoton);
+    configurarBotonLateral(btnReportes, tamBoton);
+    configurarBotonLateral(btnCerrar, tamBoton);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+}
+    
+    
+    private void reconstruirInterfazConfirmarCancelacion() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout());
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(45, 70, 45, 70));
+
+    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    panelContenido.setOpaque(false);
+    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+
+    jLabel19.setText("CANCELAR COBRO");
+    jLabel7.setText("Esta acción no se puede deshacer.");
+
+    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel7.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jPanel2.removeAll();
+    jPanel2.setBackground(java.awt.Color.WHITE);
+    jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(35, 35, 35, 35)
+    ));
+    jPanel2.setMaximumSize(new java.awt.Dimension(760, 230));
+    jPanel2.setPreferredSize(new java.awt.Dimension(760, 230));
+    jPanel2.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jPanel2.setLayout(new java.awt.BorderLayout());
+
+    javax.swing.JPanel panelTexto = new javax.swing.JPanel();
+    panelTexto.setOpaque(false);
+    panelTexto.setLayout(new javax.swing.BoxLayout(panelTexto, javax.swing.BoxLayout.Y_AXIS));
+
+    jLabel3.setText("¿Estás seguro de cancelar el cobro?");
+    jLabel6.setText("Si confirmas, el pedido no será registrado y el cobro será cancelado.");
+
+    jLabel3.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel6.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    panelTexto.add(jLabel3);
+    panelTexto.add(javax.swing.Box.createVerticalStrut(18));
+    panelTexto.add(jLabel6);
+
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel();
+    panelBotones.setOpaque(false);
+    panelBotones.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 60, 0));
+
+    jButton1.setText("CONFIRMAR CANCELACIÓN");
+    jButton2.setText("VOLVER AL COBRO");
+
+    jButton1.setPreferredSize(new java.awt.Dimension(245, 42));
+    jButton2.setPreferredSize(new java.awt.Dimension(210, 42));
+
+    panelBotones.add(jButton1);
+    panelBotones.add(jButton2);
+
+    jPanel2.add(panelTexto, java.awt.BorderLayout.CENTER);
+    jPanel2.add(panelBotones, java.awt.BorderLayout.SOUTH);
+
+    panelContenido.add(jLabel19);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(jLabel7);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(28));
+    panelContenido.add(jPanel2);
+
+    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+    
+    private void configurarBotonLateral(javax.swing.JButton boton, java.awt.Dimension tamano) {
+    boton.setPreferredSize(tamano);
+    boton.setMinimumSize(tamano);
+    boton.setMaximumSize(tamano);
+    boton.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    boton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+    boton.setFocusPainted(false);
+}
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

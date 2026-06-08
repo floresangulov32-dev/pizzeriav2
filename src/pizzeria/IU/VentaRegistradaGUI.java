@@ -18,40 +18,22 @@ public class VentaRegistradaGUI extends javax.swing.JFrame {
     /**
      * Creates new form MenuGerente
      */
-    public VentaRegistradaGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        
-        cargarDatosVentaRegistrada();
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    }
-    
-   
-    
-    public VentaRegistradaGUI(String rol, String nombre) {
+   public VentaRegistradaGUI() {
     initComponents();
-    setSize(1280, 720);
-    setLocationRelativeTo(null);
-    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-    BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+
+    this.rolUsuario = "Cajero";
+    this.nombreUsuario = "";
+
+    inicializarVentanaVentaRegistrada();
+}
+
+public VentaRegistradaGUI(String rol, String nombre) {
+    initComponents();
+
     this.rolUsuario = rol;
     this.nombreUsuario = nombre;
-    mostrarUsuario();
-    configurarHover();        
-    activarBoton(btnInicio);
-    
-    cargarDatosVentaRegistrada();
-    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    
-    
+
+    inicializarVentanaVentaRegistrada();
 }
 
     /**
@@ -458,9 +440,16 @@ public class VentaRegistradaGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        ContextoVentasGUI.getInstancia().getGestorVenta().crearVenta(1);
-        new NuevoPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
-        this.dispose();
+        ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .cancelarArmadoPedido();
+
+    ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .crearVenta(1);
+
+    new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -471,7 +460,19 @@ public class VentaRegistradaGUI extends javax.swing.JFrame {
     
     private void mostrarUsuario() {
     
+        if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+        rolUsuario = "Cajero";
+    }
+
+    if (nombreUsuario == null) {
+        nombreUsuario = "";
+    }
+
+    if (nombreUsuario.trim().isEmpty()) {
+        Rol.setText(rolUsuario);
+    } else {
         Rol.setText(rolUsuario + ": " + nombreUsuario);
+    }
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -527,52 +528,276 @@ public class VentaRegistradaGUI extends javax.swing.JFrame {
     }
     
     private void cargarDatosVentaRegistrada() {
-        pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
+                pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
             .getUltimaVentaRegistrada();
 
-        ContextoVentasGUI contexto = ContextoVentasGUI.getInstancia();
+    ContextoVentasGUI contexto = ContextoVentasGUI.getInstancia();
 
-        if (venta == null) {
-            lblNumeroVentaRegistrada.setText("Venta N.º -");
-            lblClienteRegistrado.setText("Cliente: " + contexto.getClienteCobro());
-            lblMetodoPagoRegistrado.setText("Método de pago: " + contexto.getMetodoPagoCobro());
-            lblEstadoRegistrado.setText("Estado: Registrado");
-            lblTotalRegistrado.setText("Bs. 0.00");
-            lblCambioRegistrado.setText("Cambio: Bs. " + String.format("%.2f", contexto.getCambioCobro()));
-            return;
-        }
+    String clienteContexto = textoSeguro(contexto.getClienteCobro(), "Sin nombre");
+    String metodoContexto = textoSeguro(contexto.getMetodoPagoCobro(), "No especificado");
 
-        venta.calcularTotal();
+    if (venta == null) {
+        lblNumeroVentaRegistrada.setText("Venta N.º -");
+        lblClienteRegistrado.setText("Cliente: " + clienteContexto);
+        lblMetodoPagoRegistrado.setText("Método de pago: " + metodoContexto);
+        lblEstadoRegistrado.setText("Estado: Registrado");
+        lblTotalRegistrado.setText("Bs. 0.00");
+        lblCambioRegistrado.setText("Cambio: Bs. "
+                + String.format("%.2f", contexto.getCambioCobro()));
+        return;
+    }
 
-        lblNumeroVentaRegistrada.setText("Venta N.º " + String.format("%03d", venta.getId()));
-        lblClienteRegistrado.setText("Cliente: " + contexto.getClienteCobro());
-        lblMetodoPagoRegistrado.setText("Método de pago: " + contexto.getMetodoPagoCobro());
-        lblEstadoRegistrado.setText("Estado: " + contexto.getTipoPedidoCobro() + " registrada");
-        lblTotalRegistrado.setText("Bs. " + String.format("%.2f", venta.getTotal()));
-        lblCambioRegistrado.setText("Cambio: Bs. " + String.format("%.2f", contexto.getCambioCobro()));
+    venta.calcularTotal();
+
+    String cliente = textoSeguro(venta.getNombreCliente(), clienteContexto);
+
+    lblNumeroVentaRegistrada.setText("Venta N.º " + String.format("%03d", venta.getId()));
+    lblClienteRegistrado.setText("Cliente: " + cliente);
+    lblMetodoPagoRegistrado.setText("Método de pago: " + metodoContexto);
+    lblEstadoRegistrado.setText("Estado: " + obtenerEstadoVentaRegistradaVisual(venta));
+    lblTotalRegistrado.setText("Bs. " + String.format("%.2f", venta.getTotal()));
+    lblCambioRegistrado.setText("Cambio: Bs. "
+            + String.format("%.2f", contexto.getCambioCobro()));
     }
     
-    private void cargarImagen(JLabel label, String ruta){
-     label.setText("");
+    private String textoSeguro(String valor, String defecto) {
+    if (valor == null || valor.trim().isEmpty()) {
+        return defecto;
+    }
+
+    return valor.trim();
+}
+    
+    
+    private String obtenerEstadoVentaRegistradaVisual(pizzeria.model.Venta venta) {
+    if (venta == null || venta.getEstado() == null) {
+        return "Registrada";
+    }
+
+    switch (venta.getEstado()) {
+        case PENDIENTE:
+            return "Pendiente para cocina";
+        case EN_PREPARACION:
+            return "En preparación";
+        case LISTO:
+            return "Listo para entregar";
+        case ENTREGADO:
+            return "Entregado";
+        case CANCELADO:
+            return "Cancelado";
+        default:
+            return venta.getEstado().name();
+    }
+}
+    private void inicializarVentanaVentaRegistrada() {
+    aplicarEstructuraVisualCajero();
+    reconstruirInterfazVentaRegistrada();
+
+    mostrarUsuario();
+    configurarHover();
+    activarBoton(btnInicio);
+
+    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+    cargarDatosVentaRegistrada();
+}
+    private void aplicarEstructuraVisualCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    if (lblLogo != null) {
+        lblLogo.setPreferredSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMinimumSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMaximumSize(new java.awt.Dimension(75, 75));
+    }
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    Encabezado.setMinimumSize(new java.awt.Dimension(1280, 100));
+
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    PiePag.setMinimumSize(new java.awt.Dimension(1280, 47));
+
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMinimumSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMaximumSize(new java.awt.Dimension(280, 573));
+
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+
+    reconstruirEstructuraBaseCajero();
+
+    revalidate();
+    repaint();
+}
+   
+    
+    private void reconstruirEstructuraBaseCajero() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout(0, 0));
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    configurarBarraLateral();
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout(0, 0));
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.setPreferredSize(new java.awt.Dimension(1280, 573));
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+}
+    
+    private void configurarBarraLateral() {
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    configurarBotonLateral(btnInicio, tamBoton);
+    configurarBotonLateral(btnUsuarios, tamBoton);
+    configurarBotonLateral(btnReportes, tamBoton);
+    configurarBotonLateral(btnCerrar, tamBoton);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+}
+    
+    
+    private void configurarBotonLateral(javax.swing.JButton boton, java.awt.Dimension tamano) {
+    boton.setPreferredSize(tamano);
+    boton.setMinimumSize(tamano);
+    boton.setMaximumSize(tamano);
+    boton.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    boton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+    boton.setFocusPainted(false);
+}
+    
+    private void reconstruirInterfazVentaRegistrada() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout());
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(45, 70, 45, 70));
+
+    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    panelContenido.setOpaque(false);
+    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+
+    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jPanel2.removeAll();
+    jPanel2.setBackground(java.awt.Color.WHITE);
+    jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(25, 35, 25, 35)
+    ));
+    jPanel2.setMaximumSize(new java.awt.Dimension(720, 420));
+    jPanel2.setPreferredSize(new java.awt.Dimension(720, 420));
+    jPanel2.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jPanel2.setLayout(new java.awt.BorderLayout());
+
+    javax.swing.JPanel panelSuperior = new javax.swing.JPanel();
+    panelSuperior.setOpaque(false);
+    panelSuperior.setLayout(new javax.swing.BoxLayout(panelSuperior, javax.swing.BoxLayout.Y_AXIS));
+
+    jLabel7.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    jLabel6.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    jSeparator1.setMaximumSize(new java.awt.Dimension(620, 10));
+
+    panelSuperior.add(jLabel7);
+    panelSuperior.add(javax.swing.Box.createVerticalStrut(5));
+    panelSuperior.add(jLabel6);
+    panelSuperior.add(javax.swing.Box.createVerticalStrut(10));
+    panelSuperior.add(jSeparator1);
+
+    javax.swing.JPanel panelDatos = new javax.swing.JPanel();
+    panelDatos.setOpaque(false);
+    panelDatos.setLayout(new javax.swing.BoxLayout(panelDatos, javax.swing.BoxLayout.Y_AXIS));
+    panelDatos.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 0, 10, 0));
+
+    panelDatos.add(lblNumeroVentaRegistrada);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(16));
+    panelDatos.add(lblClienteRegistrado);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(16));
+    panelDatos.add(lblMetodoPagoRegistrado);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(16));
+    panelDatos.add(lblEstadoRegistrado);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(16));
+    panelDatos.add(lblCambioRegistrado);
+    panelDatos.add(javax.swing.Box.createVerticalStrut(20));
+
+    javax.swing.JPanel panelTotal = new javax.swing.JPanel(new java.awt.BorderLayout());
+    panelTotal.setOpaque(false);
+    panelTotal.add(jLabel13, java.awt.BorderLayout.WEST);
+    panelTotal.add(lblTotalRegistrado, java.awt.BorderLayout.EAST);
+    panelDatos.add(panelTotal);
+
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel();
+    panelBotones.setOpaque(false);
+    panelBotones.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 55, 0));
+    panelBotones.add(jButton1);
+    panelBotones.add(jButton2);
+
+    jButton1.setPreferredSize(new java.awt.Dimension(245, 42));
+    jButton2.setPreferredSize(new java.awt.Dimension(210, 42));
+
+    jPanel2.add(panelSuperior, java.awt.BorderLayout.NORTH);
+    jPanel2.add(panelDatos, java.awt.BorderLayout.CENTER);
+    jPanel2.add(panelBotones, java.awt.BorderLayout.SOUTH);
+
+    panelContenido.add(jLabel19);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(12));
+    panelContenido.add(jPanel2);
+
+    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+    
+    
+    private void cargarImagen(JLabel label, String ruta) {
+    label.setText("");
+
     try {
         java.io.File archivo = new java.io.File(ruta);
+
         if (!archivo.exists()) {
             System.err.println("Imagen no encontrada: " + ruta);
             return;
         }
+
         ImageIcon icono = new ImageIcon(archivo.getAbsolutePath());
+
         Image imgEscalada = icono.getImage().getScaledInstance(
-            label.getPreferredSize().width,
-            label.getPreferredSize().height,
-            Image.SCALE_SMOOTH
+                label.getPreferredSize().width,
+                label.getPreferredSize().height,
+                Image.SCALE_SMOOTH
         );
+
         label.setIcon(new ImageIcon(imgEscalada));
+
     } catch (Exception e) {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
-    }
-    
-    
+}
     
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
