@@ -31,6 +31,9 @@ public class BuscarInsumos extends javax.swing.JFrame {
     /**
      * Creates new form BuscarInsumos
      */
+    public Inventario getInventario() {
+        return inventario;
+    }
     public BuscarInsumos() {
         initComponents();
         inventario.cargarArchivo();
@@ -431,8 +434,7 @@ public class BuscarInsumos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnActualizarStockActionPerformed
 
     private void btnEliminarInsumoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarInsumoActionPerformed
-         int filaSeleccionada = jTable1.getSelectedRow();
-
+        int filaSeleccionada = jTable1.getSelectedRow();
         if (filaSeleccionada == -1) {
         javax.swing.JOptionPane.showMessageDialog(
                 this,
@@ -440,11 +442,8 @@ public class BuscarInsumos extends javax.swing.JFrame {
             );
             return;
         }
-
         int id = (int) jTable1.getValueAt(filaSeleccionada, 0);
-
         Insumo ins = inventario.buscarId(id);
-
         if (ins == null) {
             javax.swing.JOptionPane.showMessageDialog(
             this,
@@ -452,7 +451,6 @@ public class BuscarInsumos extends javax.swing.JFrame {
             );
             return;
         }
-
         int opcion = javax.swing.JOptionPane.showConfirmDialog(
             this,
             "¿Está seguro de que desea eliminar el insumo \"" +
@@ -461,23 +459,22 @@ public class BuscarInsumos extends javax.swing.JFrame {
             javax.swing.JOptionPane.YES_NO_OPTION,
             javax.swing.JOptionPane.WARNING_MESSAGE
         );
-
         if (opcion == javax.swing.JOptionPane.YES_OPTION) {
-
             inventario.eliminarInsumo(id);
             inventario.guardarArchivo();
-
             javax.swing.JOptionPane.showMessageDialog(
                 this,
                 "Insumo eliminado correctamente."
             );
-
         configurarTabla();
     }
     }//GEN-LAST:event_btnEliminarInsumoActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
-        new InventarioPantallaInicial(rolUsuario, nombreUsuario).setVisible(true);
+        InventarioPantallaInicial inv = new InventarioPantallaInicial(rolUsuario, nombreUsuario);
+        inv.setSize(this.getSize());
+        inv.setLocation(this.getLocation());
+        inv.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVolverActionPerformed
 
