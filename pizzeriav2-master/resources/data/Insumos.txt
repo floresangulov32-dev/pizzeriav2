@@ -1,0 +1,38 @@
+# Sistema Pizzeria — Inventario de insumos
+# Formato: id,nombre,unidad,stockActual,stockMinimo,precioCompra,cantPorPizza
+1,Queso Mozzarella,kg,1.6930901125533637E-14,15.0,20.0,0.2
+2,Salsa de Tomate,lt,14.600000000000005,10.0,12.5,0.1
+3,Pepperoni,kg,19.85,5.0,28.0,0.15
+4,Queso Cheddar,kg,30.0,10.0,25.0,0.1
+5,Queso Parmesano,kg,30.0,10.0,30.0,0.05
+6,Queso Roquefort,kg,29.7,10.0,30.0,0.05
+7,Jamón,kg,43.440000000000005,20.0,17.0,0.12
+8,Champiñon,kg,23.0,14.0,27.0,0.1
+9,Alcachofa,kg,11.0,3.0,15.0,0.08
+10,Anchoas,kg,11.8,2.0,13.0,0.05
+11,Orégano,gr,390.0,100.0,3.5,5.0
+12,Aceituna verde,kg,14.719999999999999,6.0,22.0,0.07
+13,Aceituna negra,kg,14.719999999999999,6.0,27.0,0.07
+14,Pimentón,kg,10.559999999999999,4.0,18.0,0.08
+15,Albahaca,kg,10.1,7.0,19.5,0.03
+16,Salame,kg,15.0,6.0,23.0,0.12
+17,Choclo,kg,19.8,7.0,23.0,0.1
+18,Tocino,kg,11.100000000000003,9.0,27.0,0.1
+19,Tomate,kg,6.52,10.0,18.0,0.12
+20,Morrones,kg,15.0,3.0,12.0,0.1
+21,Chorizo,kg,19.85,10.0,19.5,0.15
+22,Salchicha Roja,kg,17.84,7.0,14.0,0.12
+23,Jamón serrano,kg,12.0,2.0,26.0,0.08
+24,Cebolla,kg,2.700000000000002,2.0,12.0,0.1
+25,Rúcula,kg,9.7,2.0,14.5,0.05
+26,Miel,lt,8.790000000000001,1.0,16.0,0.03
+27,Red Pepper,kg,14.98,5.0,14.7,0.02
+28,Uchu,kg,16.98,3.0,12.8,0.02
+29,Piña,kg,18.550000000000004,12.0,9.8,0.15
+30,Nuez,gr,330.0,250.0,2.5,10.0
+31,Masa,kg,259.75,150.0,8.6,0.25
+32,prueba baja,kg,20.0,30.0,13.0,123.0
+33,cacahuate,g,40.0,20.0,5.0,7.0
+34,sprite,unidad,20.0,10.0,15.0,1.0
+35,coca cola,unidad,20.0,10.0,15.0,1.0
+36,fanta,unidad,29.0,10.0,15.0,1.0

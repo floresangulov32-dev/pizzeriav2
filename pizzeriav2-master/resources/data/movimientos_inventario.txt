@@ -1,0 +1,54 @@
+# Sistema Pizzeria — Movimientos de Inventario
+# Formato: id|idInsumo|nombreInsumo|tipoMovimiento|cantidad|stockResultante|usuario|observacion|fecha
+1|1|Harina de trigo|ENTRADA|50.000|150.000|admin|Compra inicial - 10 sacos de 5kg|2026-04-01 10:00
+2|2|Queso mozzarella|ENTRADA|30.000|80.000|admin|Compra inicial - 3 bloques de 10kg|2026-04-01 10:15
+3|3|Salsa de tomate|ENTRADA|20.000|50.000|admin|Compra inicial - 20 latas de 1kg|2026-04-01 10:30
+4|4|Pepperoni|ENTRADA|15.000|40.000|admin|Compra inicial - 15 paquetes|2026-04-01 10:45
+5|5|Jamón|ENTRADA|25.000|60.000|admin|Compra inicial - 25 paquetes|2026-04-01 11:00
+6|6|Aceite de oliva|ENTRADA|10.000|25.000|admin|Compra inicial - 10 botellas de 1L|2026-04-01 11:15
+7|7|Cebolla|ENTRADA|20.000|40.000|admin|Compra inicial - 20kg|2026-04-01 11:30
+8|8|Pimiento|ENTRADA|15.000|30.000|admin|Compra inicial - 15kg|2026-04-01 11:45
+9|9|Hongos|ENTRADA|8.000|20.000|admin|Compra inicial - 8 bandejas|2026-04-01 12:00
+10|10|Orégano|ENTRADA|5.000|15.000|admin|Compra inicial - 5 bolsas de 1kg|2026-04-01 12:15
+11|1|Harina de trigo|SALIDA|2.500|147.500|cajero1|Uso en pizzas del día|2026-04-02 20:00
+12|2|Queso mozzarella|SALIDA|3.000|77.000|cajero1|Uso en pizzas del día|2026-04-02 20:05
+13|3|Salsa de tomate|SALIDA|1.500|48.500|cajero1|Uso en pizzas del día|2026-04-02 20:10
+14|6|Aceite de oliva|SALIDA|0.500|24.500|cajero1|Uso en pizzas del día|2026-04-02 20:15
+15|1|Harina de trigo|SALIDA|3.000|144.500|cajero1|Ventas del día|2026-04-03 21:00
+16|2|Queso mozzarella|SALIDA|3.500|73.500|cajero1|Ventas del día|2026-04-03 21:05
+17|3|Salsa de tomate|SALIDA|2.000|46.500|cajero1|Ventas del día|2026-04-03 21:10
+18|4|Pepperoni|SALIDA|1.500|38.500|cajero1|Ventas del día - pizzas pepperoni|2026-04-03 21:15
+19|5|Jamón|SALIDA|2.000|58.000|cajero1|Ventas del día|2026-04-03 21:20
+20|1|Harina de trigo|ENTRADA|25.000|169.500|admin|Reabastecimiento de harina|2026-04-04 09:30
+21|2|Queso mozzarella|ENTRADA|15.000|88.500|admin|Reabastecimiento de queso|2026-04-04 09:45
+22|1|Harina de trigo|SALIDA|4.000|165.500|cajero2|Ventas del día|2026-04-05 20:30
+23|2|Queso mozzarella|SALIDA|4.000|84.500|cajero2|Ventas del día|2026-04-05 20:35
+24|3|Salsa de tomate|SALIDA|2.500|44.000|cajero2|Ventas del día|2026-04-05 20:40
+25|7|Cebolla|SALIDA|1.500|38.500|cajero2|Uso en preparación|2026-04-05 20:45
+26|8|Pimiento|SALIDA|1.000|29.000|cajero2|Uso en preparación|2026-04-05 20:50
+27|9|Hongos|SALIDA|0.800|19.200|cajero2|Uso en preparación|2026-04-05 20:55
+28|1|Harina de trigo|ENTRADA|30.000|195.500|admin|Compra semanal - 6 sacos de 5kg|2026-04-06 08:00
+29|2|Queso mozzarella|ENTRADA|20.000|104.500|admin|Compra semanal - 2 bloques de 10kg|2026-04-06 08:15
+30|4|Pepperoni|ENTRADA|10.000|48.500|admin|Reabastecimiento de pepperoni|2026-04-06 08:30
+31|5|Jamón|ENTRADA|10.000|68.000|admin|Reabastecimiento de jamón|2026-04-06 08:45
+32|6|Aceite de oliva|ENTRADA|5.000|29.500|admin|Compra de aceite|2026-04-06 09:00
+33|1|Harina de trigo|SALIDA|5.000|190.500|cajero1|Ventas fin de semana|2026-04-07 22:00
+34|2|Queso mozzarella|SALIDA|5.000|99.500|cajero1|Ventas fin de semana|2026-04-07 22:05
+35|3|Salsa de tomate|SALIDA|3.000|41.000|cajero1|Ventas fin de semana|2026-04-07 22:10
+36|4|Pepperoni|SALIDA|2.000|46.500|cajero1|Ventas fin de semana|2026-04-07 22:15
+37|5|Jamón|SALIDA|2.500|65.500|cajero1|Ventas fin de semana|2026-04-07 22:20
+38|7|Cebolla|SALIDA|2.000|36.500|cajero1|Preparación del día|2026-04-07 22:25
+39|8|Pimiento|SALIDA|1.500|27.500|cajero1|Preparación del día|2026-04-07 22:30
+40|10|Orégano|SALIDA|0.500|14.500|cajero1|Preparación del día|2026-04-07 22:35
+41|1|Harina de trigo|ENTRADA|40.000|230.500|gerente|Compra mayorista|2026-04-08 07:30
+42|2|Queso mozzarella|ENTRADA|25.000|124.500|gerente|Compra mayorista|2026-04-08 07:45
+43|3|Salsa de tomate|SALIDA|2.000|39.000|cajero2|Uso diario|2026-04-08 21:00
+44|6|Aceite de oliva|SALIDA|0.800|28.700|cajero2|Uso diario|2026-04-08 21:05
+45|9|Hongos|SALIDA|1.000|18.200|cajero2|Uso diario - pizzas especiales|2026-04-08 21:10
+46|1|Harina de trigo|SALIDA|6.000|224.500|cajero2|Ventas del día|2026-04-09 20:30
+47|2|Queso mozzarella|SALIDA|6.000|118.500|cajero2|Ventas del día|2026-04-09 20:35
+48|3|Salsa de tomate|SALIDA|3.500|35.500|cajero2|Ventas del día|2026-04-09 20:40
+49|4|Pepperoni|SALIDA|2.500|44.000|cajero2|Ventas del día|2026-04-09 20:45
+50|5|Jamón|SALIDA|3.000|62.500|cajero2|Ventas del día|2026-04-09 20:50
+51|1|Harina de trigo|ENTRADA|20.000|244.500|admin|Reabastecimiento urgente|2026-04-10 14:00
+52|2|Queso mozzarella|ENTRADA|10.000|128.500|admin|Reabastecimiento urgente|2026-04-10 14:15
