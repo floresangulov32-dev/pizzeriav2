@@ -593,20 +593,20 @@ private void cargarTablaCombos() {
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         this.dispose();
     
-    if (rolUsuario == null || rolUsuario.isEmpty()) {
-        // Vino desde PantallaInicial
-        new PantallaInicial().setVisible(true);
-        
-    } else if (rolUsuario.equalsIgnoreCase("CLIENTE")) {
-        // Vino desde InterfazCliente
-        new InterfazCliente(rolUsuario, nombreUsuario).setVisible(true);
-        
-    } else if (rolUsuario.equalsIgnoreCase("GERENTE")){
-        // Vino desde GestionMenu (Gerente u otro rol)
-        new GestionMenu(rolUsuario, nombreUsuario).setVisible(true);
-    }else {
-        new VentasGUI(rolUsuario, nombreUsuario).setVisible(true);
-    }
+        if (rolUsuario == null || rolUsuario.isEmpty()) {
+            // Vino desde PantallaInicial
+            new PantallaInicial().setVisible(true);
+
+        } else if (rolUsuario.equalsIgnoreCase("CLIENTE")) {
+            // Vino desde InterfazCliente
+            new InterfazCliente(rolUsuario, nombreUsuario).setVisible(true);
+
+        } else if (rolUsuario.equalsIgnoreCase("GERENTE")){
+            // Vino desde GestionMenu (Gerente u otro rol)
+            new GestionMenu(rolUsuario, nombreUsuario).setVisible(true);
+        }else {
+            new VentasGUI(rolUsuario, nombreUsuario).setVisible(true);
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
     
     private void mostrarUsuario() {
