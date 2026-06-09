@@ -21,13 +21,16 @@ public class ReporteListaUsuariosGUI extends JPanel {
     public ReporteListaUsuariosGUI() {
         gestorUsuarios = new GestorUsuarios();
         gestorUsuarios.cargarDesdeArchivo();
-        
-        initComponents(); // NetBeans crea todos los componentes
-        
-        // Personalizar después de initComponents
+
+        initComponents();
+
         personalizarComponentes();
         configurarTabla();
-        cargarDatos();
+
+        // Cargar datos DESPUÉS de que Swing termine de construir la UI
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            cargarDatos();
+        });
     }
     
     private void personalizarComponentes() {
