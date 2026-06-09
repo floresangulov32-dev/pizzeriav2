@@ -20,47 +20,60 @@ public class ConsultarVentasGUI extends javax.swing.JFrame {
      * Creates new form MenuGerente
      */
     public ConsultarVentasGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-        cargarHistorialVentas();
-        txtBuscarVentaId.addActionListener(e -> buscarVentaPorId());
-        tblHistorialVentas.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                mostrarVentaSeleccionada();
-            }
-        });
-    }
+    initComponents();
+
+    this.rolUsuario = "Cajero";
+    this.nombreUsuario = "";
+
+    aplicarEstructuraVisualCajero();
+    reconstruirInterfazConsultarVentas();
+    mostrarUsuario();
+
+    configurarHover();
+    activarBoton(btnInicio);
+
+    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+
+    configurarTablaVentas();
+    cargarHistorialVentas();
+
+    txtBuscarVentaId.addActionListener(e -> buscarVentaPorId());
+
+    tblHistorialVentas.getSelectionModel().addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            mostrarVentaSeleccionada();
+        }
+    });
+}
     
    
     
-    public ConsultarVentasGUI(String rol, String nombre) {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        this.rolUsuario = rol;
-        this.nombreUsuario = nombre;
-        mostrarUsuario();
-        configurarHover();        
-        activarBoton(btnInicio);
+        public ConsultarVentasGUI(String rol, String nombre) {
+    initComponents();
 
-        cargarHistorialVentas();
-        ////por si acaso para buscar con enter en constructor con argumentos
-        ///
-        txtBuscarVentaId.addActionListener(e -> buscarVentaPorId());
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+    this.rolUsuario = rol;
+    this.nombreUsuario = nombre;
 
-    }
+    aplicarEstructuraVisualCajero();
+    reconstruirInterfazConsultarVentas();
+    mostrarUsuario();
+
+    configurarHover();
+    activarBoton(btnInicio);
+
+    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+
+    configurarTablaVentas();
+    cargarHistorialVentas();
+
+    txtBuscarVentaId.addActionListener(e -> buscarVentaPorId());
+
+    tblHistorialVentas.getSelectionModel().addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            mostrarVentaSeleccionada();
+        }
+    });
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -524,51 +537,192 @@ this.dispose();
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-        pizzeria.model.Venta ventaSeleccionada = ContextoVentasGUI.getInstancia()
-            .getVentaSeleccionadaConsulta();
+            pizzeria.model.Venta ventaSeleccionada = obtenerVentaSeleccionadaActual();
 
-        if (ventaSeleccionada == null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Seleccione una venta de la tabla antes de continuar.",
-                    "Venta no seleccionada",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
+    if (ventaSeleccionada == null) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Seleccione una venta de la tabla antes de continuar.",
+                "Venta no seleccionada",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
 
-        if (ventaSeleccionada.getEstado() == pizzeria.model.EstadoPedido.ENTREGADO) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se puede cancelar una venta que ya fue entregada.",
-                    "Venta no cancelable",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
+    if (ventaSeleccionada.getEstado() == pizzeria.model.EstadoPedido.ENTREGADO) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se puede cancelar una venta que ya fue entregada.",
+                "Venta no cancelable",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
 
-        if (ventaSeleccionada.getEstado() == pizzeria.model.EstadoPedido.CANCELADO) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Esta venta ya fue cancelada anteriormente.",
-                    "Venta ya cancelada",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
+    if (ventaSeleccionada.getEstado() == pizzeria.model.EstadoPedido.CANCELADO) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Esta venta ya fue cancelada anteriormente.",
+                "Venta ya cancelada",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
 
-        new CancelarVentaGUI().setVisible(true);
-        this.dispose();
+    ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(ventaSeleccionada);
+
+    new CancelarVentaGUI(rolUsuario, nombreUsuario, ventaSeleccionada).setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void btnBuscarVentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarVentaActionPerformed
         // TODO add your handling code here:
-        buscarVentaPorId();
+            buscarVentaPorId();
     }//GEN-LAST:event_btnBuscarVentaActionPerformed
+    
+    
+    private void reconstruirInterfazConsultarVentas() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout());
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 35, 20, 35));
+
+    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    panelContenido.setOpaque(false);
+    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+
+    // BOTONES SUPERIORES
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.BorderLayout());
+    panelBotones.setOpaque(false);
+    panelBotones.setMaximumSize(new java.awt.Dimension(760, 40));
+    panelBotones.setPreferredSize(new java.awt.Dimension(760, 40));
+    panelBotones.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jButton3.setPreferredSize(new java.awt.Dimension(176, 38));
+    jButton4.setPreferredSize(new java.awt.Dimension(230, 38));
+
+    panelBotones.add(jButton3, java.awt.BorderLayout.WEST);
+    panelBotones.add(jButton4, java.awt.BorderLayout.EAST);
+
+    // TÍTULOS
+    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel8.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    // BUSCADOR
+    javax.swing.JPanel panelBuscador = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 12, 0));
+    panelBuscador.setOpaque(false);
+    panelBuscador.setMaximumSize(new java.awt.Dimension(760, 34));
+    panelBuscador.setPreferredSize(new java.awt.Dimension(760, 34));
+    panelBuscador.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    txtBuscarVentaId.setPreferredSize(new java.awt.Dimension(220, 32));
+    btnBuscarVenta.setPreferredSize(new java.awt.Dimension(105, 32));
+
+    panelBuscador.add(txtBuscarVentaId);
+    panelBuscador.add(btnBuscarVenta);
+
+    jLabel14.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    reconstruirPanelHistorialVentas();
+
+    panelContenido.add(panelBotones);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(18));
+    panelContenido.add(jLabel19);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(jLabel8);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(18));
+    panelContenido.add(jLabel14);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(panelBuscador);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(12));
+    panelContenido.add(jPanel3);
+
+    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+    
+    
+    private void reconstruirPanelHistorialVentas() {
+    jPanel3.removeAll();
+    jPanel3.setBackground(java.awt.Color.WHITE);
+    jPanel3.setBorder(null);
+    jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.Y_AXIS));
+    jPanel3.setMaximumSize(new java.awt.Dimension(760, 285));
+    jPanel3.setPreferredSize(new java.awt.Dimension(760, 285));
+    jPanel3.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jLabel15.setText("HISTORIAL DE VENTAS");
+    jLabel15.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jScrollPane1.setPreferredSize(new java.awt.Dimension(760, 125));
+    jScrollPane1.setMaximumSize(new java.awt.Dimension(760, 125));
+    jScrollPane1.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    reconstruirPanelVentaSeleccionada();
+
+    jPanel3.add(jLabel15);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(8));
+    jPanel3.add(jScrollPane1);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(10));
+    jPanel3.add(jPanel2);
+
+    jPanel3.revalidate();
+    jPanel3.repaint();
+}
+    
+    
+    private void reconstruirPanelVentaSeleccionada() {
+    jPanel2.removeAll();
+    jPanel2.setBackground(new java.awt.Color(230, 233, 238));
+    jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(14, 20, 12, 20));
+    jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
+    jPanel2.setMaximumSize(new java.awt.Dimension(760, 105));
+    jPanel2.setPreferredSize(new java.awt.Dimension(760, 105));
+    jPanel2.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    lblVentaSeleccionada.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    lblDetalleSeleccionado.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    javax.swing.JPanel filaDatos = new javax.swing.JPanel(new java.awt.GridLayout(1, 3, 18, 0));
+    filaDatos.setOpaque(false);
+    filaDatos.setMaximumSize(new java.awt.Dimension(720, 24));
+    filaDatos.setPreferredSize(new java.awt.Dimension(720, 24));
+    filaDatos.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    filaDatos.add(lblClienteSeleccionado);
+    filaDatos.add(lblTotalSeleccionado);
+    filaDatos.add(lblEstadoSeleccionado);
+
+    jPanel2.add(lblVentaSeleccionada);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(8));
+    jPanel2.add(filaDatos);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(8));
+    jPanel2.add(lblDetalleSeleccionado);
+
+    jPanel2.revalidate();
+    jPanel2.repaint();
+}
+    
+    
     
     private void mostrarUsuario() {
     
+             if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+        rolUsuario = "Cajero";
+    }
+
+    if (nombreUsuario == null) {
+        nombreUsuario = "";
+    }
+
+    if (nombreUsuario.trim().isEmpty()) {
+        Rol.setText(rolUsuario);
+    } else {
         Rol.setText(rolUsuario + ": " + nombreUsuario);
+    }
+
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -623,34 +777,34 @@ this.dispose();
         btnActivo = boton;
     }
     
-    private void cargarHistorialVentas() {
-        javax.swing.table.DefaultTableModel modelo =
-                (javax.swing.table.DefaultTableModel) tblHistorialVentas.getModel();
+   private void cargarHistorialVentas() {
+    javax.swing.table.DefaultTableModel modelo =
+            (javax.swing.table.DefaultTableModel) tblHistorialVentas.getModel();
 
-        modelo.setRowCount(0);
-        ventasMostradas.clear();
+    modelo.setRowCount(0);
+    ventasMostradas.clear();
 
-        java.util.ArrayList<pizzeria.model.Venta> ventas =
-                ContextoVentasGUI.getInstancia()
-                        .getGestorVenta()
-                        .getListaVenta();
+    java.util.ArrayList<pizzeria.model.Venta> ventas =
+            ContextoVentasGUI.getInstancia()
+                    .getGestorVenta()
+                    .getListaVenta();
 
-        System.out.println("Ventas cargadas en historial GUI: " + ventas.size());
+    System.out.println("Ventas cargadas en historial GUI: " + ventas.size());
 
-        for (pizzeria.model.Venta venta : ventas) {
-            ventasMostradas.add(venta);
+    for (pizzeria.model.Venta venta : ventas) {
+        ventasMostradas.add(venta);
 
-            modelo.addRow(new Object[]{
-                venta.getId(),
-                obtenerClienteVisual(venta),
-                "Bs. " + String.format("%.2f", venta.getTotal()),
-                obtenerEstadoVentaVisual(venta),
-                venta.getMetodoPago()
-            });
-        }
-
-        limpiarVentaSeleccionada();
+        modelo.addRow(new Object[]{
+            venta.getId(),
+            obtenerClienteVisual(venta),
+            "Bs. " + String.format("%.2f", venta.getTotal()),
+            obtenerEstadoVentaVisual(venta),
+            venta.getMetodoPago()
+        });
     }
+
+    limpiarVentaSeleccionada();
+}
     
     private String obtenerClienteVisual(pizzeria.model.Venta venta) {
         String cliente = venta.getNombreCliente();
@@ -670,40 +824,41 @@ this.dispose();
     }
     
     private void limpiarVentaSeleccionada() {
-            lblVentaSeleccionada.setText("Venta seleccionada: -");
-            lblClienteSeleccionado.setText("Cliente: -");
-            lblTotalSeleccionado.setText("Total: -");
-            lblEstadoSeleccionado.setText("Estado: -");
-            lblDetalleSeleccionado.setText("Detalle: seleccione una venta de la tabla");
-            
-            ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(null);
+                 lblVentaSeleccionada.setText("Venta seleccionada: -");
+    lblClienteSeleccionado.setText("Cliente: -");
+    lblTotalSeleccionado.setText("Total: -");
+    lblEstadoSeleccionado.setText("Estado: -");
+    lblDetalleSeleccionado.setText("<html>Detalle: seleccione una venta de la tabla</html>");
+
+    ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(null);
         }
 
-        private void mostrarVentaSeleccionada() {
-            int fila = tblHistorialVentas.getSelectedRow();
+    private void mostrarVentaSeleccionada() {
+              int fila = tblHistorialVentas.getSelectedRow();
 
-            if (fila == -1) {
-                limpiarVentaSeleccionada();
-                return;
-            }
+    if (fila == -1) {
+        limpiarVentaSeleccionada();
+        return;
+    }
 
-            int filaModelo = tblHistorialVentas.convertRowIndexToModel(fila);
+    int filaModelo = tblHistorialVentas.convertRowIndexToModel(fila);
 
-            if (filaModelo < 0 || filaModelo >= ventasMostradas.size()) {
-                limpiarVentaSeleccionada();
-                return;
-            }
+    if (filaModelo < 0 || filaModelo >= ventasMostradas.size()) {
+        limpiarVentaSeleccionada();
+        return;
+    }
 
-            pizzeria.model.Venta venta = ventasMostradas.get(filaModelo);
+    pizzeria.model.Venta venta = ventasMostradas.get(filaModelo);
 
-            ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(venta);
+    ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(venta);
 
-            lblVentaSeleccionada.setText("Venta seleccionada: N.º " + String.format("%03d", venta.getId()));
-            lblClienteSeleccionado.setText("Cliente: " + obtenerClienteVisual(venta));
-            lblTotalSeleccionado.setText("Total: Bs. " + String.format("%.2f", venta.getTotal()));
-            lblEstadoSeleccionado.setText("Estado: " + obtenerEstadoVentaVisual(venta));
-            lblDetalleSeleccionado.setText("Detalle: " + obtenerDetalleVisual(venta));
-        }
+    lblVentaSeleccionada.setText("Venta seleccionada: N.º " + String.format("%03d", venta.getId()));
+    lblClienteSeleccionado.setText("Cliente: " + obtenerClienteVisual(venta));
+    lblTotalSeleccionado.setText("Total: Bs. " + String.format("%.2f", venta.getTotal()));
+    lblEstadoSeleccionado.setText("Estado: " + obtenerEstadoVentaVisual(venta));
+    lblDetalleSeleccionado.setText("<html>Detalle: " + obtenerDetalleVisual(venta) + "</html>");
+
+    }
     
      private String obtenerDetalleVisual(pizzeria.model.Venta venta) {
         StringBuilder detalle = new StringBuilder();
@@ -738,47 +893,47 @@ this.dispose();
     private void buscarVentaPorId() {
         String texto = txtBuscarVentaId.getText().trim();
 
-        if (texto.isEmpty()) {
-            cargarHistorialVentas();
-            return;
-        }
+    if (texto.isEmpty()) {
+        cargarHistorialVentas();
+        return;
+    }
 
-        int idBuscado;
+    int idBuscado;
 
-        try {
-            idBuscado = Integer.parseInt(texto);
-        } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Ingrese un ID de venta válido.",
-                    "ID inválido",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        for (int i = 0; i < ventasMostradas.size(); i++) {
-            pizzeria.model.Venta venta = ventasMostradas.get(i);
-
-            if (venta.getId() == idBuscado) {
-                tblHistorialVentas.setRowSelectionInterval(i, i);
-
-                java.awt.Rectangle rectangulo = tblHistorialVentas.getCellRect(i, 0, true);
-                tblHistorialVentas.scrollRectToVisible(rectangulo);
-
-                mostrarVentaSeleccionada();
-                return;
-            }
-        }
-
+    try {
+        idBuscado = Integer.parseInt(texto);
+    } catch (NumberFormatException e) {
         javax.swing.JOptionPane.showMessageDialog(
                 this,
-                "No se encontró una venta con ese ID.",
-                "Venta no encontrada",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE
+                "Ingrese un ID de venta válido.",
+                "ID inválido",
+                javax.swing.JOptionPane.WARNING_MESSAGE
         );
+        return;
+    }
 
-        limpiarVentaSeleccionada();
+    for (int i = 0; i < ventasMostradas.size(); i++) {
+        pizzeria.model.Venta venta = ventasMostradas.get(i);
+
+        if (venta.getId() == idBuscado) {
+            tblHistorialVentas.setRowSelectionInterval(i, i);
+
+            java.awt.Rectangle rectangulo = tblHistorialVentas.getCellRect(i, 0, true);
+            tblHistorialVentas.scrollRectToVisible(rectangulo);
+
+            mostrarVentaSeleccionada();
+            return;
+        }
+    }
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "No se encontró una venta con ese ID.",
+            "Venta no encontrada",
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+    );
+
+    limpiarVentaSeleccionada();
     }
     
     
@@ -811,25 +966,165 @@ this.dispose();
     }
     
     private void cargarImagen(JLabel label, String ruta){
-     label.setText("");
-    try {
-        java.io.File archivo = new java.io.File(ruta);
-        if (!archivo.exists()) {
-            System.err.println("Imagen no encontrada: " + ruta);
-            return;
-        }
-        ImageIcon icono = new ImageIcon(archivo.getAbsolutePath());
-        Image imgEscalada = icono.getImage().getScaledInstance(
-            label.getPreferredSize().width,
-            label.getPreferredSize().height,
-            Image.SCALE_SMOOTH
-        );
-        label.setIcon(new ImageIcon(imgEscalada));
-    } catch (Exception e) {
-        System.err.println("Error cargando imagen: " + e.getMessage());
+        label.setText("");
+       try {
+           java.io.File archivo = new java.io.File(ruta);
+           if (!archivo.exists()) {
+               System.err.println("Imagen no encontrada: " + ruta);
+               return;
+           }
+           ImageIcon icono = new ImageIcon(archivo.getAbsolutePath());
+           Image imgEscalada = icono.getImage().getScaledInstance(
+               label.getPreferredSize().width,
+               label.getPreferredSize().height,
+               Image.SCALE_SMOOTH
+           );
+           label.setIcon(new ImageIcon(imgEscalada));
+       } catch (Exception e) {
+           System.err.println("Error cargando imagen: " + e.getMessage());
+       }
     }
-    }
+    private void configurarVentanaCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+}
      
+    private void configurarTablaVentas() {
+    javax.swing.table.DefaultTableModel modelo = new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{
+                "ID", "Cliente", "Total", "Estado", "Método de Pago"
+            }
+    ) {
+        boolean[] canEdit = new boolean[]{
+            false, false, false, false, false
+        };
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return canEdit[columnIndex];
+        }
+    };
+
+    tblHistorialVentas.setModel(modelo);
+    tblHistorialVentas.setRowHeight(25);
+    tblHistorialVentas.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+    jLabel15.setText("HISTORIAL DE VENTAS");
+}
+    
+    private pizzeria.model.Venta obtenerVentaSeleccionadaActual() {
+    int fila = tblHistorialVentas.getSelectedRow();
+
+    if (fila == -1) {
+        return null;
+    }
+
+    int filaModelo = tblHistorialVentas.convertRowIndexToModel(fila);
+
+    if (filaModelo < 0 || filaModelo >= ventasMostradas.size()) {
+        return null;
+    }
+
+    pizzeria.model.Venta venta = ventasMostradas.get(filaModelo);
+
+    ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(venta);
+
+    return venta;
+}
+    
+    private void aplicarEstructuraVisualCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    if (lblLogo != null) {
+        lblLogo.setPreferredSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMinimumSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMaximumSize(new java.awt.Dimension(75, 75));
+    }
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    Encabezado.setMinimumSize(new java.awt.Dimension(1280, 100));
+
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    PiePag.setMinimumSize(new java.awt.Dimension(1280, 47));
+
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMinimumSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMaximumSize(new java.awt.Dimension(280, 573));
+
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+
+    reconstruirEstructuraBaseCajero();
+
+    revalidate();
+    repaint();
+}
+    
+    private void reconstruirEstructuraBaseCajero() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout(0, 0));
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    configurarBotonLateral(btnInicio, tamBoton);
+    configurarBotonLateral(btnUsuarios, tamBoton);
+    configurarBotonLateral(btnReportes, tamBoton);
+    configurarBotonLateral(btnCerrar, tamBoton);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout(0, 0));
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.setPreferredSize(new java.awt.Dimension(1280, 573));
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+}
+    
+    private void configurarBotonLateral(javax.swing.JButton boton, java.awt.Dimension tamano) {
+    boton.setPreferredSize(tamano);
+    boton.setMinimumSize(tamano);
+    boton.setMaximumSize(tamano);
+    boton.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    boton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+    boton.setFocusPainted(false);
+}
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

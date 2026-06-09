@@ -22,14 +22,17 @@ public class ConsultarReservasGUI extends javax.swing.JFrame {
      * Creates new form MenuGerente
      */
     public ConsultarReservasGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
+         initComponents();
+
+        this.rolUsuario = "Cajero";
+        this.nombreUsuario = "";
+
+        configurarVentanaCajero();
+        configurarTablaReservas();
+        mostrarUsuario();
+        reconstruirInterfazConsultarReservas();
+
+        configurarHover();
         activarBoton(btnUsuarios);
 
         cargarReservas();
@@ -47,24 +50,29 @@ public class ConsultarReservasGUI extends javax.swing.JFrame {
    
     
     public ConsultarReservasGUI(String rol, String nombre) {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+           initComponents();
+
         this.rolUsuario = rol;
         this.nombreUsuario = nombre;
-        mostrarUsuario();
-        configurarHover();        
-        activarBoton(btnInicio);
 
-        cargarHistorialVentas();
-        ////por si acaso para buscar con enter en constructor con argumentos
-        ///
-        txtBuscarReservaId.addActionListener(e -> buscarVentaPorId());
+        configurarVentanaCajero();
+        configurarTablaReservas();
+        mostrarUsuario();
+        reconstruirInterfazConsultarReservas();
+
+        configurarHover();
+        activarBoton(btnUsuarios);
+
+        cargarReservas();
         cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
 
+        txtBuscarReservaId.addActionListener(e -> buscarReservaPorId());
+
+        tblReservas.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                mostrarReservaSeleccionada();
+            }
+        });
     }
 
     /**
@@ -542,127 +550,245 @@ public class ConsultarReservasGUI extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-        if (reservaSeleccionada == null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Seleccione una reserva de la tabla.",
-                    "Reserva no seleccionada",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        if (reservaSeleccionada.getEstado() == pizzeria.model.EstadoReserva.CANCELADA) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Esta reserva ya fue cancelada.",
-                    "Reserva ya cancelada",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        if (reservaSeleccionada.getEstado() == pizzeria.model.EstadoReserva.LISTA
-                || reservaSeleccionada.getEstado() == pizzeria.model.EstadoReserva.ENTREGADA) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se puede cancelar una reserva lista o entregada.",
-                    "Reserva no cancelable",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+       
+          if (reservaSeleccionada == null) {
+        javax.swing.JOptionPane.showMessageDialog(
                 this,
-                "¿Está seguro de cancelar la reserva N.º "
-                        + reservaSeleccionada.getId()
-                        + "?\nSe registrará el reembolso correspondiente.",
-                "Confirmar cancelación",
-                javax.swing.JOptionPane.YES_NO_OPTION,
+                "Seleccione una reserva de la tabla.",
+                "Reserva no seleccionada",
                 javax.swing.JOptionPane.WARNING_MESSAGE
         );
+        return;
+    }
 
-        if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
-            return;
-        }
+    if (reservaSeleccionada.getEstado() == pizzeria.model.EstadoReserva.CANCELADA) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Esta reserva ya fue cancelada.",
+                "Reserva ya cancelada",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
 
-        boolean cancelada = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .cancelarReservaGUI(reservaSeleccionada.getId());
+    if (reservaSeleccionada.getEstado() == pizzeria.model.EstadoReserva.LISTA
+            || reservaSeleccionada.getEstado() == pizzeria.model.EstadoReserva.ENTREGADA) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se puede cancelar una reserva lista o entregada.",
+                "Reserva no cancelable",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
 
-        if (cancelada) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Reserva cancelada correctamente.",
-                    "Cancelación exitosa",
-                    javax.swing.JOptionPane.INFORMATION_MESSAGE
-            );
-
-            cargarReservas();
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo cancelar la reserva.\nPuede que ya esté cancelada, lista, entregada o no esté disponible en cocina.",
-                    "No se pudo cancelar",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-        }
+    new CancelarVentaGUI(rolUsuario, nombreUsuario, reservaSeleccionada).setVisible(true);
+    this.dispose();
+    
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void btnBuscarReservaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarReservaActionPerformed
         // TODO add your handling code here:
-        buscarVentaPorId();
+          buscarReservaPorId();
     }//GEN-LAST:event_btnBuscarReservaActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
-        if (reservaSeleccionada == null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Seleccione una reserva de la tabla.",
-                    "Reserva no seleccionada",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
+      if (reservaSeleccionada == null) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Seleccione una reserva de la tabla.",
+                "Reserva no seleccionada",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
 
-        if (reservaSeleccionada.getEstado() != pizzeria.model.EstadoReserva.PENDIENTE) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Solo se pueden enviar a cocina reservas en estado PENDIENTE.",
-                    "Reserva no disponible",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
+    if (reservaSeleccionada.getEstado() != pizzeria.model.EstadoReserva.PENDIENTE) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Solo se pueden enviar a cocina reservas en estado PENDIENTE.",
+                "Reserva no disponible",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
 
-        boolean enviada = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .enviarReservaACocinaGUI(reservaSeleccionada.getId());
+    boolean enviada = ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .enviarReservaACocinaGUI(reservaSeleccionada.getId());
 
-        if (enviada) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Reserva enviada a cocina correctamente.",
-                    "Reserva enviada",
-                    javax.swing.JOptionPane.INFORMATION_MESSAGE
-            );
+    if (enviada) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Reserva enviada a cocina correctamente.",
+                "Reserva enviada",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
 
-            cargarReservas();
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo enviar la reserva a cocina.",
-                    "Error",
-                    javax.swing.JOptionPane.ERROR_MESSAGE
-            );
-        }
+        cargarReservas();
+    } else {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se pudo enviar la reserva a cocina.",
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+    }
+        
     }//GEN-LAST:event_jButton6ActionPerformed
+    
+    private void reconstruirInterfazConsultarReservas() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout());
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 35, 20, 35));
+
+    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    panelContenido.setOpaque(false);
+    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.BorderLayout());
+    panelBotones.setOpaque(false);
+    panelBotones.setMaximumSize(new java.awt.Dimension(780, 40));
+    panelBotones.setPreferredSize(new java.awt.Dimension(780, 40));
+    panelBotones.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jButton3.setPreferredSize(new java.awt.Dimension(176, 38));
+    jButton6.setPreferredSize(new java.awt.Dimension(176, 38));
+    jButton4.setPreferredSize(new java.awt.Dimension(190, 38));
+
+    panelBotones.add(jButton3, java.awt.BorderLayout.WEST);
+    panelBotones.add(jButton6, java.awt.BorderLayout.CENTER);
+    panelBotones.add(jButton4, java.awt.BorderLayout.EAST);
+
+    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel8.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel14.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    javax.swing.JPanel panelBuscador = new javax.swing.JPanel(
+            new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 12, 0)
+    );
+    panelBuscador.setOpaque(false);
+    panelBuscador.setMaximumSize(new java.awt.Dimension(780, 34));
+    panelBuscador.setPreferredSize(new java.awt.Dimension(780, 34));
+    panelBuscador.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    txtBuscarReservaId.setPreferredSize(new java.awt.Dimension(220, 32));
+    btnBuscarReserva.setPreferredSize(new java.awt.Dimension(105, 32));
+
+    panelBuscador.add(txtBuscarReservaId);
+    panelBuscador.add(btnBuscarReserva);
+
+    reconstruirPanelHistorialReservas();
+
+    panelContenido.add(panelBotones);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(18));
+    panelContenido.add(jLabel19);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(jLabel8);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(18));
+    panelContenido.add(jLabel14);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(panelBuscador);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(12));
+    panelContenido.add(jPanel3);
+
+    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+    private void reconstruirPanelHistorialReservas() {
+    jPanel3.removeAll();
+    jPanel3.setBackground(java.awt.Color.WHITE);
+    jPanel3.setBorder(null);
+    jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.Y_AXIS));
+    jPanel3.setMaximumSize(new java.awt.Dimension(780, 285));
+    jPanel3.setPreferredSize(new java.awt.Dimension(780, 285));
+    jPanel3.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jLabel15.setText("HISTORIAL DE RESERVAS");
+    jLabel15.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jScrollPane1.setPreferredSize(new java.awt.Dimension(780, 125));
+    jScrollPane1.setMaximumSize(new java.awt.Dimension(780, 125));
+    jScrollPane1.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    reconstruirPanelReservaSeleccionada();
+
+    jPanel3.add(jLabel15);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(8));
+    jPanel3.add(jScrollPane1);
+    jPanel3.add(javax.swing.Box.createVerticalStrut(10));
+    jPanel3.add(jPanel2);
+
+    jPanel3.revalidate();
+    jPanel3.repaint();
+}
+    private void reconstruirPanelReservaSeleccionada() {
+    jPanel2.removeAll();
+    jPanel2.setBackground(new java.awt.Color(230, 233, 238));
+    jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(14, 20, 12, 20));
+    jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
+    jPanel2.setMaximumSize(new java.awt.Dimension(780, 105));
+    jPanel2.setPreferredSize(new java.awt.Dimension(780, 105));
+    jPanel2.setMinimumSize(new java.awt.Dimension(780, 105));
+    jPanel2.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    lblReservaSeleccionada.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    lblDetalleReservaSeleccionada.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    javax.swing.JPanel filaDatos = new javax.swing.JPanel(new java.awt.GridLayout(1, 4, 14, 0));
+    filaDatos.setOpaque(false);
+    filaDatos.setMaximumSize(new java.awt.Dimension(740, 24));
+    filaDatos.setPreferredSize(new java.awt.Dimension(740, 24));
+    filaDatos.setMinimumSize(new java.awt.Dimension(740, 24));
+    filaDatos.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    filaDatos.add(lblClienteReservaSeleccionada);
+    filaDatos.add(lblTelefonoReservaSeleccionada);
+    filaDatos.add(lblFechaReservaSeleccionada);
+    filaDatos.add(lblEstadoReservaSeleccionada);
+
+    jPanel2.add(lblReservaSeleccionada);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(8));
+    jPanel2.add(filaDatos);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(8));
+    jPanel2.add(lblDetalleReservaSeleccionada);
+
+    jPanel2.revalidate();
+    jPanel2.repaint();
+}
+    
+    private void configurarVentanaCajero() {
+        setSize(1280, 720);
+        setMinimumSize(new java.awt.Dimension(1280, 720));
+        setMaximumSize(new java.awt.Dimension(1280, 720));
+        setPreferredSize(new java.awt.Dimension(1280, 720));
+        setResizable(false);
+        setLocationRelativeTo(null);
+
+        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
+        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    }
     
     private void mostrarUsuario() {
     
-        Rol.setText(rolUsuario + ": " + nombreUsuario);
+          if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+            rolUsuario = "Cajero";
+        }
+
+        if (nombreUsuario == null) {
+            nombreUsuario = "";
+        }
+
+        if (nombreUsuario.trim().isEmpty()) {
+            Rol.setText(rolUsuario);
+        } else {
+            Rol.setText(rolUsuario + ": " + nombreUsuario);
+        }
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -876,16 +1002,19 @@ public class ConsultarReservasGUI extends javax.swing.JFrame {
     }
      
     private void cargarReservas() {
-        javax.swing.table.DefaultTableModel modelo =
-                (javax.swing.table.DefaultTableModel) tblReservas.getModel();
+       javax.swing.table.DefaultTableModel modelo =
+            (javax.swing.table.DefaultTableModel) tblReservas.getModel();
 
         modelo.setRowCount(0);
         reservasMostradas.clear();
+        reservaSeleccionada = null;
 
         java.util.List<pizzeria.model.Reserva> reservas =
                 ContextoVentasGUI.getInstancia()
                         .getGestorReserva()
                         .getListaReservas();
+
+        System.out.println("Reservas cargadas en ConsultarReservasGUI: " + reservas.size());
 
         for (pizzeria.model.Reserva reserva : reservas) {
             reservasMostradas.add(reserva);
@@ -916,72 +1045,78 @@ public class ConsultarReservasGUI extends javax.swing.JFrame {
     private void limpiarReservaSeleccionada() {
         reservaSeleccionada = null;
 
-        lblReservaSeleccionada.setText("Reserva seleccionada: -");
-        lblClienteReservaSeleccionada.setText("Cliente: -");
-        lblTelefonoReservaSeleccionada.setText("Teléfono: -");
-        lblFechaReservaSeleccionada.setText("Fecha: -");
-        lblEstadoReservaSeleccionada.setText("Estado: -");
-        lblDetalleReservaSeleccionada.setText("Detalle: seleccione una reserva");
+    lblReservaSeleccionada.setText("Reserva seleccionada: -");
+    lblClienteReservaSeleccionada.setText("Cliente: -");
+    lblTelefonoReservaSeleccionada.setText("Teléfono: -");
+    lblFechaReservaSeleccionada.setText("Fecha: -");
+    lblEstadoReservaSeleccionada.setText("Estado: -");
+    lblDetalleReservaSeleccionada.setText("<html>Detalle: seleccione una reserva</html>");
     }
     
     private void mostrarReservaSeleccionada() {
-        int fila = tblReservas.getSelectedRow();
+    int fila = tblReservas.getSelectedRow();
 
-        if (fila == -1) {
-            limpiarReservaSeleccionada();
-            return;
-        }
-
-        int filaModelo = tblReservas.convertRowIndexToModel(fila);
-
-        if (filaModelo < 0 || filaModelo >= reservasMostradas.size()) {
-            limpiarReservaSeleccionada();
-            return;
-        }
-
-        reservaSeleccionada = reservasMostradas.get(filaModelo);
-
-        lblReservaSeleccionada.setText("Reserva seleccionada: N.º "
-                + String.format("%03d", reservaSeleccionada.getId()));
-
-        lblClienteReservaSeleccionada.setText("Cliente: "
-                + obtenerClienteReservaVisual(reservaSeleccionada));
-
-        lblTelefonoReservaSeleccionada.setText("Teléfono: "
-                + reservaSeleccionada.getTelefono());
-
-        lblFechaReservaSeleccionada.setText("Fecha: "
-                + reservaSeleccionada.getFechaReserva());
-
-        lblEstadoReservaSeleccionada.setText("Estado: " 
-                + obtenerEstadoReservaVisual(reservaSeleccionada));
-
-        lblDetalleReservaSeleccionada.setText("Detalle: "
-                + obtenerDetalleReserva(reservaSeleccionada));
+    if (fila == -1) {
+        limpiarReservaSeleccionada();
+        return;
     }
+
+    int filaModelo = tblReservas.convertRowIndexToModel(fila);
+
+    if (filaModelo < 0 || filaModelo >= reservasMostradas.size()) {
+        limpiarReservaSeleccionada();
+        return;
+    }
+
+    reservaSeleccionada = reservasMostradas.get(filaModelo);
+
+    lblReservaSeleccionada.setText("Reserva seleccionada: N.º "
+            + String.format("%03d", reservaSeleccionada.getId()));
+
+    lblClienteReservaSeleccionada.setText("Cliente: "
+            + obtenerClienteReservaVisual(reservaSeleccionada));
+
+    lblTelefonoReservaSeleccionada.setText("Teléfono: "
+            + textoSeguro(reservaSeleccionada.getTelefono(), "-"));
+
+    lblFechaReservaSeleccionada.setText("Fecha: "
+            + obtenerFechaReservaVisual(reservaSeleccionada));
+
+    lblEstadoReservaSeleccionada.setText("Estado: "
+            + obtenerEstadoReservaVisual(reservaSeleccionada));
+
+    lblDetalleReservaSeleccionada.setText("<html>Detalle: "
+            + obtenerDetalleReserva(reservaSeleccionada)
+            + "</html>");
+}
     
-    private String obtenerDetalleReserva(pizzeria.model.Reserva reserva) {
-        StringBuilder detalle = new StringBuilder();
-
-        for (pizzeria.model.DetalleVenta item : reserva.getPedido()) {
-            if (detalle.length() > 0) {
-                detalle.append(", ");
-            }
-
-            detalle.append(item.getCantidad())
-                    .append("x ")
-                    .append(item.getProducto().getNombre());
-        }
-
-        if (detalle.length() == 0) {
-            return "Sin detalle";
-        }
-
-        return detalle.toString();
+    
+    private String textoSeguro(String valor, String defecto) {
+    if (valor == null || valor.trim().isEmpty()) {
+        return defecto;
     }
+
+    return valor.trim();
+}
+    
+    private String obtenerFechaReservaVisual(pizzeria.model.Reserva reserva) {
+    if (reserva == null || reserva.getFechaReserva() == null) {
+        return "-";
+    }
+
+    String fecha = reserva.getFechaReserva().toString();
+
+    if (fecha.length() >= 16) {
+        return fecha.substring(0, 16);
+    }
+
+    return fecha;
+}
+    
     
     private void buscarReservaPorId() {
-        String texto = txtBuscarReservaId.getText().trim();
+        
+         String texto = txtBuscarReservaId.getText().trim();
 
         if (texto.isEmpty()) {
             cargarReservas();
@@ -1072,6 +1207,54 @@ public class ConsultarReservasGUI extends javax.swing.JFrame {
     } catch (Exception e) {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
+    }
+    
+    private void configurarTablaReservas() {
+        javax.swing.table.DefaultTableModel modelo = new javax.swing.table.DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                    "ID", "Cliente", "Teléfono", "Fecha", "Estado", "Total"
+                }
+        ) {
+            boolean[] canEdit = new boolean[]{
+                false, false, false, false, false, false
+            };
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        };
+
+        tblReservas.setModel(modelo);
+        tblReservas.setRowHeight(25);
+        tblReservas.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+        jLabel15.setText("HISTORIAL DE RESERVAS");
+    }
+
+    private String obtenerDetalleReserva(pizzeria.model.Reserva reserva) {
+        StringBuilder detalle = new StringBuilder();
+
+        if (reserva == null || reserva.getPedido() == null) {
+            return "Sin detalle";
+        }
+
+        for (pizzeria.model.DetalleVenta item : reserva.getPedido()) {
+            if (detalle.length() > 0) {
+                detalle.append(", ");
+            }
+
+            detalle.append(item.getCantidad())
+                    .append("x ")
+                    .append(item.getProducto().getNombre());
+        }
+
+        if (detalle.length() == 0) {
+            return "Sin detalle";
+        }
+
+        return detalle.toString();
     }
     
     public static void main(String args[]) {

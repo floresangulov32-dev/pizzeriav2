@@ -10,41 +10,57 @@ public class CancelarVentaGUI extends javax.swing.JFrame {
     private String nombreUsuario;
     private String rolUsuario;
     private javax.swing.JButton btnActivo = null;
+    private pizzeria.model.Venta ventaCancelar = null;
+    private pizzeria.model.Reserva reservaCancelar = null;
+    private boolean cancelandoReserva = false;
 
     /**
      * Creates new form MenuGerente
      */
-    public CancelarVentaGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        cargarVentaSeleccionada();
-    }
     
-   
-    
-    public CancelarVentaGUI(String rol, String nombre) {
+        public CancelarVentaGUI() {
+    this("Cajero", "", (pizzeria.model.Venta) null);
+}
+
+public CancelarVentaGUI(String rol, String nombre) {
+    this(rol, nombre, ContextoVentasGUI.getInstancia().getVentaSeleccionadaConsulta());
+}
+
+public CancelarVentaGUI(String rol, String nombre, pizzeria.model.Venta venta) {
     initComponents();
-    setSize(1280, 720);
-    setLocationRelativeTo(null);
-    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-    BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+
     this.rolUsuario = rol;
     this.nombreUsuario = nombre;
-    mostrarUsuario();
-    configurarHover();        
+    this.ventaCancelar = venta;
+    this.reservaCancelar = null;
+    this.cancelandoReserva = false;
+
+    prepararVentanaCancelar();
     activarBoton(btnInicio);
-    
+
+    if (venta != null) {
+        ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(venta);
+    }
+
     cargarVentaSeleccionada();
-    
 }
+
+public CancelarVentaGUI(String rol, String nombre, pizzeria.model.Reserva reserva) {
+    initComponents();
+
+    this.rolUsuario = rol;
+    this.nombreUsuario = nombre;
+    this.ventaCancelar = null;
+    this.reservaCancelar = reserva;
+    this.cancelandoReserva = true;
+
+    prepararVentanaCancelar();
+    activarBoton(btnUsuarios);
+
+    cargarReservaSeleccionada();
+}
+   
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -469,14 +485,14 @@ public class CancelarVentaGUI extends javax.swing.JFrame {
 
     private void btnInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicioActionPerformed
         // TODO add your handling code here:
-        new VentasGUI().setVisible(true);
-        this.dispose();
+         new VentasGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_btnInicioActionPerformed
 
     private void btnUsuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUsuariosActionPerformed
         // TODO add your handling code here:
-        new ConsultarReservasGUI().setVisible(true);
-        this.dispose();
+        new ConsultarReservasGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_btnUsuariosActionPerformed
 
     private void btnReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportesActionPerformed
@@ -497,70 +513,39 @@ public class CancelarVentaGUI extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-        new ConsultarVentasGUI().setVisible(true);
-        this.dispose();
+         if (cancelandoReserva) {
+        new ConsultarReservasGUI(rolUsuario, nombreUsuario).setVisible(true);
+    } else {
+        new ConsultarVentasGUI(rolUsuario, nombreUsuario).setVisible(true);
+    }
+
+    this.dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-        pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
-            .getVentaSeleccionadaConsulta();
-
-        if (venta == null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No hay una venta seleccionada para cancelar.",
-                    "Venta no seleccionada",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        int respuesta = javax.swing.JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro de cancelar la venta N.º " + venta.getId()
-                        + "?\nSe registrará un reembolso de Bs. "
-                        + String.format("%.2f", venta.getTotal()) + ".",
-                "Confirmar cancelación",
-                javax.swing.JOptionPane.YES_NO_OPTION,
-                javax.swing.JOptionPane.WARNING_MESSAGE
-        );
-
-        if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        boolean cancelada = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .cancelarVentaPagada(venta.getId());
-
-        if (cancelada) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "Venta cancelada correctamente.\nReembolso registrado: Bs. "
-                            + String.format("%.2f", venta.getTotal()),
-                    "Cancelación exitosa",
-                    javax.swing.JOptionPane.INFORMATION_MESSAGE
-            );
-
-            ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(null);
-
-            new ConsultarVentasGUI().setVisible(true);
-            this.dispose();
-
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo cancelar la venta.\nPuede que ya esté entregada, cancelada o no exista.",
-                    "No se pudo cancelar",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-        }
+        if (cancelandoReserva) {
+        confirmarCancelacionReserva();
+    } else {
+        confirmarCancelacionVenta();
+    }
     }//GEN-LAST:event_jButton4ActionPerformed
     
     private void mostrarUsuario() {
     
-        Rol.setText(rolUsuario + ": " + nombreUsuario);
+        if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+            rolUsuario = "Cajero";
+        }
+
+        if (nombreUsuario == null) {
+            nombreUsuario = "";
+        }
+
+        if (nombreUsuario.trim().isEmpty()) {
+            Rol.setText(rolUsuario);
+        } else {
+            Rol.setText(rolUsuario + ": " + nombreUsuario);
+        }
     }
     
     @SuppressWarnings("unused")
@@ -617,30 +602,74 @@ public class CancelarVentaGUI extends javax.swing.JFrame {
     }
     
     private void cargarVentaSeleccionada() {
-            pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
-                    .getVentaSeleccionadaConsulta();
+           jLabel19.setText("CANCELAR VENTA PAGADA");
+    jLabel8.setText("Revisa la venta antes de confirmar la cancelación y el reembolso.");
+    jLabel3.setText("DATOS DE LA VENTA");
+    jLabel24.setText("Esta acción cancelará una venta");
+    jLabel25.setText("que ya fue registrada y pagada.");
+    jLabel26.setText("Se registrará el reembolso correspondiente");
+    jLabel27.setText("¿Desea continuar?");
 
-            if (venta == null) {
-                lblVentaCancelar.setText("Venta N.º -");
-                lblClienteCancelar.setText("Cliente: -");
-                lblMetodoCancelar.setText("Método de pago: -");
-                lblEstadoCancelar.setText("Estado actual: -");
-                lblTotalCancelar.setText("Total pagado: Bs. 0.00");
-                lblReembolsoCancelar.setText("Reembolso: Bs. 0.00");
-                lblDetalleCancelar.setText("Detalle: no se seleccionó ninguna venta");
-                return;
-            }
+    pizzeria.model.Venta venta = ventaCancelar;
 
-            venta.calcularTotal();
+    if (venta == null) {
+        venta = ContextoVentasGUI.getInstancia().getVentaSeleccionadaConsulta();
+    }
 
-            lblVentaCancelar.setText("Venta N.º " + String.format("%03d", venta.getId()));
-            lblClienteCancelar.setText("Cliente: " + obtenerClienteVisual(venta));
-            lblMetodoCancelar.setText("Método de pago: " + venta.getMetodoPago());
-            lblEstadoCancelar.setText("Estado actual: " + venta.getEstado());
-            lblTotalCancelar.setText("Total pagado: Bs. " + String.format("%.2f", venta.getTotal()));
-            lblReembolsoCancelar.setText("Reembolso: Bs. " + String.format("%.2f", venta.getTotal()));
-            lblDetalleCancelar.setText("Detalle: " + obtenerDetalleVisual(venta));
+    if (venta == null) {
+        lblVentaCancelar.setText("Venta N.º -");
+        lblClienteCancelar.setText("Cliente: -");
+        lblMetodoCancelar.setText("Método de pago: -");
+        lblEstadoCancelar.setText("Estado actual: -");
+        lblTotalCancelar.setText("Total pagado: Bs. 0.00");
+        lblReembolsoCancelar.setText("Reembolso: Bs. 0.00");
+        lblDetalleCancelar.setText("Detalle: no se seleccionó ninguna venta");
+        return;
+    }
+
+    venta.calcularTotal();
+
+    lblVentaCancelar.setText("Venta N.º " + String.format("%03d", venta.getId()));
+    lblClienteCancelar.setText("Cliente: " + obtenerClienteVisual(venta));
+    lblMetodoCancelar.setText("Método de pago: " + venta.getMetodoPago());
+    lblEstadoCancelar.setText("Estado actual: " + venta.getEstado());
+    lblTotalCancelar.setText("Total pagado: Bs. " + String.format("%.2f", venta.getTotal()));
+    lblReembolsoCancelar.setText("Reembolso: Bs. " + String.format("%.2f", venta.getTotal()));
+    lblDetalleCancelar.setText("Detalle: " + obtenerDetalleVisual(venta));
         }
+    
+    private void cargarReservaSeleccionada() {
+    jLabel19.setText("CANCELAR RESERVA");
+    jLabel8.setText("Revisa la reserva antes de confirmar la cancelación y el reembolso.");
+    jLabel3.setText("DATOS DE LA RESERVA");
+    jLabel24.setText("Esta acción cancelará una reserva");
+    jLabel25.setText("que ya fue registrada y pagada.");
+    jLabel26.setText("Se registrará el reembolso correspondiente");
+    jLabel27.setText("¿Desea continuar?");
+
+    pizzeria.model.Reserva reserva = reservaCancelar;
+
+    if (reserva == null) {
+        lblVentaCancelar.setText("Reserva N.º -");
+        lblClienteCancelar.setText("Cliente: -");
+        lblMetodoCancelar.setText("Teléfono: -");
+        lblEstadoCancelar.setText("Estado actual: -");
+        lblTotalCancelar.setText("Total pagado: Bs. 0.00");
+        lblReembolsoCancelar.setText("Reembolso: Bs. 0.00");
+        lblDetalleCancelar.setText("Detalle: no se seleccionó ninguna reserva");
+        return;
+    }
+
+    double total = reserva.calcularTotal();
+
+    lblVentaCancelar.setText("Reserva N.º " + String.format("%03d", reserva.getId()));
+    lblClienteCancelar.setText("Cliente: " + obtenerClienteReservaVisual(reserva));
+    lblMetodoCancelar.setText("Teléfono: " + reserva.getTelefono());
+    lblEstadoCancelar.setText("Estado actual: " + reserva.getEstado());
+    lblTotalCancelar.setText("Total pagado: Bs. " + String.format("%.2f", total));
+    lblReembolsoCancelar.setText("Reembolso: Bs. " + String.format("%.2f", total));
+    lblDetalleCancelar.setText("Detalle: " + obtenerDetalleReservaVisual(reserva));
+}
     
     private String obtenerClienteVisual(pizzeria.model.Venta venta) {
         String cliente = venta.getNombreCliente();
@@ -689,6 +718,349 @@ public class CancelarVentaGUI extends javax.swing.JFrame {
         return detalle.toString();
     }
     
+    private void prepararVentanaCancelar() {
+    configurarVentanaCancelar();
+    reconstruirEstructuraPrincipal();
+    reconstruirInterfazCancelacion();
+    mostrarUsuario();
+    configurarHover();
+}
+    private void configurarVentanaCancelar() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 560));
+}
+    
+    private void reconstruirEstructuraPrincipal() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout());
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    btnInicio.setMaximumSize(tamBoton);
+    btnInicio.setPreferredSize(tamBoton);
+    btnUsuarios.setMaximumSize(tamBoton);
+    btnUsuarios.setPreferredSize(tamBoton);
+    btnReportes.setMaximumSize(tamBoton);
+    btnReportes.setPreferredSize(tamBoton);
+    btnCerrar.setMaximumSize(tamBoton);
+    btnCerrar.setPreferredSize(tamBoton);
+
+    btnInicio.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    btnUsuarios.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    btnReportes.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    btnCerrar.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout());
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+
+    revalidate();
+    repaint();
+}
+    
+    private void reconstruirInterfazCancelacion() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout(20, 20));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(35, 36, 35, 36));
+
+    javax.swing.JPanel panelSuperior = new javax.swing.JPanel();
+    panelSuperior.setOpaque(false);
+    panelSuperior.setLayout(new java.awt.BorderLayout());
+
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel();
+    panelBotones.setOpaque(false);
+    panelBotones.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 110, 0));
+    panelBotones.add(jButton3);
+    panelBotones.add(jButton4);
+
+    javax.swing.JPanel panelTitulos = new javax.swing.JPanel();
+    panelTitulos.setOpaque(false);
+    panelTitulos.setLayout(new javax.swing.BoxLayout(panelTitulos, javax.swing.BoxLayout.Y_AXIS));
+    panelTitulos.add(jLabel19);
+    panelTitulos.add(javax.swing.Box.createVerticalStrut(8));
+    panelTitulos.add(jLabel8);
+
+    panelSuperior.add(panelBotones, java.awt.BorderLayout.NORTH);
+    panelSuperior.add(javax.swing.Box.createVerticalStrut(24), java.awt.BorderLayout.CENTER);
+    panelSuperior.add(panelTitulos, java.awt.BorderLayout.SOUTH);
+
+    jPanel2.removeAll();
+    jPanel2.setBackground(java.awt.Color.WHITE);
+    jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+    jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
+    jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(22, 26, 22, 26)
+    ));
+
+    jPanel2.add(jLabel3);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(30));
+    jPanel2.add(lblVentaCancelar);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(20));
+    jPanel2.add(lblClienteCancelar);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(15));
+    jPanel2.add(lblMetodoCancelar);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(15));
+    jPanel2.add(lblEstadoCancelar);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(15));
+    jPanel2.add(lblDetalleCancelar);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(25));
+    jPanel2.add(lblTotalCancelar);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(15));
+    jPanel2.add(lblReembolsoCancelar);
+
+    jPanel4.removeAll();
+    jPanel4.setBackground(new java.awt.Color(252, 235, 235));
+    jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.Y_AXIS));
+    jPanel4.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(25, 39, 25, 39)
+    ));
+
+    jPanel4.add(jLabel28);
+    jPanel4.add(javax.swing.Box.createVerticalStrut(35));
+    jPanel4.add(jLabel24);
+    jPanel4.add(javax.swing.Box.createVerticalStrut(12));
+    jPanel4.add(jLabel25);
+    jPanel4.add(javax.swing.Box.createVerticalStrut(40));
+    jPanel4.add(jLabel26);
+    jPanel4.add(javax.swing.Box.createVerticalStrut(25));
+    jPanel4.add(jLabel27);
+
+    javax.swing.JPanel panelCentral = new javax.swing.JPanel();
+    panelCentral.setOpaque(false);
+    panelCentral.setLayout(new java.awt.GridLayout(1, 2, 55, 0));
+    panelCentral.add(jPanel2);
+    panelCentral.add(jPanel4);
+
+    Interfaz.add(panelSuperior, java.awt.BorderLayout.NORTH);
+    Interfaz.add(panelCentral, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+   
+    private String obtenerClienteReservaVisual(pizzeria.model.Reserva reserva) {
+    if (reserva == null || reserva.getNombreCliente() == null || reserva.getNombreCliente().trim().isEmpty()) {
+        return "Sin nombre";
+    }
+
+    return reserva.getNombreCliente().trim();
+}
+    
+    
+    
+    private String obtenerDetalleReservaVisual(pizzeria.model.Reserva reserva) {
+    StringBuilder detalle = new StringBuilder();
+
+    if (reserva == null || reserva.getPedido() == null) {
+        return "Sin detalle";
+    }
+
+    for (pizzeria.model.DetalleVenta item : reserva.getPedido()) {
+        if (detalle.length() > 0) {
+            detalle.append(", ");
+        }
+
+        detalle.append(item.getCantidad())
+                .append("x ")
+                .append(item.getProducto().getNombre());
+    }
+
+    if (detalle.length() == 0) {
+        return "Sin detalle";
+    }
+
+    return detalle.toString();
+}
+    
+    private void confirmarCancelacionVenta() {
+    pizzeria.model.Venta venta = ventaCancelar;
+
+    if (venta == null) {
+        venta = ContextoVentasGUI.getInstancia().getVentaSeleccionadaConsulta();
+    }
+
+    if (venta == null) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No hay una venta seleccionada para cancelar.",
+                "Venta no seleccionada",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    if (venta.getEstado() == pizzeria.model.EstadoPedido.ENTREGADO) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se puede cancelar una venta que ya fue entregada.",
+                "Venta no cancelable",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    if (venta.getEstado() == pizzeria.model.EstadoPedido.CANCELADO) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Esta venta ya fue cancelada anteriormente.",
+                "Venta ya cancelada",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿Está seguro de cancelar la venta N.º "
+                    + String.format("%03d", venta.getId())
+                    + "?\nSe registrará un reembolso de Bs. "
+                    + String.format("%.2f", venta.getTotal()) + ".",
+            "Confirmar cancelación",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+
+    if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    boolean cancelada = ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .cancelarVentaPagada(venta.getId());
+
+    if (cancelada) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Venta cancelada correctamente.\nReembolso registrado: Bs. "
+                        + String.format("%.2f", venta.getTotal()),
+                "Cancelación exitosa",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+
+        ContextoVentasGUI.getInstancia().setVentaSeleccionadaConsulta(null);
+
+        new ConsultarVentasGUI(rolUsuario, nombreUsuario).setVisible(true);
+        this.dispose();
+        return;
+    }
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "No se pudo cancelar la venta.\nPuede que ya esté entregada, cancelada o no exista.",
+            "No se pudo cancelar",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
+    
+    private void confirmarCancelacionReserva() {
+    pizzeria.model.Reserva reserva = reservaCancelar;
+
+    if (reserva == null) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No hay una reserva seleccionada para cancelar.",
+                "Reserva no seleccionada",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    if (reserva.getEstado() == pizzeria.model.EstadoReserva.CANCELADA) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Esta reserva ya fue cancelada anteriormente.",
+                "Reserva ya cancelada",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    if (reserva.getEstado() == pizzeria.model.EstadoReserva.LISTA
+            || reserva.getEstado() == pizzeria.model.EstadoReserva.ENTREGADA) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se puede cancelar una reserva lista o entregada.",
+                "Reserva no cancelable",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿Está seguro de cancelar la reserva N.º "
+                    + String.format("%03d", reserva.getId())
+                    + "?\nSe registrará el reembolso correspondiente.",
+            "Confirmar cancelación de reserva",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+
+    if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    boolean cancelada = ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .cancelarReservaGUI(reserva.getId());
+
+    if (cancelada) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Reserva cancelada correctamente.\nSe registró el reembolso correspondiente.",
+                "Cancelación exitosa",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+
+        new ConsultarReservasGUI(rolUsuario, nombreUsuario).setVisible(true);
+        this.dispose();
+        return;
+    }
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "No se pudo cancelar la reserva.\nPuede que ya esté cancelada, lista, entregada o no esté disponible.",
+            "No se pudo cancelar",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
