@@ -245,8 +245,7 @@ public class PantallaInicial extends javax.swing.JFrame {
                 jButton3.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
             }
         });
-
-        // Agregar componentes
+        
         gbc.gridy = 0;
         jPanel2.add(lblMenuPrincipal, gbc);
         
@@ -402,7 +401,10 @@ public class PantallaInicial extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         FrameVerMenu ventana = new FrameVerMenu();
+        ventana.setSize(this.getSize());
+        ventana.setLocation(this.getLocation());
         ventana.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

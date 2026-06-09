@@ -400,8 +400,12 @@ public class GestionMenu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVerMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerMenuActionPerformed
-        FrameVerMenu ventana = new FrameVerMenu(rolUsuario, nombreUsuario, menu, inventario, archivoMenu);
+        FrameVerMenu ventana = new FrameVerMenu(rolUsuario, nombreUsuario);
+        ventana.setSize(this.getSize());
+        ventana.setLocation(this.getLocation());
         ventana.setVisible(true);
+        this.dispose();
+        
     }//GEN-LAST:event_btnVerMenuActionPerformed
 
     private void btnProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductosActionPerformed
@@ -498,11 +502,11 @@ public class GestionMenu extends javax.swing.JFrame {
     }
  
     private void cargarPanel(javax.swing.JPanel panel) {
-        Interfaz.removeAll();                    // limpia el contenido anterior
+        Interfaz.removeAll();                    
         Interfaz.setLayout(new java.awt.BorderLayout());
         Interfaz.add(panel, java.awt.BorderLayout.CENTER);
-        Interfaz.revalidate();                   // refresca el layout
-        Interfaz.repaint();                      // redibuja
+        Interfaz.revalidate();                   
+        Interfaz.repaint();                      
 }
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

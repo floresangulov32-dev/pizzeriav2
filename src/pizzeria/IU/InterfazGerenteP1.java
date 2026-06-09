@@ -41,6 +41,8 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
     private JButton btnActivo = null;
     private Image logoImagen;
     private Image fondoImagen;
+    
+    
 
     
     /**
@@ -711,10 +713,13 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
     }//GEN-LAST:event_btnFinanzasActionPerformed
 
     private void btnMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenuActionPerformed
-        activarBoton(btnMenu);
-        GestionMenu ventana = new GestionMenu(rolUsuario, nombreUsuario);
+                  GestionMenu ventana = new GestionMenu(rolUsuario, nombreUsuario);
+        ventana.setSize(this.getSize());
+        ventana.setLocation(this.getLocation());
         ventana.setVisible(true);
+        this.dispose();
         
+               
     }//GEN-LAST:event_btnMenuActionPerformed
 
     private void btnInvetarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInvetarioActionPerformed
