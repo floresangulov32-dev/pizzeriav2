@@ -2,7 +2,7 @@
 2;brayan;71717768;2026-04-05T01:45:46.223212623;EN_COCINA;1~Fuga Z rellena~Pizza rellena con abundante queso~120.0~2
 3;JoseLuis;70765432;2026-04-05T17:35:36.984908200;EN_COCINA;14~Autor~Pizza especial con carnes y condimentos~90.0~1|22~Fanta~Bebida gaseosa sabor naranja 1L~20.0~1
 4;jose;4553675;2026-04-05T20:52:40.251329400;CANCELADA;23~Sprite~Bebida gaseosa lima-limón 1L~20.0~2
-5;jioje;12345;2026-04-05T22:13:06.160492500;PENDIENTE;3~Fugazza~Pizza con cebolla y queso tradicional~80.0~2
+5;jioje;12345;2026-04-05T22:13:06.160492500;EN_COCINA;3~Fugazza~Pizza con cebolla y queso tradicional~80.0~2
 6;Erick;1234345333;2026-04-12T21:09:17.871793700;PENDIENTE;1~Fuga Z rellena~Pizza rellena con abundante queso~120.0~1
 7;Jose;79887762;2026-04-12T21:19:53.065212600;PENDIENTE;1~Fuga Z rellena~Pizza rellena con abundante queso~120.0~1
 8;Jorje;71717768;2026-05-31T11:42;PENDIENTE;20~Cuatro Quesos~Pizza con mezcla de quesos~100.0~1
