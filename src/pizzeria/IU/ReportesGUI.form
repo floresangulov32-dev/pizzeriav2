@@ -353,9 +353,9 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="btnUsuariosPorRol" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="btnListaUsuarios" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnUsuariosPorRol" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="31" max="32767" attributes="0"/>
                   </Group>
@@ -364,7 +364,7 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
                       <Component id="btnListaUsuarios" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="btnUsuariosPorRol" min="-2" max="-2" attributes="0"/>
@@ -374,12 +374,12 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="btnListaUsuarios">
+            <Component class="javax.swing.JButton" name="btnUsuariosPorRol">
               <Properties>
                 <Property name="text" type="java.lang.String" value="jButton1"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JButton" name="btnUsuariosPorRol">
+            <Component class="javax.swing.JButton" name="btnListaUsuarios">
               <Properties>
                 <Property name="text" type="java.lang.String" value="jButton1"/>
               </Properties>
