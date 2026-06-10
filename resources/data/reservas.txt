@@ -8,3 +8,4 @@
 8;Jorje;71717768;2026-05-31T11:42;PENDIENTE;20~Cuatro Quesos~Pizza con mezcla de quesos~100.0~1
 9;Brandon;63895639;2026-05-31T12:06;CANCELADA;9004~Combo #4~Miel + Autor + Jamon Queso + Marinera~95.0~1
 10;Felipa;71717768;2026-05-31T12:31;EN_COCINA;9001~Combo #1~Fuga Z rellena + Tocino~65.0~1
+11;Erick;25874123;2026-06-09T22:15:43.112207600;EN_COCINA;1~Fuga Z rellena~Pizza rellena con abundante queso~120.0~1

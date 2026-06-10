@@ -149,7 +149,7 @@ public class PantallaInicial extends javax.swing.JFrame {
 
         if (logoImagen != null) {
             // Logo de 300x170
-            Image logoEscalado = logoImagen.getScaledInstance(300, 170, Image.SCALE_SMOOTH);
+            Image logoEscalado = logoImagen.getScaledInstance(300, 220, Image.SCALE_SMOOTH);
             JLabel lblLogo = new JLabel(new ImageIcon(logoEscalado));
             lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
             panelCabecera.add(lblLogo);
