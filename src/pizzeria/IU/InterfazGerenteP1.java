@@ -478,7 +478,6 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
 
         Interfaz = new javax.swing.JPanel();
         PiePag = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         BarraNav = new javax.swing.JPanel();
         btnInicio = new javax.swing.JButton();
@@ -505,9 +504,6 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
         PiePag.setBackground(new java.awt.Color(255, 255, 255));
         PiePag.setPreferredSize(new java.awt.Dimension(1280, 50));
         PiePag.setLayout(new java.awt.BorderLayout());
-
-        jLabel5.setText("Logo");
-        PiePag.add(jLabel5, java.awt.BorderLayout.PAGE_START);
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(74, 74, 74));
@@ -782,7 +778,6 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }
