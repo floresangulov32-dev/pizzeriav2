@@ -66,7 +66,7 @@ public class GestionMenu extends javax.swing.JFrame {
     configurarHover();        
     
     cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    cargarImagen(ImgPres, "resources/imagenes/logoCasaDelSabor.jpg");
+    cargarImagen(ImgPres, "resources/imagenes/Combo1.jpg");
     
     
         archivoMenu = new ArchivoMenu();
