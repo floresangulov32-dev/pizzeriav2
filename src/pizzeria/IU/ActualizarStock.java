@@ -59,8 +59,8 @@ public class ActualizarStock extends javax.swing.JPanel {
         jLabel7 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         txtNombre1 = new javax.swing.JTextField();
-        btnFinanzas = new javax.swing.JButton();
         btnFinanzas1 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -98,15 +98,14 @@ public class ActualizarStock extends javax.swing.JPanel {
         txtNombre1.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         txtNombre1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
 
-        btnFinanzas.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        btnFinanzas.setText("Restar del Stock");
-        btnFinanzas.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btnFinanzas.addActionListener(this::btnFinanzasbtnModificarInsumoActionPerformed);
-
         btnFinanzas1.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnFinanzas1.setText("Sumar al Stock");
         btnFinanzas1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btnFinanzas1.addActionListener(this::btnFinanzas1btnModificarInsumoActionPerformed);
+        btnFinanzas1.addActionListener(this::btnSumarStockActionPerformed);
+
+        jButton1.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jButton1.setText("Restar del Stock");
+        jButton1.addActionListener(this::jRestarStockActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -127,19 +126,20 @@ public class ActualizarStock extends javax.swing.JPanel {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtNombre1, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(76, 76, 76)
-                        .addComponent(btnFinanzas))
+                        .addGap(217, 217, 217))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addGap(29, 29, 29)
                         .addComponent(txtDescrip1, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(76, 76, 76)
-                                .addComponent(btnFinanzas1, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(89, 89, 89)
-                                .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(76, 76, 76)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnFinanzas1, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))))))
                 .addGap(150, 150, 150))
         );
         jPanel1Layout.setVerticalGroup(
@@ -165,9 +165,9 @@ public class ActualizarStock extends javax.swing.JPanel {
                                 .addGap(260, 260, 260)
                                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(109, 109, 109)
-                                .addComponent(btnFinanzas, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(45, 45, 45)
+                                .addGap(118, 118, 118)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(37, 37, 37)
                                 .addComponent(btnFinanzas1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(11, 11, 11)
                 .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -200,25 +200,7 @@ public class ActualizarStock extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnCancelarActionPerformed
 
-    private void btnFinanzasbtnModificarInsumoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinanzasbtnModificarInsumoActionPerformed
-        try {
-            double cantidad = Double.parseDouble(txtDescrip1.getText().trim());
-            if (cantidad <= 0) {
-            javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "Ingrese una cantidad mayor a cero."
-            );
-            return;
-        }
-            inventario.descontarStock(insumo.getId(), cantidad);
-            txtNombre.setText(String.format("%.2f", insumo.getStockActual()));
-            javax.swing.JOptionPane.showMessageDialog(this, "Stock actualizado.");
-        } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Ingrese un valor válido.");
-            }
-    }//GEN-LAST:event_btnFinanzasbtnModificarInsumoActionPerformed
-
-    private void btnFinanzas1btnModificarInsumoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinanzas1btnModificarInsumoActionPerformed
+    private void btnSumarStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSumarStockActionPerformed
         try {
             double cantidad = Double.parseDouble(txtDescrip1.getText().trim());
             if (cantidad <= 0) {
@@ -229,12 +211,39 @@ public class ActualizarStock extends javax.swing.JPanel {
             return;
         }
             inventario.actualizarStock(insumo.getId(), cantidad, true);
+            inventario.guardarArchivo();
             txtNombre.setText(String.format("%.2f", insumo.getStockActual()));
             javax.swing.JOptionPane.showMessageDialog(this, "Stock actualizado.");
         } catch (NumberFormatException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Ingrese un valor válido.");
         }
-    }//GEN-LAST:event_btnFinanzas1btnModificarInsumoActionPerformed
+    }//GEN-LAST:event_btnSumarStockActionPerformed
+
+    private void jRestarStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRestarStockActionPerformed
+        try {
+            double cantidad = Double.parseDouble(txtDescrip1.getText().trim());
+            if (cantidad <= 0) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Ingrese una cantidad mayor a cero."
+            );
+            return;
+        } if (cantidad > insumo.getStockActual()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "No se puede restar " + cantidad + " porque el stock actual es " +
+                String.format("%.2f", insumo.getStockActual()) + ".",
+                "Stock insuficiente",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+            inventario.descontarStock(insumo.getId(), cantidad);
+            inventario.guardarArchivo();
+            txtNombre.setText(String.format("%.2f", insumo.getStockActual()));
+            javax.swing.JOptionPane.showMessageDialog(this, "Stock actualizado.");
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ingrese un valor válido.");
+        }
+    }//GEN-LAST:event_jRestarStockActionPerformed
 
     private void cargarDatos() {
         txtNombre1.setText(insumo.getNombre());
@@ -246,8 +255,8 @@ public class ActualizarStock extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelar;
-    private javax.swing.JButton btnFinanzas;
     private javax.swing.JButton btnFinanzas1;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;

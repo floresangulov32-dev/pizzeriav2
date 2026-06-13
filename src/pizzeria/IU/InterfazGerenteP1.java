@@ -49,35 +49,35 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
     * Constructor con usuario y rol
     */
     public InterfazGerenteP1(String rol, String nombre) {
-       initComponents();
-       setSize(1280, 720);
-       setLocationRelativeTo(null);
-       setResizable(false);
-       this.rolUsuario = rol;
-       this.nombreUsuario = nombre;
-       cargarImagenes();
-       configurarComponentes();
-       configurarHover();
-       activarBoton(btnInicio);
-       verificarDeudasProximas();
+        initComponents();
+        setSize(1280, 720);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        this.rolUsuario = rol;
+        this.nombreUsuario = nombre;
+        cargarImagenes();
+        configurarComponentes();
+        configurarHover();
+        activarBoton(btnUsuarios);  // Cambiado: ahora activa btnUsuarios en lugar de btnInicio
+        verificarDeudasProximas();
 
-       // APLICAR COLORES PERSONALIZADOS
-       aplicarColoresPersonalizados();
+        // APLICAR COLORES PERSONALIZADOS
+        aplicarColoresPersonalizados();
 
-       // Forzar actualización después de que la ventana sea visible
-       addWindowListener(new java.awt.event.WindowAdapter() {
-           @Override
-           public void windowOpened(java.awt.event.WindowEvent e) {
-               aplicarColoresPersonalizados();
-           }
-       });
+        // Forzar actualización después de que la ventana sea visible
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent e) {
+                aplicarColoresPersonalizados();
+            }
+        });
 
-       // También forzar después de un pequeño delay
-       javax.swing.SwingUtilities.invokeLater(() -> {
-           aplicarColoresPersonalizados();
-           repaint();
-       });
-   }
+        // También forzar después de un pequeño delay
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            aplicarColoresPersonalizados();
+            repaint();
+        });
+    }
 
 
     /**
@@ -331,33 +331,35 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
     /**
     * Configura los botones de navegación
     */    
-   private void configurarBotonesNavegacion() {
-       JButton[] botones = {btnInicio, btnUsuarios, btnFinanzas, btnMenu, btnInvetario, btnReportes, btnCerrar};
+    private void configurarBotonesNavegacion() {
+        JButton[] botones = {btnInicio, btnUsuarios, btnFinanzas, btnMenu, btnInvetario, btnReportes, btnCerrar};
 
-       for (JButton boton : botones) {
-           // Solo configurar tamaños y comportamiento, no colores
-           boton.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-           boton.setHorizontalAlignment(SwingConstants.LEFT);
-           boton.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 15));
-           boton.setFocusPainted(false);
-           boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-           boton.setMaximumSize(new Dimension(280, 50));
-           boton.setMinimumSize(new Dimension(280, 50));
-           boton.setPreferredSize(new Dimension(280, 50));
-       }
-   }
+        for (JButton boton : botones) {
+            // Solo configurar tamaños y comportamiento, no colores
+            boton.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+            boton.setHorizontalAlignment(SwingConstants.LEFT);
+            boton.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 15));
+            boton.setFocusPainted(false);
+            boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            boton.setMaximumSize(new Dimension(280, 50));
+            boton.setMinimumSize(new Dimension(280, 50));
+            boton.setPreferredSize(new Dimension(280, 50));
+        }
+
+        // Ocultar el botón de inicio
+        btnInicio.setVisible(false);
+    }
     
     private void configurarHover() {
-        JButton[] botones = {btnInicio, btnUsuarios, btnFinanzas,
-                            btnMenu, btnInvetario, btnReportes, btnCerrar};
+        JButton[] botones = {btnUsuarios, btnFinanzas, btnMenu, btnInvetario, btnReportes, btnCerrar};  // Quitamos btnInicio
 
         for (JButton b : botones) {
             b.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseEntered(java.awt.event.MouseEvent e) {
                     if (b != btnActivo) {
-                        b.setBackground(new Color(200, 200, 200)); // Gris claro al hover
-                        b.setForeground(new Color(168, 27, 29)); // Rojo característico
+                        b.setBackground(new Color(200, 200, 200));
+                        b.setForeground(new Color(168, 27, 29));
                     }
                 }
 
@@ -373,10 +375,9 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
     }
     
         
-    /**
-    * Activa visualmente un botón
-    */
-   private void activarBoton(JButton boton) {
+    
+    //Activa visualmente un botón   
+    private void activarBoton(JButton boton) {
        if (btnActivo != null) {
            btnActivo.setBackground(Color.WHITE);
            btnActivo.setForeground(Color.BLACK);
@@ -512,37 +513,51 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
 
         BarraNav.setBackground(new java.awt.Color(0, 0, 0));
 
+        btnInicio.setBackground(new java.awt.Color(0, 0, 0));
         btnInicio.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnInicio.setForeground(new java.awt.Color(255, 255, 255));
         btnInicio.setText("Inicio");
         btnInicio.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnInicio.addActionListener(this::btnInicioActionPerformed);
 
+        btnUsuarios.setBackground(new java.awt.Color(0, 0, 0));
         btnUsuarios.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnUsuarios.setForeground(new java.awt.Color(255, 255, 255));
         btnUsuarios.setText("Gestión de Usuarios");
         btnUsuarios.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnUsuarios.addActionListener(this::btnUsuariosActionPerformed);
 
+        btnFinanzas.setBackground(new java.awt.Color(0, 0, 0));
         btnFinanzas.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnFinanzas.setForeground(new java.awt.Color(255, 255, 255));
         btnFinanzas.setText("Finanzas");
         btnFinanzas.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnFinanzas.addActionListener(this::btnFinanzasActionPerformed);
 
+        btnMenu.setBackground(new java.awt.Color(0, 0, 0));
         btnMenu.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnMenu.setForeground(new java.awt.Color(255, 255, 255));
         btnMenu.setText("Gestión Menú");
         btnMenu.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnMenu.addActionListener(this::btnMenuActionPerformed);
 
+        btnInvetario.setBackground(new java.awt.Color(0, 0, 0));
         btnInvetario.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnInvetario.setForeground(new java.awt.Color(255, 255, 255));
         btnInvetario.setText("Inventario");
         btnInvetario.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnInvetario.addActionListener(this::btnInvetarioActionPerformed);
 
+        btnReportes.setBackground(new java.awt.Color(0, 0, 0));
         btnReportes.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnReportes.setForeground(new java.awt.Color(255, 255, 255));
         btnReportes.setText("Reportes");
         btnReportes.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnReportes.addActionListener(this::btnReportesActionPerformed);
 
+        btnCerrar.setBackground(new java.awt.Color(0, 0, 0));
         btnCerrar.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnCerrar.setForeground(new java.awt.Color(255, 255, 255));
         btnCerrar.setText("Cerrar Sesión");
         btnCerrar.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnCerrar.addActionListener(this::btnCerrarActionPerformed);
@@ -679,9 +694,10 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicioActionPerformed
+       
         activarBoton(btnInicio);
         limpiarPanel();
-        
+
         JLabel lblBienvenida = new JLabel("Bienvenido al Panel de Gerente", SwingConstants.CENTER);
         lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 28));
         lblBienvenida.setForeground(new Color(168, 27, 29));
@@ -689,6 +705,7 @@ public class InterfazGerenteP1 extends javax.swing.JFrame {
         panelBienvenida.setOpaque(false);
         panelBienvenida.add(lblBienvenida, BorderLayout.CENTER);
         cargarPanel(panelBienvenida);
+        
     }//GEN-LAST:event_btnInicioActionPerformed
 
     private void btnUsuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUsuariosActionPerformed
