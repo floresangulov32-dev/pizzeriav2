@@ -47,6 +47,10 @@ public class LoginGUI extends javax.swing.JFrame {
     private JButton btnCancelar;
     private Image fondoImagen;
     
+    // Contador de intentos fallidos
+    private int intentosFallidos = 0;
+    private static final int MAX_INTENTOS = 3;
+    
     public LoginGUI(){
         initComponents();
         setSize(1280, 720);
@@ -273,6 +277,9 @@ public class LoginGUI extends javax.swing.JFrame {
         Usuario user = gestorUsuarios.login(usuario, password);
 
         if (user != null) {
+            // Login exitoso - resetear contador de intentos
+            intentosFallidos = 0;
+            
             JOptionPane.showMessageDialog(this,
                 "Bienvenido/a " + user.getNombre() + "\nRol: " + user.getRol().name(),
                 "Login Exitoso",
@@ -341,12 +348,29 @@ public class LoginGUI extends javax.swing.JFrame {
                     break;
             }
         } else {
-            JOptionPane.showMessageDialog(this,
-                "Usuario o contraseña incorrectos",
-                "Error de Autenticación",
-                JOptionPane.ERROR_MESSAGE);
-            txtPassword.setText("");
-            txtUsuario.requestFocus();
+            // Login fallido - incrementar contador
+            intentosFallidos++;
+            int intentosRestantes = MAX_INTENTOS - intentosFallidos;
+            
+            if (intentosFallidos >= MAX_INTENTOS) {
+                // Superó los 3 intentos - cerrar la aplicación
+                JOptionPane.showMessageDialog(this,
+                    "Ha superado los " + MAX_INTENTOS + " intentos permitidos.\nEl programa se cerrará.",
+                    "Demasiados intentos fallidos",
+                    JOptionPane.ERROR_MESSAGE);
+                System.exit(0); // Cierra completamente la aplicación
+            } else {
+                // Mostrar mensaje con intentos restantes
+                JOptionPane.showMessageDialog(this,
+                    "Usuario o contraseña incorrectos\n" +
+                    "Intentos restantes: " + intentosRestantes,
+                    "Error de Autenticación",
+                    JOptionPane.ERROR_MESSAGE);
+                
+                // Limpiar campos para nuevo intento
+                txtPassword.setText("");
+                txtUsuario.requestFocus();
+            }
         }
     }
 
@@ -372,9 +396,7 @@ public class LoginGUI extends javax.swing.JFrame {
     private void volverPantallaInicial() {
         this.dispose();
         new PantallaInicial().setVisible(true);
-    }
-
-    
+    }    
     
     /**
      * This method is called from within the constructor to initialize the form.
