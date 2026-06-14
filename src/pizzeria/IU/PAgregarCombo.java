@@ -64,6 +64,7 @@ public class PAgregarCombo extends javax.swing.JPanel {
         jLabel4 = new javax.swing.JLabel();
         PrecioE = new javax.swing.JTextField();
         btnGuardar = new javax.swing.JButton();
+        btnEliminar = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -157,6 +158,12 @@ public class PAgregarCombo extends javax.swing.JPanel {
         btnGuardar.setText("Guardar Combo");
         btnGuardar.addActionListener(this::btnGuardarActionPerformed);
 
+        btnEliminar.setBackground(new java.awt.Color(168, 27, 29));
+        btnEliminar.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnEliminar.setForeground(new java.awt.Color(255, 255, 255));
+        btnEliminar.setText("Eliminar Combo");
+        btnEliminar.addActionListener(this::btnEliminarActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -171,9 +178,6 @@ public class PAgregarCombo extends javax.swing.JPanel {
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 392, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(150, 150, 150)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGap(0, 13, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -189,7 +193,12 @@ public class PAgregarCombo extends javax.swing.JPanel {
                                         .addComponent(PrecioEsp)
                                         .addGap(18, 18, 18)
                                         .addComponent(PrecioE, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(14, 14, 14)))))
+                                .addGap(14, 14, 14))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -206,7 +215,8 @@ public class PAgregarCombo extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(35, 35, 35)
@@ -237,7 +247,7 @@ public class PAgregarCombo extends javax.swing.JPanel {
     }//GEN-LAST:event_PrecioEActionPerformed
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-         int fila = jTable1.getSelectedRow();
+        int fila = jTable1.getSelectedRow();
         if (fila < 0) {
             javax.swing.JOptionPane.showMessageDialog(this,
                 "Seleccione un producto de la lista.",
@@ -311,6 +321,33 @@ public class PAgregarCombo extends javax.swing.JPanel {
         cargarPanel(panelCombos);
     }//GEN-LAST:event_btnGuardarActionPerformed
 
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+         int fila = jTable2.getSelectedRow();
+
+        if (fila < 0) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un producto del combo para eliminar.",
+                "Sin selección",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int opcion = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿Desea eliminar este producto del combo?",
+            "Confirmar",
+            javax.swing.JOptionPane.YES_NO_OPTION
+        );
+
+        if (opcion == javax.swing.JOptionPane.YES_OPTION) {
+            productosSeleccionados.remove(fila);
+            refrescarTablaCombo();
+        }
+    
+    }//GEN-LAST:event_btnEliminarActionPerformed
+
     private void configurarRadioButtons() {
         // Por defecto precio sugerido activo, campo deshabilitado
         PrecioSug.setSelected(true);
@@ -383,6 +420,7 @@ public class PAgregarCombo extends javax.swing.JPanel {
     private javax.swing.JRadioButton PrecioEsp;
     private javax.swing.JRadioButton PrecioSug;
     private javax.swing.JButton btnAgregar;
+    private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnVolver;
     private javax.swing.ButtonGroup buttonGroup1;

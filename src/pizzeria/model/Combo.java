@@ -84,7 +84,8 @@ public class Combo{
     public void setPrecio(double precio){ 
         this.precio = precio; 
     }
-    public void setCombo(ArrayList<Producto> combo){ 
-        this.combo = combo; 
+    public void setCombo(ArrayList<Producto> nuevos){ 
+        combo.clear();          
+        combo.addAll(nuevos); 
     }
 }

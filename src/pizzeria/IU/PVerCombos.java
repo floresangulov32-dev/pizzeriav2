@@ -276,7 +276,34 @@ public class PVerCombos extends javax.swing.JPanel {
     }//GEN-LAST:event_btnEliminarCActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-        // TODO add your handling code here:
+        int fila = jTable1.getSelectedRow();
+        if (fila == -1) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un combo de la tabla.");
+            return;
+        }
+        String celda = jTable1.getValueAt(fila, 0).toString(); // "Combo #1"
+        int idCombo = Integer.parseInt(celda.replace("Combo #", "").trim());
+        
+
+        Combo comboSeleccionado = menu.buscarCombo(idCombo);
+
+        if (comboSeleccionado == null) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se encontró el combo.");
+            return;
+        }
+
+        PModificarCombos panel = new PModificarCombos(
+            interfaz,
+            menu,
+            archivoMenu,
+            comboSeleccionado,
+            inventario
+        );
+        cargarPanel(panel);
     }//GEN-LAST:event_btnModificarActionPerformed
 
 private void configurarPlaceholder() {
