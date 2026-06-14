@@ -244,7 +244,13 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
     }//GEN-LAST:event_tipoPActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // TODO add your handling code here:
+        if (menu == null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "No se puede guardar: el menú no está disponible.",
+                "Error interno", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         // 1. Validar nombre
         String nombre = txtNombre.getText().trim();
         if (nombre.isEmpty()) {
@@ -252,6 +258,12 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
                 "Ingrese el nombre del producto.",
                 "Campo vacío", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
+        } else if (menu.buscarProductoNombre(nombre)!= null){
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Ingrese un nombre diferente",
+                "Producto ya existe", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+            
         }
 
         // 2. Validar precio
@@ -273,9 +285,6 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
         // 4. Tipo de producto
         TipoProducto tipo = TipoProducto.fromString((String) tipoP.getSelectedItem());
 
-       
-
-        
         ArrayList<Integer> ingredientes = new ArrayList<>();
             for (int i = 0; i < checkboxesInsumos.size(); i++) {
                 if (checkboxesInsumos.get(i).isSelected()) {
@@ -286,12 +295,7 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
         
 
         
-        if (menu == null) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "No se puede guardar: el menú no está disponible.",
-                "Error interno", javax.swing.JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        
 
         menu.agregarProducto(nombre, descripcion, precio, tipo);
         Producto recienAgregado = menu.getProductos().get(menu.getProductos().size() - 1);

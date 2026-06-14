@@ -70,6 +70,16 @@ public class Menu{
         return resultado;
     }
     
+    public Producto buscarProductoNombre(String texto){
+        for (Producto p : productos) {
+            String nom = p.getNombre().trim();
+            if (nom.equalsIgnoreCase(texto.trim())) {
+                return p;
+            }
+        }
+        return null;
+    }
+    
      public ArrayList<Producto> getProductosPorTipo(TipoProducto tipo){
         ArrayList<Producto> filtrados = new ArrayList<>();
         for(Producto p : productos){

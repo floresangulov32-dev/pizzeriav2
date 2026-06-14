@@ -291,6 +291,12 @@ public class PModificarProducto extends javax.swing.JPanel {
                 "Ingrese el nombre del producto.",
                 "Campo vacío", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
+        }else if (menu.buscarProductoNombre(nombre)!= null){
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Ingrese un nombre diferente",
+                "Producto ya existe", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+            
         }
  
         // 2. Validar precio
