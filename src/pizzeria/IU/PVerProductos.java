@@ -63,6 +63,7 @@ public class PVerProductos extends javax.swing.JPanel {
         jTable1 = new javax.swing.JTable();
         jComboBox1 = new javax.swing.JComboBox<>();
         btnFiltrar = new javax.swing.JButton();
+        btnModificar = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -141,6 +142,12 @@ public class PVerProductos extends javax.swing.JPanel {
         btnFiltrar.setText("Filtrar");
         btnFiltrar.addActionListener(this::btnFiltrarActionPerformed);
 
+        btnModificar.setBackground(new java.awt.Color(168, 27, 29));
+        btnModificar.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnModificar.setForeground(new java.awt.Color(255, 255, 255));
+        btnModificar.setText("Modificar Producto");
+        btnModificar.addActionListener(this::btnModificarActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -151,6 +158,10 @@ public class PVerProductos extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(btnFiltrar, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(230, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(54, 54, 54))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(7, 7, 7)
@@ -180,7 +191,9 @@ public class PVerProductos extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnFiltrar, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(441, Short.MAX_VALUE))
+                .addGap(44, 44, 44)
+                .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(351, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(4, 4, 4)
@@ -323,6 +336,38 @@ public class PVerProductos extends javax.swing.JPanel {
         filtrarTablaProductos(tipoBuscado);        // TODO add your handling code here:
     }//GEN-LAST:event_btnFiltrarActionPerformed
 
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        int fila = jTable1.getSelectedRow();
+
+        if (fila == -1) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un producto de la tabla.");
+            return;
+        }
+
+        int idProducto = (int) jTable1.getValueAt(fila, 0);
+
+        Producto producto = menu.buscarProducto(idProducto);
+
+        if (producto == null) {
+            javax.swing.JOptionPane.showMessageDialog(
+                 this,
+                "No se encontró el producto.");
+        return;
+        }
+
+         PModificarProducto panel = new PModificarProducto(
+            interfaz,
+            menu,
+            inventario,
+            archivoMenu,
+            producto
+        );
+
+        cargarPanel(panel);
+    }//GEN-LAST:event_btnModificarActionPerformed
+
     
     private void filtrarTablaProductos(TipoProducto tipo) {
         DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
@@ -413,6 +458,7 @@ public class PVerProductos extends javax.swing.JPanel {
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnEliminarP;
     private javax.swing.JButton btnFiltrar;
+    private javax.swing.JButton btnModificar;
     private javax.swing.JTextField idBuscar;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
