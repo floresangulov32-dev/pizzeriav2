@@ -59,6 +59,17 @@ public class Menu{
         return null;
     }
     
+    public ArrayList<Producto> buscarProductosPorNombre(String texto) {
+        ArrayList<Producto> resultado = new ArrayList<>();
+        String busqueda = texto.trim().toLowerCase();
+        for (Producto p : productos) {
+            if (p.getNombre().toLowerCase().contains(busqueda)) {
+                resultado.add(p);
+            }
+        }
+        return resultado;
+    }
+    
      public ArrayList<Producto> getProductosPorTipo(TipoProducto tipo){
         ArrayList<Producto> filtrados = new ArrayList<>();
         for(Producto p : productos){

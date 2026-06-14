@@ -5,6 +5,7 @@
 package pizzeria.IU;
 import javax.swing.JOptionPane;
 
+import java.util.ArrayList;
 import pizzeria.model.Menu;
 import pizzeria.model.Inventario;
 import pizzeria.model.Insumo;
@@ -214,35 +215,37 @@ public class PVerProductos extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        try {
-            int id = Integer.parseInt(idBuscar.getText());
-            Producto p = menu.buscarProducto(id);
+        String texto = idBuscar.getText().trim();
+    
+    if (texto.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "Ingrese un nombre para buscar."
+        );
+        return;
+    }
 
-            if (p == null) {
-                javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se encontró un producto con ese ID"
-                );
-                return;
-            }
+    ArrayList<Producto> resultados = menu.buscarProductosPorNombre(texto);
+    
+    if (resultados.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "No se encontró ningún producto con ese nombre."
+        );
+        return;
+    }
 
-            DefaultTableModel modelo =
-            (DefaultTableModel) jTable1.getModel();
-            modelo.setRowCount(0); // Limpia las filas
-
-            modelo.addRow(new Object[]{
-                p.getID(),
-                p.getNombre(),
-                String.format("%.2f", p.getPrecio()),
-                p.getDescripcion(), "xd"
-            });
-
-        } catch(NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "Ingrese un número válido"
-            );
-        }// TODO add your handling code here:
+    DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
+    modelo.setRowCount(0);
+    
+    for (Producto p : resultados) {
+        modelo.addRow(new Object[]{
+            p.getID(),
+            p.getNombre(),
+            String.format("%.2f", p.getPrecio()),
+            p.getDescripcion(), "xd"
+        });
+    }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnAgregarPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPActionPerformed
@@ -385,6 +388,7 @@ public class PVerProductos extends javax.swing.JPanel {
             });
         }
     }
+    
     private String construirIngredientes(Producto p) {
         if (p.getIngredientes() == null || p.getIngredientes().isEmpty()) {
             return "(ninguno)";
@@ -398,6 +402,7 @@ public class PVerProductos extends javax.swing.JPanel {
         }
         return sb.toString();
     }
+    
     private void cargarPanel(JPanel panel) {
     interfaz.removeAll();
     interfaz.setLayout(new BorderLayout());
@@ -429,14 +434,14 @@ public class PVerProductos extends javax.swing.JPanel {
     }   
     
     private void configurarPlaceholder() {
-        idBuscar.setText("Ingrese un ID:");
+        idBuscar.setText("Ingrese el producto:");
         idBuscar.setForeground(java.awt.Color.GRAY);
 
         idBuscar.addFocusListener(new java.awt.event.FocusAdapter() {
 
     @Override
     public void focusGained(java.awt.event.FocusEvent e) {
-        if (idBuscar.getText().equals("Ingrese un ID:")) {
+        if (idBuscar.getText().equals("Ingrese el producto:")) {
             idBuscar.setText("");
             idBuscar.setForeground(new java.awt.Color(0,0,0));
         }
@@ -445,7 +450,7 @@ public class PVerProductos extends javax.swing.JPanel {
     @Override
     public void focusLost(java.awt.event.FocusEvent e) {
         if (idBuscar.getText().trim().isEmpty()) {
-            idBuscar.setText("Ingrese un ID:");
+            idBuscar.setText("Ingrese el producto:");
             idBuscar.setForeground(new java.awt.Color(217,217,217));
         }
     }
