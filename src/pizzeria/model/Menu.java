@@ -218,5 +218,25 @@ public class Menu{
         return res;
     }
     
+    public boolean productoDisponible(Producto p, Inventario inventario) {
+        if (p.getIngredientes().isEmpty()) return true;
+        for (int idIng : p.getIngredientes()) {
+            Insumo ins = inventario.buscarId(idIng);
+            if (ins == null || ins.getStockActual() <= 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean comboDisponible(Combo c, Inventario inventario) {
+        for (Producto p : c.getCombo()) {
+            if (!productoDisponible(p, inventario)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     
 }
