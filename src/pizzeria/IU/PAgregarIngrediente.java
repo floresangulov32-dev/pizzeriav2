@@ -32,7 +32,7 @@ public class PAgregarIngrediente extends javax.swing.JPanel {
         initComponents();
     }
     
-     public PAgregarIngrediente(JPanel interfaz, Menu menu, Inventario inventario,
+    public PAgregarIngrediente(JPanel interfaz, Menu menu, Inventario inventario,
                                ArchivoMenu archivoMenu, Producto producto) {
     
 

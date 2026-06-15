@@ -3,7 +3,7 @@ PRODUCTOS
 2,producto,Prosciutto,Pizza con jamón y queso clásico,100.0,31;1;2;7;15;11
 3,producto,Fugazza,Pizza con cebolla y queso tradicional,80.0,31;1;2;24;15;11
 4,producto,Miel,Pizza dulce con queso miel y nuez,80.0,31;1;26;30
-5,producto,Caribeña,Pizza tropical con jamón y piña,90.0,31;1;2;7;29;15
+5,producto,Caribeña,Pizza tropical con jamón y piña,90.0,1;2;7;15;29;31
 6,producto,Hawahiana,Pizza con jamón piña y toque de orégano,80.0,31;1;2;7;29;11
 7,producto,Rucula Roquefort,Pizza con rúcula y roquefort,90.0,31;1;2;25;6;15
 8,producto,Jamon y Morron,Pizza con jamón y morrón,80.0,31;1;2;7;20;14
@@ -17,7 +17,7 @@ PRODUCTOS
 16,producto,Marinera,Pizza con anchoas aceitunas y tomate,95.0,31;1;2;10;12;13;19
 17,producto,Serrana,Pizza con jamón serrano rúcula y parmesano,100.0,31;1;2;23;25;5
 18,producto,Picante,Pizza con uchu chorizo y pepperoni,95.0,31;1;2;28;21;3;27
-19,producto,Vegetariana Deluxe,Pizza con vegetales variados,90.0,31;1;2;8;24;20;9;15;19
+19,producto,Vegetariana Deluxe,Pizza con vegetales variados,95.0,1;2;8;9;15;19;20;24;31
 20,producto,Cuatro Quesos,Pizza con mezcla de quesos,100.0,31;1;4;5;6
 21,refresco,Coca Cola,Bebida gaseosa 1L,20.0,35
 22,refresco,Fanta,Bebida gaseosa sabor naranja 1L,20.0,36

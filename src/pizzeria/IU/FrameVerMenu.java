@@ -109,13 +109,14 @@ public void cargarTablas() {
     cargarTablaCombos();
 }
 
-private void cargarTablaPizzas() {
+    private void cargarTablaPizzas() {
     javax.swing.table.DefaultTableModel model =
         (javax.swing.table.DefaultTableModel) jTable1.getModel();
     model.setRowCount(0);
 
     for (Producto p : menu.getProductos()) {
-        if (p.getTipo() == pizzeria.model.TipoProducto.PRODUCTO) {
+        if (p.getTipo() == pizzeria.model.TipoProducto.PRODUCTO
+                && menu.productoDisponible(p, inventario)) {
             model.addRow(new Object[]{
                 p.getID(),
                 p.getNombre(),
@@ -128,48 +129,52 @@ private void cargarTablaPizzas() {
     jTable1.getColumnModel().getColumn(2).setPreferredWidth(100);
 }
 
-private void cargarTablaRefrescos() {
-    javax.swing.table.DefaultTableModel model =
-        (javax.swing.table.DefaultTableModel) jTable2.getModel();
-    model.setRowCount(0);
+    private void cargarTablaRefrescos() {
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable2.getModel();
+        model.setRowCount(0);
 
-    for (Producto p : menu.getProductos()) {
-        if (p.getTipo() == pizzeria.model.TipoProducto.REFRESCO) {
+        for (Producto p : menu.getProductos()) {
+            if (p.getTipo() == pizzeria.model.TipoProducto.REFRESCO
+                    && menu.productoDisponible(p, inventario)) {
+                model.addRow(new Object[]{
+                    p.getID(),
+                    p.getNombre(),
+                    String.format("%.2f Bs.", p.getPrecio())
+                });
+            }
+        }
+        jTable2.getColumnModel().getColumn(0).setPreferredWidth(30);
+        jTable2.getColumnModel().getColumn(1).setPreferredWidth(250);
+        jTable2.getColumnModel().getColumn(2).setPreferredWidth(100);
+    }
+
+    private void cargarTablaCombos() {
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable3.getModel();
+        model.setRowCount(0);
+
+        for (Combo c : menu.getCombos()) {
+            if (!menu.comboDisponible(c, inventario)) {
+                continue;
+            }
+
+            StringBuilder productos = new StringBuilder();
+            for (int i = 0; i < c.getCombo().size(); i++) {
+                productos.append(c.getCombo().get(i).getNombre());
+                if (i < c.getCombo().size() - 1) productos.append(", ");
+            }
+
             model.addRow(new Object[]{
-                p.getID(),
-                p.getNombre(),
-                String.format("%.2f Bs.", p.getPrecio())
+                "Combo #" + c.getNroCombo(),
+                productos.toString(),
+                String.format("%.2f Bs.", c.getPrecio())
             });
         }
+        jTable3.getColumnModel().getColumn(0).setPreferredWidth(80);
+        jTable3.getColumnModel().getColumn(1).setPreferredWidth(250);
+        jTable3.getColumnModel().getColumn(2).setPreferredWidth(70);
     }
-    jTable2.getColumnModel().getColumn(0).setPreferredWidth(30);
-    jTable2.getColumnModel().getColumn(1).setPreferredWidth(250);
-    jTable2.getColumnModel().getColumn(2).setPreferredWidth(100);
-}   
-
-private void cargarTablaCombos() {
-    javax.swing.table.DefaultTableModel model =
-        (javax.swing.table.DefaultTableModel) jTable3.getModel();
-    model.setRowCount(0);
-
-    for (Combo c : menu.getCombos()) {
-        // Construye descripción con los nombres de los productos
-        StringBuilder productos = new StringBuilder();
-        for (int i = 0; i < c.getCombo().size(); i++) {
-            productos.append(c.getCombo().get(i).getNombre());
-            if (i < c.getCombo().size() - 1) productos.append(", ");
-        }
-
-        model.addRow(new Object[]{
-            "Combo #" + c.getNroCombo(),
-            productos.toString(),
-            String.format("%.2f Bs.", c.getPrecio())
-        });
-    }
-    jTable3.getColumnModel().getColumn(0).setPreferredWidth(80);
-    jTable3.getColumnModel().getColumn(1).setPreferredWidth(250);
-    jTable3.getColumnModel().getColumn(2).setPreferredWidth(70);
-}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -629,6 +634,8 @@ private void cargarTablaCombos() {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
     }
+    
+    
  
     
     public static void main(String args[]) {

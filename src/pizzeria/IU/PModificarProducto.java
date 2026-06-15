@@ -5,51 +5,92 @@
 package pizzeria.IU;
 
 import java.awt.BorderLayout;
+import javax.swing.JPanel;
 import java.util.ArrayList;
 import javax.swing.JCheckBox;
 import javax.swing.BoxLayout;
 import pizzeria.model.Inventario;
-import pizzeria.model.Insumo;
 import pizzeria.model.Menu;
 import pizzeria.model.Producto;
 import pizzeria.model.TipoProducto;
 import pizzeria.util.ArchivoMenu;
-import javax.swing.JPanel;
+import pizzeria.model.Insumo;
 
 /**
  *
  * @author KATANA
  */
-public class MenuAgregarProducto extends javax.swing.JPanel {
-
-    private ArrayList<JCheckBox> checkboxesInsumos = new ArrayList<>();
+public class PModificarProducto extends javax.swing.JPanel {
+    private ArrayList<JCheckBox> checkboxesInsumos = new ArrayList<>(); 
     private Inventario inventario;
     private Menu menu;
     private ArchivoMenu archivoMenu;
+    private Producto productoAEditar;
     private JPanel interfaz;
+    /**
+     * Creates new form PModificarProducto
+     */
+    public PModificarProducto() {
+        initComponents();
+    }
+    
+    public PModificarProducto(JPanel interfaz, Menu menu, Inventario inventario,
+                               ArchivoMenu archivoMenu, Producto producto) {
     
 
-    
-    public MenuAgregarProducto() {
-        initComponents();
-    }
-    
-    public MenuAgregarProducto(JPanel interfaz,Inventario inventario) {
-        initComponents();
-        this.inventario = inventario;
-        cargarInsumos();
-    }
-    
-     public MenuAgregarProducto(JPanel interfaz, Menu menu, Inventario inventario,
-                               ArchivoMenu archivoMenu) {
         this.interfaz = interfaz;
         this.menu = menu;
         this.inventario = inventario;
         this.archivoMenu = archivoMenu;
-        
+        this.productoAEditar = producto;
+
         initComponents();
-        cargarInsumos();
+        cargarInsumos();         
+        precargarDatos();
         
+    }
+    
+    private void precargarDatos() {
+        if (productoAEditar == null) return;
+ 
+        txtNombre.setText(productoAEditar.getNombre());
+        txtPrecio.setText(String.valueOf(productoAEditar.getPrecio()));
+        txtDescrip.setText(productoAEditar.getDescripcion());
+ 
+        // Seleccionar el tipo en el combo
+        String tipoStr = productoAEditar.getTipo().toString();
+        for (int i = 0; i < tipoP.getItemCount(); i++) {
+            if (tipoP.getItemAt(i).equalsIgnoreCase(tipoStr)) {
+                tipoP.setSelectedIndex(i);
+                break;
+            }
+        }
+ 
+        // Marcar los checkboxes de ingredientes que ya tiene el producto
+        ArrayList<Integer> idsIngredientes = productoAEditar.getIngredientes();
+        for (int i = 0; i < checkboxesInsumos.size(); i++) {
+            Insumo ins = inventario.getInsumos().get(i);
+            checkboxesInsumos.get(i).setSelected(idsIngredientes.contains(ins.getId()));
+        }
+    }
+    
+    private void cargarInsumos() {
+        panelInsumos.removeAll();
+        checkboxesInsumos.clear();
+        panelInsumos.setLayout(new BoxLayout(panelInsumos, BoxLayout.Y_AXIS));
+ 
+        if (inventario != null) {
+            for (Insumo ins : inventario.getInsumos()) {
+                JCheckBox chk = new JCheckBox(ins.getNombre());
+                chk.setBackground(java.awt.Color.WHITE);
+                chk.setFont(new java.awt.Font("Segoe UI", 0, 16));
+                checkboxesInsumos.add(chk);
+                panelInsumos.add(chk);
+            }
+        }
+ 
+        panelInsumos.revalidate();
+        panelInsumos.repaint();
     }
 
     /**
@@ -62,11 +103,11 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        txtNombre = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        txtNombre = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         txtPrecio = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
         txtDescrip = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         tipoP = new javax.swing.JComboBox<>();
@@ -83,21 +124,17 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 28)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(168, 27, 29));
-        jLabel1.setText("AGREGAR PRODUCTO");
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("MODIFICAR PRODUCTO");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-
-        txtNombre.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        txtNombre.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
 
         jLabel2.setBackground(new java.awt.Color(255, 255, 255));
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel2.setText("Nombre del Producto:");
 
-        jLabel3.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel3.setText("Descripción:");
+        txtNombre.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtNombre.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
 
         jLabel4.setBackground(new java.awt.Color(255, 255, 255));
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
@@ -106,6 +143,11 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
 
         txtPrecio.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         txtPrecio.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+        jLabel3.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel3.setText("Descripción:");
 
         txtDescrip.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
 
@@ -121,13 +163,13 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
         btnGuardar.setBackground(new java.awt.Color(168, 27, 29));
         btnGuardar.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnGuardar.setForeground(new java.awt.Color(255, 255, 255));
-        btnGuardar.setText("Guardar Producto");
+        btnGuardar.setText("Guardar Cambios");
         btnGuardar.addActionListener(this::btnGuardarActionPerformed);
 
         btnCancelar.setBackground(new java.awt.Color(106, 68, 68));
         btnCancelar.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnCancelar.setForeground(new java.awt.Color(255, 255, 255));
-        btnCancelar.setText("Volver");
+        btnCancelar.setText("Cancelar");
         btnCancelar.addActionListener(this::btnCancelarActionPerformed);
 
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
@@ -176,41 +218,39 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(97, 97, 97)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtPrecio, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
-                                    .addComponent(tipoP, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtDescrip)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(36, 36, 36)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(37, 37, 37))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(165, 165, 165)
-                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(177, 177, 177))))
+                .addGap(218, 218, 218)
+                .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(175, 175, 175)
+                .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(191, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(335, 335, 335))
+                .addContainerGap()
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(96, 96, 96)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tipoP, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtDescrip, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(46, 46, 46))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(29, 29, 29)
+                .addGap(32, 32, 32)
                 .addComponent(jLabel1)
                 .addGap(47, 47, 47)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -230,12 +270,12 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(tipoP, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(62, 62, 62)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(71, 71, 71)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(66, Short.MAX_VALUE))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -244,13 +284,6 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
     }//GEN-LAST:event_tipoPActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        if (menu == null) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "No se puede guardar: el menú no está disponible.",
-                "Error interno", javax.swing.JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
         // 1. Validar nombre
         String nombre = txtNombre.getText().trim();
         if (nombre.isEmpty()) {
@@ -258,14 +291,16 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
                 "Ingrese el nombre del producto.",
                 "Campo vacío", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
-        } else if (menu.buscarProductoNombre(nombre)!= null){
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "Ingrese un nombre diferente",
-                "Producto ya existe", javax.swing.JOptionPane.WARNING_MESSAGE);
-            return;
-            
         }
-
+        Producto existente = menu.buscarProductoNombre(nombre);
+        if (existente != null && existente.getID() != productoAEditar.getID()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Ya existe un producto con ese nombre.",
+                    "Producto ya existe", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+ 
         // 2. Validar precio
         String precioTxt = txtPrecio.getText().trim();
         double precio;
@@ -278,97 +313,61 @@ public class MenuAgregarProducto extends javax.swing.JPanel {
                 "Precio inválido", javax.swing.JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        // 3. Descripción (opcional, pero no debe ser nula)
+ 
+        // 3. Descripción
         String descripcion = txtDescrip.getText().trim();
-
-        // 4. Tipo de producto
+ 
+        // 4. Tipo
         TipoProducto tipo = TipoProducto.fromString((String) tipoP.getSelectedItem());
-
-        ArrayList<Integer> ingredientes = new ArrayList<>();
-            for (int i = 0; i < checkboxesInsumos.size(); i++) {
-                if (checkboxesInsumos.get(i).isSelected()) {
-                    Insumo ins = inventario.getInsumos().get(i);
-                    ingredientes.add(ins.getId());
-                }
+ 
+        // 5. Ingredientes seleccionados
+        ArrayList<Integer> nuevosIngredientes = new ArrayList<>();
+        for (int i = 0; i < checkboxesInsumos.size(); i++) {
+            if (checkboxesInsumos.get(i).isSelected()) {
+                Insumo ins = inventario.getInsumos().get(i);
+                nuevosIngredientes.add(ins.getId());
             }
-        
-
-        
-        
-
-        menu.agregarProducto(nombre, descripcion, precio, tipo);
-        Producto recienAgregado = menu.getProductos().get(menu.getProductos().size() - 1);
-        for (int idIng : ingredientes) {
-            recienAgregado.agregarIngrediente(idIng);
         }
-        // 8. Persistir en disco
+ 
+        // 6. Aplicar cambios con los setters de Producto
+        productoAEditar.setNombre(nombre);
+        productoAEditar.setDescripcion(descripcion);
+        productoAEditar.setPrecio(precio);
+        productoAEditar.setTipo(tipo);
+        productoAEditar.setIngredientes(nuevosIngredientes);
+ 
+        // 7. Persistir en disco
         if (archivoMenu != null) {
             archivoMenu.guardarProductos(menu.getProductos());
         }
-
-        // 9. Confirmar al usuario y limpiar el formulario
+ 
+        // 8. Confirmar y volver
         javax.swing.JOptionPane.showMessageDialog(this,
-            "Producto \"" + nombre + "\" agregado correctamente.",
+            "Producto \"" + nombre + "\" modificado correctamente.",
             "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-
-        limpiarFormulario();
-        cargarPanel(new PVerProductos(interfaz, menu, archivoMenu, inventario));
-        
-        
+ 
+        cargarPanel(new PVerProductos(interfaz, menu, archivoMenu, inventario));        
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this,
-            "¿Descartar los datos ingresados?",
+            "¿Descartar los cambios?",
             "Cancelar", javax.swing.JOptionPane.YES_NO_OPTION,
             javax.swing.JOptionPane.QUESTION_MESSAGE);
-
+ 
         if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
-            limpiarFormulario();
             cargarPanel(new PVerProductos(interfaz, menu, archivoMenu, inventario));
-            // Si hay callback de cancelación se puede añadir aquí
         }
-        
-        
     }//GEN-LAST:event_btnCancelarActionPerformed
 
-    private void cargarPanel(JPanel panel) {
-    interfaz.removeAll();
-    interfaz.setLayout(new BorderLayout());
-    interfaz.add(panel, BorderLayout.CENTER);
-    interfaz.revalidate();
-    interfaz.repaint();
-    }
     
-    private void cargarInsumos() {
-        panelInsumos.removeAll();
-        checkboxesInsumos.clear();
-        panelInsumos.setLayout(new BoxLayout(panelInsumos, BoxLayout.Y_AXIS));
-
-        if (inventario != null) {
-            for (Insumo ins : inventario.getInsumos()) {
-                JCheckBox chk = new JCheckBox(ins.getNombre());
-                chk.setBackground(java.awt.Color.WHITE);
-                chk.setFont(new java.awt.Font("Segoe UI", 0, 16));
-                checkboxesInsumos.add(chk);
-                panelInsumos.add(chk);
-            }
-        }
-
-        panelInsumos.revalidate();
-        panelInsumos.repaint();
-    }
-
-    private void limpiarFormulario() {
-        txtNombre.setText("");
-        txtPrecio.setText("");
-        txtDescrip.setText("");
-        tipoP.setSelectedIndex(0);
-        for (JCheckBox chk : checkboxesInsumos) {
-            chk.setSelected(false);
-        }
-        
+     
+    private void cargarPanel(JPanel panel) {
+        interfaz.removeAll();
+        interfaz.setLayout(new BorderLayout());
+        interfaz.add(panel, BorderLayout.CENTER);
+        interfaz.revalidate();
+        interfaz.repaint();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
