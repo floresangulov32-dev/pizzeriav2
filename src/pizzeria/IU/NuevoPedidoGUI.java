@@ -401,7 +401,7 @@ public class NuevoPedidoGUI extends javax.swing.JFrame {
         jButton4.setBackground(new java.awt.Color(168, 27, 29));
         jButton4.setFont(new java.awt.Font("Liberation Sans", 1, 15)); // NOI18N
         jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("REVISAR PEDIDO");
+        jButton4.setText("COBRAR PEDIDO");
         jButton4.addActionListener(this::jButton4ActionPerformed);
 
         jLabel7.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
@@ -429,7 +429,7 @@ public class NuevoPedidoGUI extends javax.swing.JFrame {
                         .addGroup(InterfazLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(InterfazLayout.createSequentialGroup()
                                 .addComponent(jButton3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
                                 .addComponent(jButton4)
                                 .addGap(52, 52, 52))
                             .addGroup(InterfazLayout.createSequentialGroup()
@@ -549,21 +549,103 @@ this.dispose();
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-        new RevisarPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
+        pizzeria.controller.GestorVenta gestorVenta =
+            ContextoVentasGUI.getInstancia()
+                    .getGestorVenta();
+
+        pizzeria.model.Venta venta =
+                gestorVenta.getVentaActual();
+
+        // Validar que exista un pedido.
+        if (venta == null) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "No existe un pedido actual.",
+                    "Pedido no encontrado",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        // Validar que tenga productos o combos.
+        if (venta.getItems().isEmpty()
+                && venta.getCombos().isEmpty()) {
+
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "El pedido está vacío.\n"
+                            + "Agregue al menos un producto o combo antes de cobrar.",
+                    "Pedido vacío",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        /*
+         * Validar todo el inventario antes de permitir
+         * que el cajero entre a la pantalla de cobro.
+         */
+        String errorStock =
+                gestorVenta.validarStockPedidoActualGUI();
+
+        if (errorStock != null) {
+            mostrarMensajeStock(
+                    errorStock,
+                    "No se puede cobrar el pedido"
+            );
+            return;
+        }
+
+        // El pedido es válido: ir directamente al cobro.
+        new CobroPedidoGUI(
+                rolUsuario,
+                nombreUsuario
+        ).setVisible(true);
+
         this.dispose();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this,
-            "¿Descartar los datos ingresados?",
-            "Cancelar", javax.swing.JOptionPane.YES_NO_OPTION,
-            javax.swing.JOptionPane.QUESTION_MESSAGE);
-        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
-            new VentasGUI(rolUsuario,nombreUsuario).setVisible(true);
-            this.dispose();
-        }
         
+        int confirmacion =
+            javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Está seguro de cancelar el pedido?\n"
+                            + "Se eliminarán todos los productos y combos agregados.",
+                    "Cancelar pedido",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
 
+        if (confirmacion
+                != javax.swing.JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        pizzeria.controller.GestorVenta gestorVenta =
+                ContextoVentasGUI.getInstancia()
+                        .getGestorVenta();
+
+        /*
+         * Elimina completamente el pedido temporal.
+         * Como aún no fue pagado, no se debe devolver stock:
+         * el inventario todavía no fue descontado.
+         */
+        gestorVenta.cancelarArmadoPedido();
+
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "El pedido fue cancelado correctamente.",
+                "Pedido cancelado",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+
+        new VentasGUI(
+                rolUsuario,
+                nombreUsuario
+        ).setVisible(true);
+
+        this.dispose();
     }//GEN-LAST:event_jButton5ActionPerformed
     
     private void mostrarUsuario() {
@@ -668,6 +750,62 @@ this.dispose();
 
 
     }
+    
+private void mostrarMensajeStock(
+        String mensaje,
+        String titulo
+) {
+    if (mensaje == null
+            || mensaje.trim().isEmpty()) {
+        return;
+    }
+
+    javax.swing.JTextArea areaMensaje =
+            new javax.swing.JTextArea(mensaje);
+
+    areaMensaje.setEditable(false);
+    areaMensaje.setLineWrap(true);
+    areaMensaje.setWrapStyleWord(true);
+    areaMensaje.setCaretPosition(0);
+
+    java.awt.Font fuente =
+            javax.swing.UIManager.getFont(
+                    "Label.font"
+            );
+
+    if (fuente != null) {
+        areaMensaje.setFont(fuente);
+    }
+
+    java.awt.Color fondo =
+            javax.swing.UIManager.getColor(
+                    "Panel.background"
+            );
+
+    if (fondo != null) {
+        areaMensaje.setBackground(fondo);
+    }
+
+    javax.swing.JScrollPane scroll =
+            new javax.swing.JScrollPane(
+                    areaMensaje
+            );
+
+    scroll.setPreferredSize(
+            new java.awt.Dimension(560, 280)
+    );
+
+    scroll.setBorder(
+            javax.swing.BorderFactory.createEmptyBorder()
+    );
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            scroll,
+            titulo,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
     
     private void cargarImagen(JLabel label, String ruta){
      label.setText("");

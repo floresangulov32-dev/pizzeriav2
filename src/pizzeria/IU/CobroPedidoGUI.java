@@ -576,76 +576,179 @@ public class CobroPedidoGUI extends javax.swing.JFrame {
     }
     }//GEN-LAST:event_btnCerrarActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        
-            pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
-            .getGestorVenta()
-            .getVentaActual();
-
-    if (venta == null || (venta.getItems().isEmpty() && venta.getCombos().isEmpty())) {
-        javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "No hay productos ni combos en el pedido.",
-                "Pedido vacío",
-                javax.swing.JOptionPane.WARNING_MESSAGE
-        );
+private void mostrarMensajeStock(
+        String mensaje,
+        String titulo
+) {
+    if (mensaje == null
+            || mensaje.trim().isEmpty()) {
         return;
     }
 
-    venta.calcularTotal();
+    javax.swing.JTextArea areaMensaje =
+            new javax.swing.JTextArea(mensaje);
 
-    String cliente = txtClienteCobro.getText().trim();
+    areaMensaje.setEditable(false);
+    areaMensaje.setLineWrap(true);
+    areaMensaje.setWrapStyleWord(true);
+    areaMensaje.setCaretPosition(0);
 
-    if (cliente.isEmpty()) {
-        cliente = "Sin nombre";
+    java.awt.Font fuente =
+            javax.swing.UIManager.getFont(
+                    "Label.font"
+            );
+
+    if (fuente != null) {
+        areaMensaje.setFont(fuente);
     }
 
-    pizzeria.model.MetodoPago metodoEnum = obtenerMetodoPagoSeleccionado();
-    String metodoPago = metodoEnum.getNombre();
+    java.awt.Color fondo =
+            javax.swing.UIManager.getColor(
+                    "Panel.background"
+            );
 
-    boolean esReserva = rbReserva.isSelected();
-
-    String tipoPedido = esReserva ? "Reserva" : "Venta inmediata";
-
-    double montoRecibido;
-    double cambio;
-
-    try {
-        double[] datosPago = validarYObtenerDatosPago(venta);
-        montoRecibido = datosPago[0];
-        cambio = datosPago[1];
-    } catch (IllegalArgumentException e) {
-        javax.swing.JOptionPane.showMessageDialog(
-                this,
-                e.getMessage(),
-                "Pago inválido",
-                javax.swing.JOptionPane.WARNING_MESSAGE
-        );
-        return;
+    if (fondo != null) {
+        areaMensaje.setBackground(fondo);
     }
 
-    ContextoVentasGUI.getInstancia().guardarDatosCobro(
-            cliente,
-            metodoPago,
-            tipoPedido,
-            montoRecibido,
-            cambio
+    javax.swing.JScrollPane scroll =
+            new javax.swing.JScrollPane(
+                    areaMensaje
+            );
+
+    scroll.setPreferredSize(
+            new java.awt.Dimension(560, 280)
     );
 
-    if (esReserva) {
-        registrarReservaDesdeCobro(metodoEnum, metodoPago, montoRecibido, cliente);
-        return;
-    }
+    scroll.setBorder(
+            javax.swing.BorderFactory.createEmptyBorder()
+    );
 
-    registrarVentaInmediataDesdeCobro(metodoEnum, montoRecibido, cliente);
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            scroll,
+            titulo,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}    
+    
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+            // TODO add your handling code here:
+
+              /*
+         * Obtener una sola vez el GestorVenta.
+         * Desde este objeto obtenemos el pedido y validamos su stock.
+         */
+        pizzeria.controller.GestorVenta gestorVenta =
+                ContextoVentasGUI.getInstancia()
+                        .getGestorVenta();
+
+        pizzeria.model.Venta venta =
+                gestorVenta.getVentaActual();
+
+        // Validar que exista un pedido y que no esté vacío.
+        if (venta == null
+                || (venta.getItems().isEmpty()
+                && venta.getCombos().isEmpty())) {
+
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "No hay productos ni combos en el pedido.",
+                    "Pedido vacío",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        /*
+         * Validación final del inventario antes de confirmar el pago.
+         */
+        String errorStock =
+                gestorVenta.validarStockPedidoActualGUI();
+
+        if (errorStock != null) {
+            mostrarMensajeStock(
+                    errorStock,
+                    "No se puede confirmar el pago"
+            );
+            return;
+        }
+
+        venta.calcularTotal();
+
+        String cliente =
+                txtClienteCobro.getText().trim();
+
+        if (cliente.isEmpty()) {
+            cliente = "Sin nombre";
+        }
+
+        pizzeria.model.MetodoPago metodoEnum =
+                obtenerMetodoPagoSeleccionado();
+
+        String metodoPago =
+                metodoEnum.getNombre();
+
+        boolean esReserva =
+                rbReserva.isSelected();
+
+        String tipoPedido =
+                esReserva
+                        ? "Reserva"
+                        : "Venta inmediata";
+
+        double montoRecibido;
+        double cambio;
+
+        try {
+            double[] datosPago =
+                    validarYObtenerDatosPago(venta);
+
+            montoRecibido = datosPago[0];
+            cambio = datosPago[1];
+
+        } catch (IllegalArgumentException e) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "Pago inválido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        ContextoVentasGUI.getInstancia()
+                .guardarDatosCobro(
+                        cliente,
+                        metodoPago,
+                        tipoPedido,
+                        montoRecibido,
+                        cambio
+                );
+
+        if (esReserva) {
+            registrarReservaDesdeCobro(
+                    metodoEnum,
+                    metodoPago,
+                    montoRecibido,
+                    cliente
+            );
+            return;
+        }
+
+        registrarVentaInmediataDesdeCobro(
+                metodoEnum,
+                montoRecibido,
+                cliente
+        );
+
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        new RevisarPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
-        this.dispose();
+         new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
+         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void rbEfectivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbEfectivoActionPerformed
@@ -753,12 +856,32 @@ public class CobroPedidoGUI extends javax.swing.JFrame {
             });
         }
 
-        for (pizzeria.model.DetalleCombo detalleCombo : venta.getCombos()) {
-            modelo.addRow(new Object[]{
-                "Combo #" + detalleCombo.getNroCombo() + " x" + detalleCombo.getCantidad(),
-                "Bs. " + String.format("%.2f", detalleCombo.getSubTotal())
-            });
+        for (pizzeria.model.DetalleCombo detalleCombo: venta.getCombos()) {
+
+            String detalleComboTexto =
+                    "Combo #"
+                    + detalleCombo.getNroCombo()
+                    + " x"
+                    + detalleCombo.getCantidad();
+
+            if (detalleCombo.getDescripcion() != null
+                    && !detalleCombo.getDescripcion()
+                            .trim()
+                            .isEmpty()) {
+
+                detalleComboTexto += " - "
+                        + detalleCombo.getDescripcion();
         }
+
+        modelo.addRow(new Object[]{
+            detalleComboTexto,
+            "Bs. "
+                    + String.format(
+                            "%.2f",
+                            detalleCombo.getSubTotal()
+                    )
+        });
+    }
 
         venta.calcularTotal();
 

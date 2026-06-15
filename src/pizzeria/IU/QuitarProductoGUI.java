@@ -15,6 +15,8 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
     private String rolUsuario;
     private javax.swing.JButton btnActivo = null;
     private java.util.ArrayList<Integer> indicesMostrados = new java.util.ArrayList<>();
+    private javax.swing.JSpinner spnNuevaCantidad;
+    private javax.swing.JButton btnActualizarCantidad;
     /**
      * Creates new form MenuGerente
      */
@@ -453,80 +455,110 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        
         int fila = jTable1.getSelectedRow();
 
-        if (fila == -1) {
+    if (fila == -1) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un producto o combo de la tabla.",
+                "Elemento no seleccionado",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    int filaModelo = jTable1.convertRowIndexToModel(fila);
+
+    if (filaModelo < 0 || filaModelo >= indicesMostrados.size()) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se pudo identificar el elemento seleccionado.",
+                "Error de selección",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    pizzeria.model.Venta venta =
+            ContextoVentasGUI.getInstancia()
+                    .getGestorVenta()
+                    .getVentaActual();
+
+    if (venta == null) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No existe un pedido actual.",
+                "Pedido no encontrado",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    int indiceReal = indicesMostrados.get(filaModelo);
+    int cantidadProductos = venta.getItems().size();
+
+    String nombreElemento;
+
+    if (indiceReal < cantidadProductos) {
+        nombreElemento = venta.getItems()
+                .get(indiceReal)
+                .getProducto()
+                .getNombre();
+    } else {
+        int indiceCombo = indiceReal - cantidadProductos;
+
+        if (indiceCombo < 0 || indiceCombo >= venta.getCombos().size()) {
             javax.swing.JOptionPane.showMessageDialog(
                     this,
-                    "Seleccione un producto o combo de la tabla.",
-                    "Elemento no seleccionado",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        int filaModelo = jTable1.convertRowIndexToModel(fila);
-
-        if (filaModelo < 0 || filaModelo >= indicesMostrados.size()) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No se pudo identificar el elemento seleccionado.",
+                    "No se pudo identificar el combo seleccionado.",
                     "Error de selección",
                     javax.swing.JOptionPane.WARNING_MESSAGE
             );
             return;
         }
 
-        int respuesta = javax.swing.JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro de quitar este elemento del pedido?",
-                "Confirmar eliminación",
-                javax.swing.JOptionPane.YES_NO_OPTION
-        );
+        nombreElemento = "Combo #"
+                + venta.getCombos()
+                        .get(indiceCombo)
+                        .getNroCombo();
+    }
 
-        if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
-            return;
-        }
+    int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿Está seguro de quitar "
+                    + nombreElemento
+                    + " del pedido?",
+            "Confirmar eliminación",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
 
-        pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
+    if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    if (indiceReal < cantidadProductos) {
+        ContextoVentasGUI.getInstancia()
                 .getGestorVenta()
-                .getVentaActual();
+                .quitarItem(indiceReal);
+    } else {
+        int indiceCombo = indiceReal - cantidadProductos;
 
-        if (venta == null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
-                    "No existe un pedido actual.",
-                    "Pedido no encontrado",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
+        ContextoVentasGUI.getInstancia()
+                .getGestorVenta()
+                .quitarCombo(indiceCombo);
+    }
 
-        int indiceReal = indicesMostrados.get(filaModelo);
-        int cantidadProductos = venta.getItems().size();
-
-        if (indiceReal < cantidadProductos) {
-            ContextoVentasGUI.getInstancia()
-                    .getGestorVenta()
-                    .quitarItem(indiceReal);
-        } else {
-            int indiceCombo = indiceReal - cantidadProductos;
-
-            ContextoVentasGUI.getInstancia()
-                    .getGestorVenta()
-                    .quitarCombo(indiceCombo);
-        }
-
-            javax.swing.JOptionPane.showMessageDialog(
+    javax.swing.JOptionPane.showMessageDialog(
             this,
             "Elemento quitado del pedido correctamente.",
             "Elemento eliminado",
             javax.swing.JOptionPane.INFORMATION_MESSAGE
     );
 
-    new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
-    this.dispose();
+    cargarPedidoActual(jTextField1.getText().trim());
+    limpiarSeleccionEdicion();
+       
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -539,7 +571,9 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
     
     
     
-    private void inicializarVentanaQuitarProducto() {
+private void inicializarVentanaQuitarProducto() {
+    crearControlesEdicionCantidad();
+
     aplicarEstructuraVisualCajero();
     reconstruirInterfazQuitarProducto();
 
@@ -547,11 +581,69 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
     configurarHover();
     activarBoton(btnInicio);
 
+    jLabel19.setText("EDITAR / QUITAR ELEMENTO");
+    jLabel7.setText(
+            "Selecciona un producto o combo para cambiar su cantidad o quitarlo."
+    );
+    jLabel9.setText("ELEMENTOS DEL PEDIDO");
+    jButton1.setText("QUITAR DEL PEDIDO");
+
     configurarTablaQuitarPedido();
     cargarPedidoActual();
     configurarBusquedaYSeleccion();
 
-    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+    limpiarSeleccionEdicion();
+
+    cargarImagen(
+            lblLogo,
+            "resources/imagenes/logoCasaDelSabor.jpeg"
+    );
+}
+private void crearControlesEdicionCantidad() {
+    spnNuevaCantidad = new javax.swing.JSpinner(
+            new javax.swing.SpinnerNumberModel(
+                    1,
+                    1,
+                    null,
+                    1
+            )
+    );
+        /*
+     * Evita que el campo regrese silenciosamente al valor anterior
+     * cuando el usuario escribe un dato inválido y pulsa el botón.
+     */
+    javax.swing.JFormattedTextField campoCantidad =
+            ((javax.swing.JSpinner.DefaultEditor)
+                    spnNuevaCantidad.getEditor())
+                    .getTextField();
+
+    campoCantidad.setFocusLostBehavior(
+            javax.swing.JFormattedTextField.PERSIST
+    );
+
+    btnActualizarCantidad =
+            new javax.swing.JButton("ACTUALIZAR CANTIDAD");
+
+    btnActualizarCantidad.setBackground(
+            new java.awt.Color(168, 27, 29)
+    );
+    btnActualizarCantidad.setForeground(
+            java.awt.Color.WHITE
+    );
+    btnActualizarCantidad.setFont(
+            new java.awt.Font(
+                    "Liberation Sans",
+                    java.awt.Font.BOLD,
+                    14
+            )
+    );
+    btnActualizarCantidad.setFocusPainted(false);
+    btnActualizarCantidad.setBorderPainted(false);
+    btnActualizarCantidad.setOpaque(true);
+
+    btnActualizarCantidad.addActionListener(
+            e -> actualizarCantidadSeleccionada()
+    );
 }
     
     
@@ -654,80 +746,179 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
     boton.setBorderPainted(false);
 }
     
-    
-    private void reconstruirInterfazQuitarProducto() {
+private void reconstruirInterfazQuitarProducto() {
     Interfaz.removeAll();
     Interfaz.setLayout(new java.awt.BorderLayout());
     Interfaz.setBackground(java.awt.Color.WHITE);
-    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(25, 45, 20, 45));
+    Interfaz.setBorder(
+            javax.swing.BorderFactory.createEmptyBorder(
+                    20,
+                    45,
+                    15,
+                    45
+            )
+    );
 
-    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    javax.swing.JPanel panelContenido =
+            new javax.swing.JPanel();
+
     panelContenido.setOpaque(false);
-    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+    panelContenido.setLayout(
+            new javax.swing.BoxLayout(
+                    panelContenido,
+                    javax.swing.BoxLayout.Y_AXIS
+            )
+    );
 
-    javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.BorderLayout());
+    javax.swing.JPanel panelBotones =
+            new javax.swing.JPanel(
+                    new java.awt.BorderLayout()
+            );
+
     panelBotones.setOpaque(false);
-    panelBotones.setMaximumSize(new java.awt.Dimension(820, 42));
-    panelBotones.setPreferredSize(new java.awt.Dimension(820, 42));
-    panelBotones.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    panelBotones.setMaximumSize(
+            new java.awt.Dimension(820, 40)
+    );
+    panelBotones.setPreferredSize(
+            new java.awt.Dimension(820, 40)
+    );
+    panelBotones.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
 
-    jButton2.setPreferredSize(new java.awt.Dimension(180, 40));
-    jButton1.setPreferredSize(new java.awt.Dimension(220, 40));
+    jButton2.setPreferredSize(
+            new java.awt.Dimension(180, 40)
+    );
+    jButton1.setPreferredSize(
+            new java.awt.Dimension(220, 40)
+    );
 
-    panelBotones.add(jButton2, java.awt.BorderLayout.WEST);
-    panelBotones.add(jButton1, java.awt.BorderLayout.EAST);
+    panelBotones.add(
+            jButton2,
+            java.awt.BorderLayout.WEST
+    );
+    panelBotones.add(
+            jButton1,
+            java.awt.BorderLayout.EAST
+    );
 
-    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
-    jLabel7.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
-    jLabel6.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel19.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+    jLabel7.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+    jLabel6.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
 
-    jTextField1.setPreferredSize(new java.awt.Dimension(370, 32));
-    jTextField1.setMaximumSize(new java.awt.Dimension(370, 32));
-    jTextField1.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jTextField1.setPreferredSize(
+            new java.awt.Dimension(370, 32)
+    );
+    jTextField1.setMaximumSize(
+            new java.awt.Dimension(370, 32)
+    );
+    jTextField1.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
 
     reconstruirPanelProductosPedido();
     reconstruirPanelProductoSeleccionado();
 
     panelContenido.add(panelBotones);
-    panelContenido.add(javax.swing.Box.createVerticalStrut(16));
+    panelContenido.add(
+            javax.swing.Box.createVerticalStrut(12)
+    );
     panelContenido.add(jLabel19);
-    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(
+            javax.swing.Box.createVerticalStrut(4)
+    );
     panelContenido.add(jLabel7);
-    panelContenido.add(javax.swing.Box.createVerticalStrut(20));
+    panelContenido.add(
+            javax.swing.Box.createVerticalStrut(12)
+    );
     panelContenido.add(jLabel6);
-    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(
+            javax.swing.Box.createVerticalStrut(4)
+    );
     panelContenido.add(jTextField1);
-    panelContenido.add(javax.swing.Box.createVerticalStrut(16));
+    panelContenido.add(
+            javax.swing.Box.createVerticalStrut(10)
+    );
     panelContenido.add(jPanel2);
-    panelContenido.add(javax.swing.Box.createVerticalStrut(14));
+    panelContenido.add(
+            javax.swing.Box.createVerticalStrut(10)
+    );
     panelContenido.add(jPanel3);
 
-    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+    Interfaz.add(
+            panelContenido,
+            java.awt.BorderLayout.CENTER
+    );
 
     Interfaz.revalidate();
     Interfaz.repaint();
-}
+} 
     
-    private void reconstruirPanelProductosPedido() {
+private void reconstruirPanelProductosPedido() {
     jPanel2.removeAll();
     jPanel2.setBackground(java.awt.Color.WHITE);
-    jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
-            javax.swing.BorderFactory.createEmptyBorder(16, 22, 16, 22)
-    ));
-    jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
-    jPanel2.setMaximumSize(new java.awt.Dimension(820, 205));
-    jPanel2.setPreferredSize(new java.awt.Dimension(820, 205));
-    jPanel2.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 
-    jLabel9.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jPanel2.setBorder(
+            javax.swing.BorderFactory.createCompoundBorder(
+                    javax.swing.BorderFactory.createLineBorder(
+                            new java.awt.Color(217, 217, 217)
+                    ),
+                    javax.swing.BorderFactory.createEmptyBorder(
+                            12,
+                            22,
+                            12,
+                            22
+                    )
+            )
+    );
 
-    jScrollPane1.setPreferredSize(new java.awt.Dimension(700, 120));
-    jScrollPane1.setMaximumSize(new java.awt.Dimension(700, 120));
-    jScrollPane1.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jPanel2.setLayout(
+            new javax.swing.BoxLayout(
+                    jPanel2,
+                    javax.swing.BoxLayout.Y_AXIS
+            )
+    );
+
+    jPanel2.setMaximumSize(
+            new java.awt.Dimension(820, 175)
+    );
+    jPanel2.setPreferredSize(
+            new java.awt.Dimension(820, 175)
+    );
+    jPanel2.setMinimumSize(
+            new java.awt.Dimension(820, 175)
+    );
+    jPanel2.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+
+    jLabel9.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+
+    jScrollPane1.setPreferredSize(
+            new java.awt.Dimension(770, 105)
+    );
+    jScrollPane1.setMaximumSize(
+            new java.awt.Dimension(770, 105)
+    );
+    jScrollPane1.setMinimumSize(
+            new java.awt.Dimension(770, 105)
+    );
+    jScrollPane1.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
 
     jPanel2.add(jLabel9);
-    jPanel2.add(javax.swing.Box.createVerticalStrut(10));
+    jPanel2.add(
+            javax.swing.Box.createVerticalStrut(8)
+    );
     jPanel2.add(jScrollPane1);
 
     jPanel2.revalidate();
@@ -735,37 +926,136 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
 }
     
     
-    
-    private void reconstruirPanelProductoSeleccionado() {
+private void reconstruirPanelProductoSeleccionado() {
     jPanel3.removeAll();
-    jPanel3.setBackground(new java.awt.Color(252, 235, 235));
-    jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
-            javax.swing.BorderFactory.createEmptyBorder(14, 22, 14, 22)
-    ));
-    jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.Y_AXIS));
-    jPanel3.setMaximumSize(new java.awt.Dimension(820, 90));
-    jPanel3.setPreferredSize(new java.awt.Dimension(820, 90));
-    jPanel3.setMinimumSize(new java.awt.Dimension(820, 90));
-    jPanel3.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jPanel3.setBackground(
+            new java.awt.Color(252, 235, 235)
+    );
 
-    javax.swing.JPanel filaSeleccion = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 8, 0));
+    jPanel3.setBorder(
+            javax.swing.BorderFactory.createCompoundBorder(
+                    javax.swing.BorderFactory.createLineBorder(
+                            new java.awt.Color(217, 217, 217)
+                    ),
+                    javax.swing.BorderFactory.createEmptyBorder(
+                            10,
+                            18,
+                            10,
+                            18
+                    )
+            )
+    );
+
+    jPanel3.setLayout(
+            new javax.swing.BoxLayout(
+                    jPanel3,
+                    javax.swing.BoxLayout.Y_AXIS
+            )
+    );
+
+    jPanel3.setMaximumSize(
+            new java.awt.Dimension(820, 120)
+    );
+    jPanel3.setPreferredSize(
+            new java.awt.Dimension(820, 120)
+    );
+    jPanel3.setMinimumSize(
+            new java.awt.Dimension(820, 120)
+    );
+    jPanel3.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+
+    // ===== FILA DEL ELEMENTO SELECCIONADO =====
+    javax.swing.JPanel filaSeleccion =
+            new javax.swing.JPanel(
+                    new java.awt.FlowLayout(
+                            java.awt.FlowLayout.LEFT,
+                            8,
+                            0
+                    )
+            );
+
     filaSeleccion.setOpaque(false);
-    filaSeleccion.setMaximumSize(new java.awt.Dimension(760, 32));
-    filaSeleccion.setPreferredSize(new java.awt.Dimension(760, 32));
-    filaSeleccion.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    filaSeleccion.setMaximumSize(
+            new java.awt.Dimension(770, 30)
+    );
+    filaSeleccion.setPreferredSize(
+            new java.awt.Dimension(770, 30)
+    );
+    filaSeleccion.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+
+    jLabel3.setText("Elemento seleccionado:");
 
     jTextField2.setEditable(false);
-    jTextField2.setPreferredSize(new java.awt.Dimension(480, 30));
-    jTextField2.setMaximumSize(new java.awt.Dimension(480, 30));
+    jTextField2.setPreferredSize(
+            new java.awt.Dimension(500, 28)
+    );
 
     filaSeleccion.add(jLabel3);
     filaSeleccion.add(jTextField2);
 
-    jLabel8.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    // ===== FILA PARA EDITAR CANTIDAD =====
+    javax.swing.JPanel filaCantidad =
+            new javax.swing.JPanel(
+                    new java.awt.FlowLayout(
+                            java.awt.FlowLayout.LEFT,
+                            8,
+                            0
+                    )
+            );
+
+    filaCantidad.setOpaque(false);
+    filaCantidad.setMaximumSize(
+            new java.awt.Dimension(770, 34)
+    );
+    filaCantidad.setPreferredSize(
+            new java.awt.Dimension(770, 34)
+    );
+    filaCantidad.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+
+    javax.swing.JLabel lblNuevaCantidad =
+            new javax.swing.JLabel("Nueva cantidad:");
+
+    lblNuevaCantidad.setFont(
+            new java.awt.Font(
+                    "Liberation Sans",
+                    java.awt.Font.BOLD,
+                    14
+            )
+    );
+
+    spnNuevaCantidad.setPreferredSize(
+            new java.awt.Dimension(90, 30)
+    );
+
+    btnActualizarCantidad.setPreferredSize(
+            new java.awt.Dimension(205, 32)
+    );
+
+    filaCantidad.add(lblNuevaCantidad);
+    filaCantidad.add(spnNuevaCantidad);
+    filaCantidad.add(btnActualizarCantidad);
+
+    jLabel8.setText(
+            "Para eliminar completamente el elemento, utiliza QUITAR DEL PEDIDO."
+    );
+    jLabel8.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
 
     jPanel3.add(filaSeleccion);
-    jPanel3.add(javax.swing.Box.createVerticalStrut(10));
+    jPanel3.add(
+            javax.swing.Box.createVerticalStrut(5)
+    );
+    jPanel3.add(filaCantidad);
+    jPanel3.add(
+            javax.swing.Box.createVerticalStrut(5)
+    );
     jPanel3.add(jLabel8);
 
     jPanel3.revalidate();
@@ -945,88 +1235,132 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
         }
     }
     
-    private void configurarBusquedaYSeleccion() {
-        jTextField2.setEditable(false);
+private void configurarBusquedaYSeleccion() {
+    jTextField2.setEditable(false);
 
-        jTextField1.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            @Override
-            public void insertUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarPedido();
-            }
+    jTextField1.getDocument().addDocumentListener(
+            new javax.swing.event.DocumentListener() {
+                @Override
+                public void insertUpdate(
+                        javax.swing.event.DocumentEvent e
+                ) {
+                    filtrarPedido();
+                }
 
-            @Override
-            public void removeUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarPedido();
-            }
+                @Override
+                public void removeUpdate(
+                        javax.swing.event.DocumentEvent e
+                ) {
+                    filtrarPedido();
+                }
 
-            @Override
-            public void changedUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarPedido();
+                @Override
+                public void changedUpdate(
+                        javax.swing.event.DocumentEvent e
+                ) {
+                    filtrarPedido();
+                }
             }
-        });
+    );
 
-        jTable1.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                mostrarElementoSeleccionado();
-            }
-        });
-    }
+    jTable1.getSelectionModel()
+            .addListSelectionListener(e -> {
+                if (!e.getValueIsAdjusting()) {
+                    mostrarElementoSeleccionado();
+                }
+            });
+}    
     
-    private void filtrarPedido() {
-            String filtro = jTextField1.getText().trim();
+private void filtrarPedido() {
+    String filtro =
+            jTextField1.getText().trim();
+
     cargarPedidoActual(filtro);
-    jTextField2.setText("");
-    jTable1.clearSelection();
-    }
+    limpiarSeleccionEdicion();
+}
     
     
-    private void mostrarElementoSeleccionado() {
-        int fila = jTable1.getSelectedRow();
+private void mostrarElementoSeleccionado() {
+    int fila = jTable1.getSelectedRow();
 
-        if (fila == -1) {
-            jTextField2.setText("");
-            return;
-        }
-
-        int filaModelo = jTable1.convertRowIndexToModel(fila);
-
-        if (filaModelo < 0 || filaModelo >= indicesMostrados.size()) {
-            jTextField2.setText("");
-            return;
-        }
-
-        pizzeria.model.Venta venta = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .getVentaActual();
-
-        if (venta == null) {
-            jTextField2.setText("");
-            return;
-        }
-
-        int indiceReal = indicesMostrados.get(filaModelo);
-        int cantidadProductos = venta.getItems().size();
-
-        if (indiceReal < cantidadProductos) {
-            pizzeria.model.DetalleVenta detalle = venta.getItems().get(indiceReal);
-
-            jTextField2.setText(
-                    detalle.getProducto().getNombre()
-                    + " | Cantidad: " + detalle.getCantidad()
-                    + " | Subtotal: Bs. " + String.format("%.2f", detalle.getSubTotal())
-            );
-
-        } else {
-            int indiceCombo = indiceReal - cantidadProductos;
-            pizzeria.model.DetalleCombo combo = venta.getCombos().get(indiceCombo);
-
-            jTextField2.setText(
-                    "Combo #" + combo.getNroCombo()
-                    + " | Cantidad: " + combo.getCantidad()
-                    + " | Subtotal: Bs. " + String.format("%.2f", combo.getSubTotal())
-            );
-        }
+    if (fila == -1) {
+        limpiarSeleccionEdicion();
+        return;
     }
+
+    int filaModelo =
+            jTable1.convertRowIndexToModel(fila);
+
+    if (filaModelo < 0
+            || filaModelo >= indicesMostrados.size()) {
+
+        limpiarSeleccionEdicion();
+        return;
+    }
+
+    pizzeria.model.Venta venta =
+            ContextoVentasGUI.getInstancia()
+                    .getGestorVenta()
+                    .getVentaActual();
+
+    if (venta == null) {
+        limpiarSeleccionEdicion();
+        return;
+    }
+
+    int indiceReal =
+            indicesMostrados.get(filaModelo);
+
+    int cantidadProductos =
+            venta.getItems().size();
+
+    if (indiceReal < cantidadProductos) {
+        pizzeria.model.DetalleVenta detalle =
+                venta.getItems().get(indiceReal);
+
+        jTextField2.setText(
+                detalle.getProducto().getNombre()
+                + " | Cantidad actual: "
+                + detalle.getCantidad()
+                + " | Subtotal: Bs. "
+                + String.format(
+                        "%.2f",
+                        detalle.getSubTotal()
+                )
+        );
+
+        spnNuevaCantidad.setValue(
+                detalle.getCantidad()
+        );
+
+    } else {
+        int indiceCombo =
+                indiceReal - cantidadProductos;
+
+        pizzeria.model.DetalleCombo combo =
+                venta.getCombos().get(indiceCombo);
+
+        jTextField2.setText(
+                "Combo #"
+                + combo.getNroCombo()
+                + " | Cantidad actual: "
+                + combo.getCantidad()
+                + " | Subtotal: Bs. "
+                + String.format(
+                        "%.2f",
+                        combo.getSubTotal()
+                )
+        );
+
+        spnNuevaCantidad.setValue(
+                combo.getCantidad()
+        );
+    }
+
+    spnNuevaCantidad.setEnabled(true);
+    btnActualizarCantidad.setEnabled(true);
+    jButton1.setEnabled(true);
+}
     
     private void cargarImagen(JLabel label, String ruta){
      label.setText("");
@@ -1048,6 +1382,337 @@ public class QuitarProductoGUI extends javax.swing.JFrame {
     }
     }
     
+    
+private Integer obtenerCantidadIngresadaValida() {
+    javax.swing.JSpinner.DefaultEditor editor =
+            (javax.swing.JSpinner.DefaultEditor)
+                    spnNuevaCantidad.getEditor();
+
+    javax.swing.JFormattedTextField campoCantidad =
+            editor.getTextField();
+
+    String texto =
+            campoCantidad.getText().trim();
+
+    // Campo vacío.
+    if (texto.isEmpty()) {
+        mostrarErrorCantidad(
+                "Ingrese una cantidad."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        return null;
+    }
+
+    /*
+     * Solo acepta números enteros.
+     *
+     * Rechaza:
+     * - Letras: abc
+     * - Decimales: 1.5
+     * - Decimales con coma: 1,5
+     * - Símbolos
+     */
+    if (!texto.matches("-?\\d+")) {
+        mostrarErrorCantidad(
+                "La cantidad debe ser un número entero positivo.\n"
+                        + "No se permiten letras ni números decimales.\n\n"
+                        + "Ejemplos válidos: 1, 2, 3, 4."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    long valor;
+
+    try {
+        valor = Long.parseLong(texto);
+
+    } catch (NumberFormatException e) {
+        mostrarErrorCantidad(
+                "La cantidad ingresada no es válida."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    // Rechaza cero y números negativos.
+    if (valor <= 0) {
+        mostrarErrorCantidad(
+                "La cantidad debe ser mayor a 0."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    // Evita cantidades demasiado grandes para un int.
+    if (valor > Integer.MAX_VALUE) {
+        mostrarErrorCantidad(
+                "La cantidad ingresada es demasiado grande."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    int cantidad = (int) valor;
+
+    /*
+     * Después de validar el texto, sincronizamos
+     * correctamente el valor interno del spinner.
+     */
+    spnNuevaCantidad.setValue(cantidad);
+
+    return cantidad;
+}
+
+private void mostrarErrorCantidad(String mensaje) {
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            mensaje,
+            "Cantidad inválida",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
+    
+private void actualizarCantidadSeleccionada() {
+    
+    int fila = jTable1.getSelectedRow();
+
+    if (fila == -1) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un producto o combo de la tabla.",
+                "Elemento no seleccionado",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    int filaModelo =
+            jTable1.convertRowIndexToModel(fila);
+
+    if (filaModelo < 0
+            || filaModelo >= indicesMostrados.size()) {
+
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se pudo identificar el elemento seleccionado.",
+                "Error de selección",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    /*
+     * Se valida el texto realmente escrito.
+     * Ya no utilizamos directamente getValue(),
+     * porque podría devolver el valor válido anterior.
+     */
+    Integer nuevaCantidad =
+            obtenerCantidadIngresadaValida();
+
+    if (nuevaCantidad == null) {
+        return;
+    }
+
+    pizzeria.controller.GestorVenta gestorVenta =
+            ContextoVentasGUI.getInstancia()
+                    .getGestorVenta();
+
+    pizzeria.model.Venta venta =
+            gestorVenta.getVentaActual();
+
+    if (venta == null) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No existe un pedido actual.",
+                "Pedido no encontrado",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    int indiceReal =
+            indicesMostrados.get(filaModelo);
+
+    int cantidadProductos =
+            venta.getItems().size();
+
+    int cantidadActual;
+    String nombreElemento;
+
+    if (indiceReal < cantidadProductos) {
+        pizzeria.model.DetalleVenta detalle =
+                venta.getItems().get(indiceReal);
+
+        cantidadActual = detalle.getCantidad();
+        nombreElemento =
+                detalle.getProducto().getNombre();
+
+    } else {
+        int indiceCombo =
+                indiceReal - cantidadProductos;
+
+        if (indiceCombo < 0
+                || indiceCombo >= venta.getCombos().size()) {
+
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo identificar el combo seleccionado.",
+                    "Error de selección",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        pizzeria.model.DetalleCombo detalleCombo =
+                venta.getCombos().get(indiceCombo);
+
+        cantidadActual =
+                detalleCombo.getCantidad();
+
+        nombreElemento =
+                "Combo #" + detalleCombo.getNroCombo();
+    }
+
+    /*
+     * No mostrar éxito cuando la cantidad no cambió.
+     */
+    if (nuevaCantidad == cantidadActual) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "La cantidad ingresada es igual a la cantidad actual.\n"
+                        + "No se realizó ningún cambio.",
+                "Cantidad sin cambios",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+        return;
+    }
+
+    String error;
+
+    if (indiceReal < cantidadProductos) {
+        error = gestorVenta.actualizarCantidadItemGUI(
+                indiceReal,
+                nuevaCantidad
+        );
+
+    } else {
+        int indiceCombo =
+                indiceReal - cantidadProductos;
+
+        error = gestorVenta.actualizarCantidadComboGUI(
+                indiceCombo,
+                nuevaCantidad
+        );
+    }
+
+    if (error != null) {
+        mostrarMensajeStock(
+                error,
+                "No se pudo actualizar la cantidad"
+        );
+        return;
+    }
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "La cantidad de "
+                    + nombreElemento
+                    + " se actualizó de "
+                    + cantidadActual
+                    + " a "
+                    + nuevaCantidad
+                    + ".",
+            "Cantidad actualizada",
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+    );
+
+    cargarPedidoActual(
+            jTextField1.getText().trim()
+    );
+
+    limpiarSeleccionEdicion();
+}
+    
+
+private void limpiarSeleccionEdicion() {
+    jTable1.clearSelection();
+    jTextField2.setText("");
+
+    if (spnNuevaCantidad != null) {
+        spnNuevaCantidad.setValue(1);
+        spnNuevaCantidad.setEnabled(false);
+    }
+
+    if (btnActualizarCantidad != null) {
+        btnActualizarCantidad.setEnabled(false);
+    }
+
+    jButton1.setEnabled(false);
+}
+
+private void mostrarMensajeStock(
+        String mensaje,
+        String titulo
+) {
+    if (mensaje == null
+            || mensaje.trim().isEmpty()) {
+        return;
+    }
+
+    javax.swing.JTextArea areaMensaje =
+            new javax.swing.JTextArea(mensaje);
+
+    areaMensaje.setEditable(false);
+    areaMensaje.setLineWrap(true);
+    areaMensaje.setWrapStyleWord(true);
+    areaMensaje.setCaretPosition(0);
+
+    java.awt.Font fuente =
+            javax.swing.UIManager.getFont(
+                    "Label.font"
+            );
+
+    if (fuente != null) {
+        areaMensaje.setFont(fuente);
+    }
+
+    java.awt.Color fondo =
+            javax.swing.UIManager.getColor(
+                    "Panel.background"
+            );
+
+    if (fondo != null) {
+        areaMensaje.setBackground(fondo);
+    }
+
+    javax.swing.JScrollPane scroll =
+            new javax.swing.JScrollPane(
+                    areaMensaje
+            );
+
+    scroll.setPreferredSize(
+            new java.awt.Dimension(560, 280)
+    );
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            scroll,
+            titulo,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
+
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

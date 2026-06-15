@@ -448,6 +448,7 @@ public class AgregarProductoGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        
         int fila = jTable1.getSelectedRow();
 
         if (fila == -1) {
@@ -460,9 +461,12 @@ public class AgregarProductoGUI extends javax.swing.JFrame {
             return;
         }
 
-        int filaModelo = jTable1.convertRowIndexToModel(fila);
+        int filaModelo =
+                jTable1.convertRowIndexToModel(fila);
 
-        if (filaModelo < 0 || filaModelo >= productosMostrados.size()) {
+        if (filaModelo < 0
+                || filaModelo >= productosMostrados.size()) {
+
             javax.swing.JOptionPane.showMessageDialog(
                     this,
                     "No se pudo identificar el producto seleccionado.",
@@ -472,33 +476,57 @@ public class AgregarProductoGUI extends javax.swing.JFrame {
             return;
         }
 
-        int cantidad = (int) jSpinner1.getValue();
+        /*
+         * Validar el texto realmente escrito.
+         * No usar directamente jSpinner1.getValue().
+         */
+        Integer cantidad =
+                obtenerCantidadIngresadaValida();
 
-        pizzeria.model.Producto productoSeleccionado = productosMostrados.get(filaModelo);
+        if (cantidad == null) {
+            return;
+        }
 
-        String error = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .agregarItemGUI(productoSeleccionado, cantidad);
+        pizzeria.model.Producto productoSeleccionado =
+                productosMostrados.get(filaModelo);
 
+        String error =
+                ContextoVentasGUI.getInstancia()
+                        .getGestorVenta()
+                        .agregarItemGUI(
+                                productoSeleccionado,
+                                cantidad
+                        );
+
+        /*
+         * Aquí se mostrará también la lista completa
+         * de ingredientes faltantes si no alcanza el stock.
+         */
         if (error != null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
+            mostrarMensajeStock(
                     error,
-                    "No se pudo agregar producto",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
+                    "No se pudo agregar producto"
             );
             return;
         }
 
-                javax.swing.JOptionPane.showMessageDialog(
+        javax.swing.JOptionPane.showMessageDialog(
                 this,
-                "Producto agregado al pedido correctamente.",
+                "Se agregaron "
+                        + cantidad
+                        + " unidad(es) de "
+                        + productoSeleccionado.getNombre()
+                        + " al pedido.",
                 "Producto agregado",
                 javax.swing.JOptionPane.INFORMATION_MESSAGE
         );
 
-        new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
-        this.dispose();      
+        new NuevoPedidoGUI(
+                rolUsuario,
+                nombreUsuario
+        ).setVisible(true);
+
+        this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -507,20 +535,29 @@ public class AgregarProductoGUI extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
     
-    private void inicializarVentanaAgregarProducto() {
-    aplicarEstructuraVisualCajero();
-    reconstruirInterfazAgregarProducto();
 
-    mostrarUsuario();
-    configurarHover();
-    activarBoton(btnInicio);
+    
+private void inicializarVentanaAgregarProducto() {
+        aplicarEstructuraVisualCajero();
+        reconstruirInterfazAgregarProducto();
+        configurarValidacionCantidad();
 
-    configurarTablaProductos();
-    cargarProductos();
-    configurarFiltrosProductos();
+        mostrarUsuario();
+        configurarHover();
+        activarBoton(btnInicio);
+        
+        jLabel7.setText(
+                "Solo se muestran productos que pueden prepararse con el stock disponible."
+        );
 
-    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-}
+        jLabel9.setText("LISTA DE PRODUCTOS DISPONIBLES");
+
+        configurarTablaProductos();
+        cargarProductos();
+        configurarFiltrosProductos();
+
+        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+    }
     
     
     private void aplicarEstructuraVisualCajero() {
@@ -831,7 +868,8 @@ public class AgregarProductoGUI extends javax.swing.JFrame {
         cargarProductos("", "Todas");
     }
 
-    private void cargarProductos(String filtroTexto, String categoriaSeleccionada) {
+    private void cargarProductos(String filtroTexto, String categoriaSeleccionada)
+    {
         javax.swing.table.DefaultTableModel modelo =
                 (javax.swing.table.DefaultTableModel) jTable1.getModel();
 
@@ -839,22 +877,52 @@ public class AgregarProductoGUI extends javax.swing.JFrame {
         productosMostrados.clear();
 
         java.util.ArrayList<pizzeria.model.Producto> productos =
-                ContextoVentasGUI.getInstancia().getMenu().getProductos();
+                ContextoVentasGUI.getInstancia()
+                        .getMenu()
+                        .getProductos();
 
-        String filtro = filtroTexto == null ? "" : filtroTexto.trim().toLowerCase();
-        String categoria = categoriaSeleccionada == null ? "Todas" : categoriaSeleccionada.trim();
+        pizzeria.controller.GestorVenta gestorVenta =
+                ContextoVentasGUI.getInstancia()
+                        .getGestorVenta();
+
+        String filtro = filtroTexto == null
+                ? ""
+                : filtroTexto.trim().toLowerCase();
+
+        String categoria = categoriaSeleccionada == null
+                ? "Todas"
+                : categoriaSeleccionada.trim();
 
         for (pizzeria.model.Producto producto : productos) {
+
+            /*
+             * MENÚ DINÁMICO:
+             *
+             * Solo se muestra el producto cuando todavía puede
+             * agregarse al menos una unidad al pedido actual.
+             */
+            boolean disponible =
+                    gestorVenta.puedeAgregarProducto(producto, 1);
+
+            if (!disponible) {
+                continue;
+            }
+
             String nombre = producto.getNombre();
-            String categoriaReal = producto.getTipo().getNombre();
-            String categoriaVisual = obtenerCategoriaVisual(producto);
+
+            String categoriaReal =
+                    producto.getTipo().getNombre();
+
+            String categoriaVisual =
+                    obtenerCategoriaVisual(producto);
 
             boolean coincideTexto = filtro.isEmpty()
                     || nombre.toLowerCase().contains(filtro)
                     || categoriaReal.toLowerCase().contains(filtro)
                     || categoriaVisual.toLowerCase().contains(filtro);
 
-            boolean coincideCategoria = categoria.equalsIgnoreCase("Todas")
+            boolean coincideCategoria =
+                    categoria.equalsIgnoreCase("Todas")
                     || categoria.isBlank()
                     || categoriaVisual.equalsIgnoreCase(categoria);
 
@@ -925,6 +993,169 @@ public class AgregarProductoGUI extends javax.swing.JFrame {
 
         cargarProductos(texto, categoria);
     }
+    
+    private void mostrarMensajeStock(String mensaje, String titulo) {
+        if (mensaje == null || mensaje.trim().isEmpty()) {
+            return;
+        }
+
+        int cantidadLineas = mensaje.split("\\R").length;
+
+        javax.swing.JTextArea areaMensaje =
+                new javax.swing.JTextArea(mensaje);
+
+        areaMensaje.setEditable(false);
+        areaMensaje.setLineWrap(true);
+        areaMensaje.setWrapStyleWord(true);
+        areaMensaje.setCaretPosition(0);
+
+        java.awt.Font fuente =
+                javax.swing.UIManager.getFont("Label.font");
+
+        if (fuente != null) {
+            areaMensaje.setFont(fuente);
+        }
+
+        java.awt.Color fondo =
+                javax.swing.UIManager.getColor("Panel.background");
+
+        if (fondo != null) {
+            areaMensaje.setBackground(fondo);
+        }
+
+        int alto = Math.max(
+                140,
+                Math.min(320, cantidadLineas * 24)
+        );
+
+        javax.swing.JScrollPane scrollMensaje =
+                new javax.swing.JScrollPane(areaMensaje);
+
+        scrollMensaje.setPreferredSize(
+                new java.awt.Dimension(560, alto)
+        );
+
+        scrollMensaje.setBorder(
+                javax.swing.BorderFactory.createEmptyBorder()
+        );
+
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                scrollMensaje,
+                titulo,
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+    }
+    
+    //
+private void configurarValidacionCantidad() {
+    javax.swing.JSpinner.DefaultEditor editor =
+            (javax.swing.JSpinner.DefaultEditor)
+                    jSpinner1.getEditor();
+
+    javax.swing.JFormattedTextField campoCantidad =
+            editor.getTextField();
+
+    /*
+     * Evita que el spinner reemplace silenciosamente
+     * una entrada inválida por el último valor correcto.
+     */
+    campoCantidad.setFocusLostBehavior(
+            javax.swing.JFormattedTextField.PERSIST
+    );
+}
+
+private Integer obtenerCantidadIngresadaValida() {
+    javax.swing.JSpinner.DefaultEditor editor =
+            (javax.swing.JSpinner.DefaultEditor)
+                    jSpinner1.getEditor();
+
+    javax.swing.JFormattedTextField campoCantidad =
+            editor.getTextField();
+
+    String texto =
+            campoCantidad.getText().trim();
+
+    if (texto.isEmpty()) {
+        mostrarErrorCantidad(
+                "Ingrese una cantidad."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        return null;
+    }
+
+    /*
+     * Acepta únicamente números enteros,
+     * incluyendo temporalmente el signo negativo
+     * para poder mostrar un mensaje específico.
+     */
+    if (!texto.matches("-?\\d+")) {
+        mostrarErrorCantidad(
+                "La cantidad debe ser un número entero positivo.\n"
+                        + "No se permiten letras ni números decimales."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    long valor;
+
+    try {
+        valor = Long.parseLong(texto);
+
+    } catch (NumberFormatException e) {
+        mostrarErrorCantidad(
+                "La cantidad ingresada no es válida."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    if (valor <= 0) {
+        mostrarErrorCantidad(
+                "La cantidad debe ser mayor a 0."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    if (valor > Integer.MAX_VALUE) {
+        mostrarErrorCantidad(
+                "La cantidad ingresada es demasiado grande."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    int cantidad = (int) valor;
+
+    /*
+     * Sincroniza el texto validado con el valor
+     * interno del spinner.
+     */
+    jSpinner1.setValue(cantidad);
+
+    return cantidad;
+}
+
+private void mostrarErrorCantidad(String mensaje) {
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            mensaje,
+            "Cantidad inválida",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
+    
     
     private void cargarImagen(JLabel label, String ruta){
      label.setText("");

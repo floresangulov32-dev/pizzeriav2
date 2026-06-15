@@ -428,10 +428,12 @@ public class AgregarComboGUI extends javax.swing.JFrame {
         this.dispose();
         new LoginGUI().setVisible(true);
     }
+    
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        
         int fila = jTable1.getSelectedRow();
 
         if (fila == -1) {
@@ -444,9 +446,12 @@ public class AgregarComboGUI extends javax.swing.JFrame {
             return;
         }
 
-        int filaModelo = jTable1.convertRowIndexToModel(fila);
+        int filaModelo =
+                jTable1.convertRowIndexToModel(fila);
 
-        if (filaModelo < 0 || filaModelo >= combosMostrados.size()) {
+        if (filaModelo < 0
+                || filaModelo >= combosMostrados.size()) {
+
             javax.swing.JOptionPane.showMessageDialog(
                     this,
                     "No se pudo identificar el combo seleccionado.",
@@ -456,36 +461,105 @@ public class AgregarComboGUI extends javax.swing.JFrame {
             return;
         }
 
-        int cantidad = (int) jSpinner1.getValue();
+        Integer cantidad =
+                obtenerCantidadIngresadaValida();
 
-        pizzeria.model.Combo comboSeleccionado = combosMostrados.get(filaModelo);
+        if (cantidad == null) {
+            return;
+        }
 
-        String error = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .agregarComboGUI(comboSeleccionado, cantidad);
+        pizzeria.model.Combo comboSeleccionado =
+                combosMostrados.get(filaModelo);
+
+        String error =
+                ContextoVentasGUI.getInstancia()
+                        .getGestorVenta()
+                        .agregarComboGUI(
+                                comboSeleccionado,
+                                cantidad
+                        );
 
         if (error != null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
+            mostrarMensajeStock(
                     error,
-                    "No se pudo agregar combo",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
+                    "No se pudo agregar combo"
             );
-        return;
-    }
+            return;
+        }
 
-            javax.swing.JOptionPane.showMessageDialog(
+        javax.swing.JOptionPane.showMessageDialog(
                 this,
-                "Combo agregado al pedido correctamente.",
+                "Se agregaron "
+                        + cantidad
+                        + " unidad(es) del Combo #"
+                        + comboSeleccionado.getNroCombo()
+                        + " al pedido.",
                 "Combo agregado",
                 javax.swing.JOptionPane.INFORMATION_MESSAGE
         );
 
-        new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
+        new NuevoPedidoGUI(
+                rolUsuario,
+                nombreUsuario
+        ).setVisible(true);
+
         this.dispose();
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
+private void mostrarMensajeStock(String mensaje, String titulo) {
+    if (mensaje == null || mensaje.trim().isEmpty()) {
+        return;
+    }
+
+    int cantidadLineas = mensaje.split("\\R").length;
+
+    javax.swing.JTextArea areaMensaje =
+            new javax.swing.JTextArea(mensaje);
+
+    areaMensaje.setEditable(false);
+    areaMensaje.setLineWrap(true);
+    areaMensaje.setWrapStyleWord(true);
+    areaMensaje.setCaretPosition(0);
+
+    java.awt.Font fuente =
+            javax.swing.UIManager.getFont("Label.font");
+
+    if (fuente != null) {
+        areaMensaje.setFont(fuente);
+    }
+
+    java.awt.Color fondo =
+            javax.swing.UIManager.getColor("Panel.background");
+
+    if (fondo != null) {
+        areaMensaje.setBackground(fondo);
+    }
+
+    int alto = Math.max(
+            140,
+            Math.min(320, cantidadLineas * 24)
+    );
+
+    javax.swing.JScrollPane scrollMensaje =
+            new javax.swing.JScrollPane(areaMensaje);
+
+    scrollMensaje.setPreferredSize(
+            new java.awt.Dimension(560, alto)
+    );
+
+    scrollMensaje.setBorder(
+            javax.swing.BorderFactory.createEmptyBorder()
+    );
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            scrollMensaje,
+            titulo,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         new NuevoPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
@@ -493,22 +567,129 @@ public class AgregarComboGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
     
     
-    private void inicializarVentanaAgregarCombo() {
+private void inicializarVentanaAgregarCombo() {
     aplicarEstructuraVisualCajero();
     reconstruirInterfazAgregarCombo();
+
+    configurarValidacionCantidad();
 
     mostrarUsuario();
     configurarHover();
     activarBoton(btnInicio);
 
+    jLabel7.setText(
+            "Solo se muestran combos que pueden prepararse con el stock disponible."
+    );
+
+    jLabel9.setText(
+            "LISTA DE COMBOS DISPONIBLES"
+    );
+
     configurarTablaCombos();
     cargarCombos();
     configurarBusquedaCombos();
 
-    cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+    cargarImagen(
+            lblLogo,
+            "resources/imagenes/logoCasaDelSabor.jpeg"
+    );
 }
     
-    
+private void configurarValidacionCantidad() {
+    javax.swing.JSpinner.DefaultEditor editor =
+            (javax.swing.JSpinner.DefaultEditor)
+                    jSpinner1.getEditor();
+
+    javax.swing.JFormattedTextField campoCantidad =
+            editor.getTextField();
+
+    campoCantidad.setFocusLostBehavior(
+            javax.swing.JFormattedTextField.PERSIST
+    );
+}
+
+private Integer obtenerCantidadIngresadaValida() {
+    javax.swing.JSpinner.DefaultEditor editor =
+            (javax.swing.JSpinner.DefaultEditor)
+                    jSpinner1.getEditor();
+
+    javax.swing.JFormattedTextField campoCantidad =
+            editor.getTextField();
+
+    String texto =
+            campoCantidad.getText().trim();
+
+    if (texto.isEmpty()) {
+        mostrarErrorCantidad(
+                "Ingrese una cantidad."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        return null;
+    }
+
+    if (!texto.matches("-?\\d+")) {
+        mostrarErrorCantidad(
+                "La cantidad debe ser un número entero positivo.\n"
+                        + "No se permiten letras ni números decimales."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    long valor;
+
+    try {
+        valor = Long.parseLong(texto);
+
+    } catch (NumberFormatException e) {
+        mostrarErrorCantidad(
+                "La cantidad ingresada no es válida."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    if (valor <= 0) {
+        mostrarErrorCantidad(
+                "La cantidad debe ser mayor a 0."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    if (valor > Integer.MAX_VALUE) {
+        mostrarErrorCantidad(
+                "La cantidad ingresada es demasiado grande."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    int cantidad = (int) valor;
+
+    jSpinner1.setValue(cantidad);
+
+    return cantidad;
+}
+
+private void mostrarErrorCantidad(String mensaje) {
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            mensaje,
+            "Cantidad inválida",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
+
     
     private void aplicarEstructuraVisualCajero() {
     setSize(1280, 720);
@@ -811,10 +992,10 @@ public class AgregarComboGUI extends javax.swing.JFrame {
     
     //////////////////////NUEVO METODO DE CARGAR COMBOS
     private void cargarCombos() {
-        cargarCombos("");
-    }
+            cargarCombos("");
+        }
 
-    private void cargarCombos(String filtro) {
+        private void cargarCombos(String filtro) {
         javax.swing.table.DefaultTableModel modelo =
                 (javax.swing.table.DefaultTableModel) jTable1.getModel();
 
@@ -822,13 +1003,39 @@ public class AgregarComboGUI extends javax.swing.JFrame {
         combosMostrados.clear();
 
         java.util.ArrayList<pizzeria.model.Combo> combos =
-                ContextoVentasGUI.getInstancia().getMenu().getCombos();
+                ContextoVentasGUI.getInstancia()
+                        .getMenu()
+                        .getCombos();
 
-        String filtroLower = filtro == null ? "" : filtro.trim().toLowerCase();
+        pizzeria.controller.GestorVenta gestorVenta =
+                ContextoVentasGUI.getInstancia()
+                        .getGestorVenta();
+
+        String filtroLower = filtro == null
+                ? ""
+                : filtro.trim().toLowerCase();
 
         for (pizzeria.model.Combo combo : combos) {
-            String nombreCombo = "Combo #" + combo.getNroCombo();
-            String contenidoCombo = obtenerContenidoCombo(combo);
+
+            /*
+             * MENÚ DINÁMICO:
+             *
+             * El combo solo aparece cuando todos los ingredientes
+             * de todos sus productos permiten preparar por lo
+             * menos una unidad adicional.
+             */
+            boolean disponible =
+                    gestorVenta.puedeAgregarCombo(combo, 1);
+
+            if (!disponible) {
+                continue;
+            }
+
+            String nombreCombo =
+                    "Combo #" + combo.getNroCombo();
+
+            String contenidoCombo =
+                    obtenerContenidoCombo(combo);
 
             boolean coincide = filtroLower.isEmpty()
                     || nombreCombo.toLowerCase().contains(filtroLower)
