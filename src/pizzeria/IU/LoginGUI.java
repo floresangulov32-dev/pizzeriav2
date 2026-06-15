@@ -53,6 +53,8 @@ public class LoginGUI extends javax.swing.JFrame {
     
     public LoginGUI(){
         initComponents();
+        // Configura globalmente los botones de JOptionPane en español.
+        ConfiguracionIdiomaSwing.aplicarEspanol();
         setSize(1280, 720);
         setLocationRelativeTo(null);
         setResizable(false);
