@@ -274,6 +274,11 @@ public class PModificarCombos extends javax.swing.JPanel {
                 "Combo vacío", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
+        Combo duplicado = menu.buscarComboDuplicado(productosEnCombo);
+            if (duplicado != null && duplicado.getNroCombo() != comboAEditar.getNroCombo()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Ya existe un combo con esos productos.");
+                return;
+            }
  
         // Validar precio
         double precio;

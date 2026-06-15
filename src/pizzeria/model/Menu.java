@@ -129,6 +129,33 @@ public class Menu{
         return null;
     }
     
+    public Combo buscarComboDuplicado(ArrayList<Producto> productosNuevos) {
+        for (Combo c : combos) {
+            ArrayList<Producto> productosCombo = c.getCombo();
+            if (productosCombo.size() != productosNuevos.size()) {
+                continue;
+            }
+
+            boolean mismosProductos = true;
+            for (Producto p : productosNuevos) {
+                boolean encontrado = false;
+                for (Producto pc : productosCombo) {
+                    if (pc.getID() == p.getID()) {
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (!encontrado) {
+                    mismosProductos = false;
+                    break;
+                }
+            }
+
+            if (mismosProductos) return c;
+        }
+        return null;
+    }
+    
     public ArrayList<Combo> getCombos(){
         return combos;
     }

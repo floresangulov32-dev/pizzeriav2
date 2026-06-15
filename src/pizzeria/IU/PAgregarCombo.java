@@ -284,6 +284,10 @@ public class PAgregarCombo extends javax.swing.JPanel {
                 "Combo vacío", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
+        if (menu.buscarComboDuplicado(productosSeleccionados) != null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ya existe un combo con esos productos.");
+            return;
+}
 
         // Validar precio
         double precio;
@@ -310,14 +314,7 @@ public class PAgregarCombo extends javax.swing.JPanel {
 
         // Navega directo, el nuevo PVerCombos llama cargarTablaCombos() en su constructor
         
-        // Limpiar y notificar
-        productosSeleccionados.clear();
-        refrescarTablaCombo();
-        PrecioSug.setSelected(true);
-        PrecioE.setEnabled(false);
-        PrecioE.setText("0.00");
-
-        PVerCombos panelCombos = new PVerCombos(interfaz, menu, archivoMenu, inventario);
+                PVerCombos panelCombos = new PVerCombos(interfaz, menu, archivoMenu, inventario);
         cargarPanel(panelCombos);
     }//GEN-LAST:event_btnGuardarActionPerformed
 

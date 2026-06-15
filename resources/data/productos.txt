@@ -3,7 +3,7 @@ PRODUCTOS
 2,producto,Prosciutto,Pizza con jamón y queso clásico,100.0,31;1;2;7;15;11
 3,producto,Fugazza,Pizza con cebolla y queso tradicional,80.0,31;1;2;24;15;11
 4,producto,Miel,Pizza dulce con queso miel y nuez,80.0,31;1;26;30
-5,producto,Caribeña,Pizza tropical con jamón y piña,90.0,31;1;2;7;29;15
+5,producto,Caribeña,Pizza tropical con jamón y piña,90.0,1;2;7;15;29;31
 6,producto,Hawahiana,Pizza con jamón piña y toque de orégano,80.0,31;1;2;7;29;11
 7,producto,Rucula Roquefort,Pizza con rúcula y roquefort,90.0,31;1;2;25;6;15
 8,producto,Jamon y Morron,Pizza con jamón y morrón,80.0,31;1;2;7;20;14
