@@ -33,6 +33,6 @@
 31,Masa,kg,262.75,150.0,8.6,0.25
 32,prueba baja,kg,20.0,30.0,13.0,123.0
 33,cacahuate,g,40.0,20.0,5.0,7.0
-34,sprite,unidad,20.0,10.0,15.0,1.0
-35,coca cola,unidad,20.0,10.0,15.0,1.0
-36,fanta,unidad,29.0,10.0,15.0,1.0
+34,Sprite,unidad,20.0,10.0,15.0,1.0
+35,Coca Cola,unidad,20.0,10.0,15.0,1.0
+36,Fanta,unidad,29.0,10.0,15.0,1.0
