@@ -299,17 +299,7 @@ public class InterfazCocina extends JFrame {
         btnPedidosPendientes.addActionListener(e -> mostrarPedidosPendientes());
         BarraNav.add(btnPedidosPendientes);
 
-        btnTomarPedido = new JButton("Tomar Pedido");
-        btnTomarPedido.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        btnTomarPedido.setHorizontalAlignment(SwingConstants.LEFT);
-        btnTomarPedido.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 15));
-        btnTomarPedido.setFocusPainted(false);
-        btnTomarPedido.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnTomarPedido.setMaximumSize(new Dimension(280, 50));
-        btnTomarPedido.setMinimumSize(new Dimension(280, 50));
-        btnTomarPedido.setPreferredSize(new Dimension(280, 50));
-        btnTomarPedido.addActionListener(e -> tomarSiguientePedido());
-        BarraNav.add(btnTomarPedido);
+      
 
         btnEnPreparacion = new JButton("En Preparación");
         btnEnPreparacion.setFont(new Font("Segoe UI", Font.PLAIN, 15));
@@ -323,18 +313,7 @@ public class InterfazCocina extends JFrame {
         btnEnPreparacion.addActionListener(e -> mostrarEnPreparacion());
         BarraNav.add(btnEnPreparacion);
 
-        btnMarcarListo = new JButton("Marcar como Listo");
-        btnMarcarListo.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        btnMarcarListo.setHorizontalAlignment(SwingConstants.LEFT);
-        btnMarcarListo.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 15));
-        btnMarcarListo.setFocusPainted(false);
-        btnMarcarListo.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnMarcarListo.setMaximumSize(new Dimension(280, 50));
-        btnMarcarListo.setMinimumSize(new Dimension(280, 50));
-        btnMarcarListo.setPreferredSize(new Dimension(280, 50));
-        btnMarcarListo.addActionListener(e -> marcarComoListo());
-        BarraNav.add(btnMarcarListo);
-
+       
         btnPedidosListos = new JButton("Pedidos Listos");
         btnPedidosListos.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         btnPedidosListos.setHorizontalAlignment(SwingConstants.LEFT);
@@ -347,18 +326,7 @@ public class InterfazCocina extends JFrame {
         btnPedidosListos.addActionListener(e -> mostrarPedidosListos());
         BarraNav.add(btnPedidosListos);
 
-        btnMarcarEntregado = new JButton("Marcar como Entregado");
-        btnMarcarEntregado.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        btnMarcarEntregado.setHorizontalAlignment(SwingConstants.LEFT);
-        btnMarcarEntregado.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 15));
-        btnMarcarEntregado.setFocusPainted(false);
-        btnMarcarEntregado.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnMarcarEntregado.setMaximumSize(new Dimension(280, 50));
-        btnMarcarEntregado.setMinimumSize(new Dimension(280, 50));
-        btnMarcarEntregado.setPreferredSize(new Dimension(280, 50));
-        btnMarcarEntregado.addActionListener(e -> marcarComoEntregado());
-        BarraNav.add(btnMarcarEntregado);
-
+        
         // Espacio flexible
         BarraNav.add(Box.createVerticalGlue());
 
@@ -419,9 +387,8 @@ public class InterfazCocina extends JFrame {
     }
     
     private void configurarHover() {
-        JButton[] botones = {btnPedidosPendientes, btnTomarPedido, btnEnPreparacion, 
-                             btnMarcarListo, btnPedidosListos, btnMarcarEntregado, btnCerrarSesion};
-
+      JButton[] botones = {btnPedidosPendientes, btnEnPreparacion, 
+                             btnPedidosListos, btnCerrarSesion};
         for (JButton b : botones) {
             b.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
@@ -488,11 +455,6 @@ public class InterfazCocina extends JFrame {
         cargarPanel(panel);
     }
     
-    private void tomarSiguientePedido() {
-        activarBoton(btnTomarPedido);
-        TomarPedidoGUI panel = new TomarPedidoGUI();
-        cargarPanel(panel);
-    }
     
     private void mostrarEnPreparacion() {
         activarBoton(btnEnPreparacion);
@@ -500,11 +462,6 @@ public class InterfazCocina extends JFrame {
         cargarPanel(panel);
     }
     
-    private void marcarComoListo() {
-        activarBoton(btnMarcarListo);
-        MarcarListoGUI panel = new MarcarListoGUI();
-        cargarPanel(panel);
-    }
     
     private void mostrarPedidosListos() {
         activarBoton(btnPedidosListos);
@@ -512,18 +469,17 @@ public class InterfazCocina extends JFrame {
         cargarPanel(panel);
     }
     
-    private void marcarComoEntregado() {
-        activarBoton(btnMarcarEntregado);
-        MarcarEntregadoGUI panel = new MarcarEntregadoGUI();
-        cargarPanel(panel);
-    }
-    
+ 
     private void cerrarSesion() {
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "¿Está seguro de que desea cerrar sesión?",
-            "Cerrar Sesión",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
+       Object[] opciones = {"Sí", "No"};
+int confirm = JOptionPane.showOptionDialog(this,
+    "¿Está seguro de que desea cerrar sesión?",
+    "Cerrar Sesión",
+    JOptionPane.YES_NO_OPTION,
+    JOptionPane.QUESTION_MESSAGE,
+    null,
+    opciones,
+    opciones[0]);
         
         if (confirm == JOptionPane.YES_OPTION) {
             this.dispose();

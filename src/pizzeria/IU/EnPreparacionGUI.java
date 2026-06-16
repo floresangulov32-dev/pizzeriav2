@@ -28,6 +28,7 @@ public class EnPreparacionGUI extends JPanel {
     private JTable tablaPedidos;
     private DefaultTableModel modeloTabla;
     private JTextArea txtDetalle;
+    private JButton btnMarcarListo;
     
     private DateTimeFormatter formatterFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     
@@ -152,24 +153,34 @@ public class EnPreparacionGUI extends JPanel {
         return panel;
     }
     
-    private JPanel crearPanelInferior() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(10, 0, 0, 0));
-        
-        btnActualizar = new JButton("Actualizar Lista");
-        btnActualizar.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnActualizar.setBackground(new Color(52, 152, 219));
-        btnActualizar.setForeground(Color.WHITE);
-        btnActualizar.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
-        btnActualizar.setFocusPainted(false);
-        btnActualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnActualizar.addActionListener(e -> cargarDatos());
-        
-        panel.add(btnActualizar);
-        
-        return panel;
-    }
+  private JPanel crearPanelInferior() {
+    JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+    panel.setOpaque(false);
+    panel.setBorder(new EmptyBorder(10, 0, 0, 0));
+    
+    btnMarcarListo = new JButton("Marcar como Listo");
+    btnMarcarListo.setFont(new Font("Segoe UI", Font.BOLD, 12));
+    btnMarcarListo.setBackground(new Color(46, 204, 113));
+    btnMarcarListo.setForeground(Color.WHITE);
+    btnMarcarListo.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+    btnMarcarListo.setFocusPainted(false);
+    btnMarcarListo.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    btnMarcarListo.addActionListener(e -> marcarListo());
+    
+    btnActualizar = new JButton("Actualizar Lista");
+    btnActualizar.setFont(new Font("Segoe UI", Font.BOLD, 12));
+    btnActualizar.setBackground(new Color(52, 152, 219));
+    btnActualizar.setForeground(Color.WHITE);
+    btnActualizar.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+    btnActualizar.setFocusPainted(false);
+    btnActualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    btnActualizar.addActionListener(e -> cargarDatos());
+    
+    panel.add(btnMarcarListo);
+    panel.add(btnActualizar);
+    
+    return panel;
+}
     
     private void cargarDatos() {
         modeloTabla.setRowCount(0);
@@ -196,7 +207,42 @@ public class EnPreparacionGUI extends JPanel {
             mostrarDetallePedido();
         }
     }
-    
+    private void marcarListo() {
+    int fila = tablaPedidos.getSelectedRow();
+    if (fila == -1) {
+        javax.swing.JOptionPane.showMessageDialog(this, 
+            "Seleccione un pedido para marcar como listo.", 
+            "Advertencia", 
+            javax.swing.JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    int idPedido = (int) modeloTabla.getValueAt(fila, 0);
+    String cliente = (String) modeloTabla.getValueAt(fila, 2);
+   Object[] opciones = {"Sí", "No"};
+int confirm = javax.swing.JOptionPane.showOptionDialog(this,
+    "¿Marcar el pedido #" + idPedido + " de " + cliente + " como LISTO?",
+    "Confirmar",
+    javax.swing.JOptionPane.YES_NO_OPTION,
+    javax.swing.JOptionPane.QUESTION_MESSAGE,
+    null,
+    opciones,
+    opciones[0]);
+    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        boolean exito = gestorCocina.marcarComoListo(idPedido);
+        if (exito) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Pedido #" + idPedido + " marcado como LISTO.",
+                "Éxito",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            cargarDatos();
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Error al marcar el pedido.",
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}
     private void mostrarDetallePedido() {
         int fila = tablaPedidos.getSelectedRow();
         if (fila == -1) {

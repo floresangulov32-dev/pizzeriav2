@@ -30,6 +30,7 @@ public class TomarPedidoGUI extends JPanel {
     private DefaultTableModel modeloTabla;
     private JTextArea txtDetalle;
     
+    
     private DateTimeFormatter formatterFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     
     public TomarPedidoGUI() {
@@ -149,35 +150,35 @@ public class TomarPedidoGUI extends JPanel {
         
         return panel;
     }
-    
     private JPanel crearPanelInferior() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
-        panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(10, 0, 0, 0));
-        
-        btnTomarPedido = new JButton("Tomar Siguiente Pedido");
-        btnTomarPedido.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnTomarPedido.setBackground(new Color(46, 204, 113));
-        btnTomarPedido.setForeground(Color.WHITE);
-        btnTomarPedido.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
-        btnTomarPedido.setFocusPainted(false);
-        btnTomarPedido.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnTomarPedido.addActionListener(e -> tomarSiguientePedido());
-        
-        btnActualizar = new JButton("Actualizar Lista");
-        btnActualizar.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnActualizar.setBackground(new Color(52, 152, 219));
-        btnActualizar.setForeground(Color.WHITE);
-        btnActualizar.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
-        btnActualizar.setFocusPainted(false);
-        btnActualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnActualizar.addActionListener(e -> cargarDatos());
-        
-        panel.add(btnTomarPedido);
-        panel.add(btnActualizar);
-        
-        return panel;
-    }
+    JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+    panel.setOpaque(false);
+    panel.setBorder(new EmptyBorder(10, 0, 0, 0));
+    
+    btnTomarPedido = new JButton("Tomar Siguiente Pedido");
+    btnTomarPedido.setFont(new Font("Segoe UI", Font.BOLD, 12));
+    btnTomarPedido.setBackground(new Color(46, 204, 113));
+    btnTomarPedido.setForeground(Color.WHITE);
+    btnTomarPedido.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+    btnTomarPedido.setFocusPainted(false);
+    btnTomarPedido.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    btnTomarPedido.addActionListener(e -> tomarPedido());
+    
+    btnActualizar = new JButton("Actualizar");
+    btnActualizar.setFont(new Font("Segoe UI", Font.BOLD, 11));
+    btnActualizar.setBackground(new Color(52, 152, 219));
+    btnActualizar.setForeground(Color.WHITE);
+    btnActualizar.setBorder(BorderFactory.createEmptyBorder(6, 15, 6, 15));
+    btnActualizar.setFocusPainted(false);
+    btnActualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    btnActualizar.addActionListener(e -> cargarDatos());
+    
+    panel.add(btnTomarPedido);
+    panel.add(btnActualizar);
+    
+    return panel;
+}
+   
     
     private void cargarDatos() {
         modeloTabla.setRowCount(0);
@@ -215,6 +216,44 @@ public class TomarPedidoGUI extends JPanel {
             mostrarDetallePedido();
         }
     }
+    private void tomarPedido() {
+    java.util.Queue<PedidoCocina> pendientes = gestorCocina.getColaPendientes();
+    if (pendientes.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(this, 
+            "No hay pedidos pendientes para tomar.", 
+            "Advertencia", 
+            javax.swing.JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    PedidoCocina primero = pendientes.peek();
+Object[] opciones = {"Sí", "No"};
+int confirm = javax.swing.JOptionPane.showOptionDialog(this,
+    "¿Tomar el pedido #" + primero.getIdPedidoCocina() + " de " + primero.getNombreCliente() + "?\n" +
+    "El pedido pasará a estado 'EN PREPARACIÓN'.",
+    "Confirmar",
+    javax.swing.JOptionPane.YES_NO_OPTION,
+    javax.swing.JOptionPane.QUESTION_MESSAGE,
+    null,
+    opciones,
+    opciones[0]);
+    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        PedidoCocina tomado = gestorCocina.tomarSiguientePedido();
+        if (tomado != null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Pedido #" + tomado.getIdPedidoCocina() + " tomado exitosamente.\n" +
+                "Ahora está en 'EN PREPARACIÓN'.",
+                "Éxito",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            cargarDatos();
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Error al tomar el pedido.",
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}
+    
     
     private void mostrarDetallePedido() {
         int fila = tablaPedidos.getSelectedRow();
@@ -273,48 +312,7 @@ public class TomarPedidoGUI extends JPanel {
         txtDetalle.setCaretPosition(0);
     }
     
-    private void tomarSiguientePedido() {
-        java.util.Queue<PedidoCocina> pendientes = gestorCocina.getColaPendientes();
-        
-        if (pendientes.isEmpty()) {
-            JOptionPane.showMessageDialog(this, 
-                "No hay pedidos pendientes para tomar.", 
-                "Advertencia", 
-                JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
-        PedidoCocina primerPedido = pendientes.peek();
-        
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "¿Tomar el siguiente pedido?\n\n" +
-            "ID: " + primerPedido.getIdPedidoCocina() + "\n" +
-            "Cliente: " + primerPedido.getNombreCliente() + "\n" +
-            "Fecha ingreso: " + primerPedido.getFechaIngreso().format(formatterFecha) + "\n\n" +
-            "El pedido pasará a estado 'EN PREPARACIÓN'.",
-            "Confirmar",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
-        
-        if (confirm == JOptionPane.YES_OPTION) {
-            PedidoCocina pedidoTomado = gestorCocina.tomarSiguientePedido();
-            
-            if (pedidoTomado != null) {
-                JOptionPane.showMessageDialog(this,
-                    "Pedido #" + pedidoTomado.getIdPedidoCocina() + " tomado exitosamente.\n" +
-                    "Ahora está en estado 'EN PREPARACIÓN'.\n\n" +
-                    "Puede verlo en la sección 'En Preparación'.",
-                    "Éxito",
-                    JOptionPane.INFORMATION_MESSAGE);
-                cargarDatos();
-            } else {
-                JOptionPane.showMessageDialog(this,
-                    "Error al tomar el pedido. Intente nuevamente.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
