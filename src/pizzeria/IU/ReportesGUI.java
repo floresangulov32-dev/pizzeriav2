@@ -26,16 +26,21 @@ public class ReportesGUI extends JPanel {
     public ReportesGUI() {
         gestorFinanzas = new GestorFinanzas();
         gestorFinanzas.cargarArchivos();
-        
+
         gestorUsuarios = new GestorUsuarios();
         gestorUsuarios.cargarDesdeArchivo();
-        
+
         setLayout(new BorderLayout());
         setOpaque(false);
         setBorder(new EmptyBorder(10, 10, 10, 10));
-        
+
         add(crearPanelSuperior(), BorderLayout.NORTH);
         add(crearPanelCentral(), BorderLayout.CENTER);
+
+        // Ocultar el botón después de que initComponents lo haya creado
+        if (btnListaUsuarios != null) {
+            btnListaUsuarios.setVisible(false);
+        }
     }
     
     private JPanel crearPanelSuperior() {
@@ -239,21 +244,24 @@ public class ReportesGUI extends JPanel {
             new Font("Segoe UI", Font.BOLD, 12),
             new Color(52, 73, 94)
         ));
-        
-        JPanel panelBotones = new JPanel(new GridLayout(2, 1, 5, 5));
+
+        // Cambiar GridLayout de 2 filas a 1 fila
+        JPanel panelBotones = new JPanel(new GridLayout(1, 1, 5, 5));  // Antes era (2, 1)
         panelBotones.setOpaque(false);
         panelBotones.setBorder(new EmptyBorder(8, 8, 8, 8));
-        
-        JButton btnListaUsuarios = crearBoton("Lista de Usuarios", new Color(52, 73, 94));
-        btnListaUsuarios.addActionListener(e -> reporteListaUsuarios());
-        panelBotones.add(btnListaUsuarios);
-        
+
+        // Comentar o eliminar btnListaUsuarios
+        // JButton btnListaUsuarios = crearBoton("Lista de Usuarios", new Color(52, 73, 94));
+        // btnListaUsuarios.addActionListener(e -> reporteListaUsuarios());
+        // panelBotones.add(btnListaUsuarios);
+
+        // Solo mantener btnUsuariosPorRol
         JButton btnUsuariosPorRol = crearBoton("Usuarios por Rol", new Color(52, 73, 94));
         btnUsuariosPorRol.addActionListener(e -> reporteUsuariosPorRol());
         panelBotones.add(btnUsuariosPorRol);
-        
+
         panel.add(panelBotones, BorderLayout.CENTER);
-        
+
         return panel;
     }
     
@@ -279,7 +287,7 @@ public class ReportesGUI extends JPanel {
         return boton;
     }
     
-    // ==================== MÉTODOS DE REPORTES ====================
+    // MÉTODOS DE REPORTES 
     
     private void reporteVentasDiarias() {
         JPanel parent = (JPanel) getParent();
@@ -401,15 +409,15 @@ public class ReportesGUI extends JPanel {
         }
     }
     
-    private void reporteListaUsuarios() {
-        JPanel parent = (JPanel) getParent();
-        if (parent != null) {
-            parent.removeAll();
-            parent.add(new ReporteListaUsuariosGUI(), BorderLayout.CENTER);
-            parent.revalidate();
-            parent.repaint();
-        }
-    }
+    //private void reporteListaUsuarios() {
+    //    JPanel parent = (JPanel) getParent();
+    //    if (parent != null) {
+    //        parent.removeAll();
+    //        parent.add(new ReporteListaUsuariosGUI(), BorderLayout.CENTER);
+    //        parent.revalidate();
+    //        parent.repaint();
+    //    }
+    //}
     
     private void reporteUsuariosPorRol() {
         JPanel parent = (JPanel) getParent();
@@ -456,8 +464,8 @@ public class ReportesGUI extends JPanel {
         btnProductosBajoStock = new javax.swing.JButton();
         btnMovimientosInventario = new javax.swing.JButton();
         PanelUsuarios = new javax.swing.JPanel();
-        btnListaUsuarios = new javax.swing.JButton();
         btnUsuariosPorRol = new javax.swing.JButton();
+        btnListaUsuarios = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         btnCerrar = new javax.swing.JButton();
 
@@ -626,9 +634,9 @@ public class ReportesGUI extends JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        btnListaUsuarios.setText("jButton1");
-
         btnUsuariosPorRol.setText("jButton1");
+
+        btnListaUsuarios.setText("jButton1");
 
         javax.swing.GroupLayout PanelUsuariosLayout = new javax.swing.GroupLayout(PanelUsuarios);
         PanelUsuarios.setLayout(PanelUsuariosLayout);
@@ -636,15 +644,15 @@ public class ReportesGUI extends JPanel {
             PanelUsuariosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelUsuariosLayout.createSequentialGroup()
                 .addGap(16, 16, 16)
-                .addGroup(PanelUsuariosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnUsuariosPorRol)
-                    .addComponent(btnListaUsuarios))
+                .addGroup(PanelUsuariosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnListaUsuarios)
+                    .addComponent(btnUsuariosPorRol))
                 .addContainerGap(31, Short.MAX_VALUE))
         );
         PanelUsuariosLayout.setVerticalGroup(
             PanelUsuariosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelUsuariosLayout.createSequentialGroup()
-                .addGap(31, 31, 31)
+                .addGap(37, 37, 37)
                 .addComponent(btnListaUsuarios)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnUsuariosPorRol)
@@ -728,7 +736,8 @@ public class ReportesGUI extends JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelCentral;
     private javax.swing.JPanel PanelFinanzas;

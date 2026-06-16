@@ -93,6 +93,11 @@ public class Producto{
         this.tipo = tipo;
     }
     
+    public void setIngredientes(ArrayList<Integer> nuevos){
+        ingredientes.clear();          
+        ingredientes.addAll(nuevos);   
+    }
+    
     public void agregarIngrediente(int i){
         ingredientes.add(i); 
     }

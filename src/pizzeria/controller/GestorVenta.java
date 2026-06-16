@@ -55,6 +55,44 @@ public class GestorVenta {
     public Venta getVentaActual() {
         return ventaActual;
     }
+    
+/*
+ * Valida todo el stock requerido por el pedido actual.
+ *
+ * Incluye:
+ * - Productos individuales.
+ * - Combos.
+ * - Cantidades actuales.
+ * - Ingredientes repetidos y acumulados.
+ *
+ * Retorna null cuando el pedido puede confirmarse.
+ * Retorna un mensaje cuando el pedido no es válido
+ * o no existe stock suficiente.
+ */
+public String validarStockPedidoActualGUI() {
+    if (ventaActual == null) {
+        return "No existe un pedido actual.";
+    }
+
+    if (ventaActual.estaVacio()) {
+        return "El pedido está vacío. Agregue al menos un producto o combo.";
+    }
+
+    HashMap<Integer, Double> requeridoPorInsumo =
+            new HashMap<>();
+
+    String errorPedido =
+            acumularConsumoPedidoActual(requeridoPorInsumo);
+
+    if (errorPedido != null) {
+        return errorPedido;
+    }
+
+    return validarDisponibilidadAcumulada(
+            requeridoPorInsumo,
+            "confirmar el pedido"
+    );
+}
 
     // Muestra el menú principal del módulo de ventas
     public void menuVentas(int idCajero) {
@@ -170,28 +208,16 @@ public class GestorVenta {
         }
         
         // Verificar stock antes de agregar
-        boolean stockInsuficiente = false;
-        for (int idInsumo : prod.getIngredientes()) {
-            Insumo insumo = inventario.buscarId(idInsumo);
-            if (insumo == null) continue;
-            double requerido = insumo.getCantidadPorPizza() * cant;
-            if (requerido > insumo.getStockActual()) {
-                if (!stockInsuficiente) {
-                    Consola.separador();
-                    System.out.println(" ⚠ PEDIDO BLOQUEADO - Stock insuficiente:");
-                    stockInsuficiente = true;
-                }
-                System.out.printf("   [!] '%s': necesita %.3f, disponible %.3f%n",
-                    insumo.getNombre(), requerido, insumo.getStockActual());
-            }
-        }
+        String mensajeStock = validarStockProducto(prod, cant);
 
-        if (stockInsuficiente) {
-            System.out.println(" El producto no pudo ser agregado.");
+        if (mensajeStock != null) {
+            Consola.separador();
+            System.out.println(mensajeStock);
             Consola.separador();
             Consola.pausar();
             return;
         }
+        
         agregarItem(prod, cant);
 
         System.out.printf(" Agregado: %dx %s%n", cant, prod.getNombre());
@@ -252,26 +278,11 @@ public class GestorVenta {
         }
 
         // Verificar stock de los productos del combo antes de agregar
-        boolean stockInsuficiente = false;
-        for (Producto p : combo.getCombo()) {
-            for (int idInsumo : p.getIngredientes()) {
-                Insumo insumo = inventario.buscarId(idInsumo);
-                if (insumo == null) continue;
-                double requerido = insumo.getCantidadPorPizza() * cant;
-                if (requerido > insumo.getStockActual()) {
-                    if (!stockInsuficiente) {
-                        Consola.separador();
-                        System.out.println(" ⚠ PEDIDO BLOQUEADO - Stock insuficiente:");
-                        stockInsuficiente = true;
-                    }
-                    System.out.printf("   [!] '%s' para '%s': necesita %.3f, disponible %.3f%n",
-                        insumo.getNombre(), p.getNombre(), requerido, insumo.getStockActual());
-                }
-            }
-        }
+        String mensajeStock = validarStockCombo(combo, cant);
 
-        if (stockInsuficiente) {
-            System.out.println(" El combo no pudo ser agregado.");
+        if (mensajeStock != null) {
+            Consola.separador();
+            System.out.println(mensajeStock);
             Consola.separador();
             Consola.pausar();
             return;
@@ -819,60 +830,612 @@ public class GestorVenta {
     }
     
     ////Validar stock de producto
-    private String validarStockProducto(Producto producto, int cantidad) {
-        for (int idInsumo : producto.getIngredientes()) {
-            Insumo insumo = inventario.buscarId(idInsumo);
+    
+    // ============================================================
+// DISPONIBILIDAD DE PRODUCTOS Y COMBOS PARA EL MENÚ DINÁMICO
+// ============================================================
 
-            if (insumo == null) {
-                return "Falta configurar un insumo del producto: " + producto.getNombre();
-            }
+/*
+ * Indica si se puede agregar la cantidad indicada de un producto.
+ *
+ * Se considera:
+ * - El stock actual del inventario.
+ * - Los productos que ya están en el pedido.
+ * - Los combos que ya están en el pedido.
+ * - La nueva cantidad solicitada.
+ */
+public boolean puedeAgregarProducto(Producto producto, int cantidad) {
+    return validarStockProducto(producto, cantidad) == null;
+}
 
-            double requerido = insumo.getCantidadPorPizza() * cantidad;
+//
+ // Indica si se puede agregar la cantidad indicada de un combo.
+ //
+ // Se suman los ingredientes de todos los productos del combo,
+ // incluyendo ingredientes repetidos entre diferentes productos.
+ //
+public boolean puedeAgregarCombo(Combo combo, int cantidad) {
+    return validarStockCombo(combo, cantidad) == null;
+}
 
-            if (requerido > insumo.getStockActual()) {
-                return "Stock insuficiente para " + producto.getNombre()
-                        + ". Insumo: " + insumo.getNombre()
-                        + ". Disponible: " + String.format("%.3f", insumo.getStockActual())
-                        + ". Requerido: " + String.format("%.3f", requerido);
-            }
-        }
+//
+ // Valida el stock acumulado del pedido actual más el producto
+ // que se pretende agregar.
+ //
+ // Retorna null cuando sí existe stock suficiente.
+ // Retorna un mensaje cuando no se puede agregar.
+ //
+private String validarStockProducto(Producto producto, int cantidad) {
+    if (producto == null) {
+        return "Producto no válido.";
+    }
 
+    if (cantidad <= 0) {
+        return "La cantidad debe ser mayor a 0.";
+    }
+
+    HashMap<Integer, Double> requeridoPorInsumo = new HashMap<>();
+
+    // Primero sumar todo lo que ya está en el pedido.
+    String errorPedido =
+            acumularConsumoPedidoActual(requeridoPorInsumo);
+
+    if (errorPedido != null) {
+        return errorPedido;
+    }
+
+    // Después sumar el nuevo producto solicitado.
+    String errorProducto = acumularConsumoProducto(
+            requeridoPorInsumo,
+            producto,
+            cantidad
+    );
+
+    if (errorProducto != null) {
+        return errorProducto;
+    }
+
+    return validarDisponibilidadAcumulada(
+            requeridoPorInsumo,
+            "el producto " + producto.getNombre()
+    );
+}
+
+//
+ // Valida el stock acumulado del pedido actual más el combo
+ // que se pretende agregar.
+ //
+ // Retorna null cuando sí existe stock suficiente.
+ // Retorna un mensaje cuando no se puede agregar.
+ //
+private String validarStockCombo(Combo combo, int cantidad) {
+    if (combo == null) {
+        return "Combo no válido.";
+    }
+
+    if (cantidad <= 0) {
+        return "La cantidad debe ser mayor a 0.";
+    }
+
+    HashMap<Integer, Double> requeridoPorInsumo = new HashMap<>();
+
+    // Sumar lo que ya consume el pedido.
+    String errorPedido =
+            acumularConsumoPedidoActual(requeridoPorInsumo);
+
+    if (errorPedido != null) {
+        return errorPedido;
+    }
+
+    // Sumar todos los productos incluidos en el nuevo combo.
+    String errorCombo = acumularConsumoCombo(
+            requeridoPorInsumo,
+            combo,
+            cantidad
+    );
+
+    if (errorCombo != null) {
+        return errorCombo;
+    }
+
+    return validarDisponibilidadAcumulada(
+            requeridoPorInsumo,
+            "el combo #" + combo.getNroCombo()
+    );
+}
+
+//
+ // Suma al mapa todos los ingredientes que ya requiere
+ // el pedido que se encuentra en construcción.
+ //
+private String acumularConsumoPedidoActual(
+        HashMap<Integer, Double> requeridoPorInsumo
+) {
+    if (ventaActual == null) {
         return null;
     }
-    
-    ///VALIDAR STOCK DE COMBO
-    private String validarStockCombo(Combo combo, int cantidad) {
-        for (Producto producto : combo.getCombo()) {
-            for (int idInsumo : producto.getIngredientes()) {
-                Insumo insumo = inventario.buscarId(idInsumo);
 
-                if (insumo == null) {
-                    return "Falta configurar un insumo del producto: " + producto.getNombre();
-                }
+    // Productos individuales que ya están en el pedido.
+    for (DetalleVenta detalle : ventaActual.getItems()) {
+        Producto producto =
+                menu.buscarProducto(detalle.getProducto().getID());
 
-                double requerido = insumo.getCantidadPorPizza() * cantidad;
-
-                if (requerido > insumo.getStockActual()) {
-                    return "Stock insuficiente para el combo #" + combo.getNroCombo()
-                            + ". Producto: " + producto.getNombre()
-                            + ". Insumo: " + insumo.getNombre()
-                            + ". Disponible: " + String.format("%.3f", insumo.getStockActual())
-                            + ". Requerido: " + String.format("%.3f", requerido);
-                }
-            }
+        if (producto == null) {
+            producto = detalle.getProducto();
         }
 
+        String error = acumularConsumoProducto(
+                requeridoPorInsumo,
+                producto,
+                detalle.getCantidad()
+        );
+
+        if (error != null) {
+            return error;
+        }
+    }
+
+    // Combos que ya están en el pedido.
+    for (DetalleCombo detalleCombo : ventaActual.getCombos()) {
+        Combo combo =
+                menu.buscarCombo(detalleCombo.getNroCombo());
+
+        if (combo == null) {
+            return "No se encontró la configuración del combo #"
+                    + detalleCombo.getNroCombo() + ".";
+        }
+
+        String error = acumularConsumoCombo(
+                requeridoPorInsumo,
+                combo,
+                detalleCombo.getCantidad()
+        );
+
+        if (error != null) {
+            return error;
+        }
+    }
+
+    return null;
+}
+
+//
+ //Suma al mapa todos los ingredientes requeridos por un producto.
+ //
+private String acumularConsumoProducto(
+        HashMap<Integer, Double> requeridoPorInsumo,
+        Producto producto,
+        int cantidad
+) {
+    if (producto == null) {
+        return "Producto no válido.";
+    }
+
+    for (int idInsumo : producto.getIngredientes()) {
+        Insumo insumo = inventario.buscarId(idInsumo);
+
+        if (insumo == null) {
+            return "Falta configurar el insumo con ID "
+                    + idInsumo
+                    + " del producto "
+                    + producto.getNombre()
+                    + ".";
+        }
+
+        double cantidadRequerida =
+                insumo.getCantidadPorPizza() * cantidad;
+
+        /*
+         * Si el insumo ya estaba en el mapa, suma la cantidad.
+         * Esto es importante porque varias pizzas o productos
+         * de un combo pueden utilizar el mismo insumo.
+         */
+        requeridoPorInsumo.merge(
+                idInsumo,
+                cantidadRequerida,
+                Double::sum
+        );
+    }
+
+    return null;
+}
+
+//
+ // Suma todos los ingredientes de todos los productos de un combo.
+ //
+private String acumularConsumoCombo(
+        HashMap<Integer, Double> requeridoPorInsumo,
+        Combo combo,
+        int cantidad
+) {
+    if (combo == null
+            || combo.getCombo() == null
+            || combo.getCombo().isEmpty()) {
+
+        return "El combo no tiene productos configurados.";
+    }
+
+    for (Producto productoCombo : combo.getCombo()) {
+        Producto producto =
+                menu.buscarProducto(productoCombo.getID());
+
+        if (producto == null) {
+            producto = productoCombo;
+        }
+
+        String error = acumularConsumoProducto(
+                requeridoPorInsumo,
+                producto,
+                cantidad
+        );
+
+        if (error != null) {
+            return error;
+        }
+    }
+
+    return null;
+}
+
+//
+ // Compara el consumo total acumulado con el stock real.
+ //
+ 
+private String validarDisponibilidadAcumulada(
+        HashMap<Integer, Double> requeridoPorInsumo,
+        String elementoSolicitado
+) {
+    /*
+     * Ordenamos los IDs para que los ingredientes siempre
+     * aparezcan en un orden estable dentro del mensaje.
+     */
+    java.util.ArrayList<Integer> idsInsumos =
+            new java.util.ArrayList<>(requeridoPorInsumo.keySet());
+
+    java.util.Collections.sort(idsInsumos);
+
+    StringBuilder mensaje = new StringBuilder();
+    int cantidadFaltantes = 0;
+
+    for (Integer idInsumo : idsInsumos) {
+        Insumo insumo = inventario.buscarId(idInsumo);
+
+        if (insumo == null) {
+            return "No se encontró en inventario el insumo con ID "
+                    + idInsumo
+                    + ". Revise la configuración del producto o combo.";
+        }
+
+        double cantidadRequerida =
+                requeridoPorInsumo.getOrDefault(idInsumo, 0.0);
+
+        double cantidadDisponible =
+                insumo.getStockActual();
+
+        /*
+         * Se utiliza una pequeña tolerancia para evitar errores
+         * de comparación producidos por números decimales.
+         */
+        boolean insuficiente =
+                cantidadRequerida > cantidadDisponible + 0.000001;
+
+        if (!insuficiente) {
+            continue;
+        }
+
+        double cantidadFaltante =
+                cantidadRequerida - cantidadDisponible;
+
+        if (cantidadFaltante < 0) {
+            cantidadFaltante = 0;
+        }
+
+        if (cantidadFaltantes == 0) {
+            mensaje.append("No hay stock suficiente para ")
+                    .append(elementoSolicitado)
+                    .append(".\n\n");
+
+            mensaje.append("INGREDIENTES INSUFICIENTES:\n\n");
+        }
+
+        cantidadFaltantes++;
+
+        String unidad = insumo.getUnidad();
+
+        if (unidad == null || unidad.trim().isEmpty()) {
+            unidad = "unidades";
+        }
+
+        mensaje.append("• ")
+                .append(insumo.getNombre())
+                .append("\n");
+
+        mensaje.append("  Requerido por el pedido: ")
+                .append(formatearCantidadInsumo(cantidadRequerida))
+                .append(" ")
+                .append(unidad)
+                .append("\n");
+
+        mensaje.append("  Disponible: ")
+                .append(formatearCantidadInsumo(cantidadDisponible))
+                .append(" ")
+                .append(unidad)
+                .append("\n");
+
+        mensaje.append("  Faltante: ")
+                .append(formatearCantidadInsumo(cantidadFaltante))
+                .append(" ")
+                .append(unidad)
+                .append("\n\n");
+    }
+
+    if (cantidadFaltantes == 0) {
         return null;
     }
+
+    mensaje.append("Reduzca la cantidad solicitada o reponga los ingredientes indicados.");
+
+    return mensaje.toString();
+}
     
     
     
+private String formatearCantidadInsumo(double cantidad) {
+    /*
+     * Si el valor es prácticamente entero, se muestra sin
+     * decimales. Ejemplo: 2 unidades.
+     */
+    if (Math.abs(cantidad - Math.rint(cantidad)) < 0.000001) {
+        return String.format("%.0f", cantidad);
+    }
+
+    /*
+     * Para kg, litros, gramos y otras cantidades decimales,
+     * mostramos hasta tres decimales.
+     */
+    return String.format("%.3f", cantidad);
+}
     
     
-    
-    
-    
-    
+// ============================================================
+// ACTUALIZAR CANTIDAD DE PRODUCTOS Y COMBOS DEL PEDIDO ACTUAL
+// ============================================================
+
+/**
+ * Actualiza la cantidad de un producto individual.
+ *
+ * Retorna null cuando la actualización fue correcta.
+ * Retorna un mensaje cuando la cantidad o el stock no son válidos.
+ */
+public String actualizarCantidadItemGUI(
+        int indiceProducto,
+        int nuevaCantidad
+) {
+    if (ventaActual == null) {
+        return "No existe un pedido actual.";
+    }
+
+    if (nuevaCantidad <= 0) {
+        return "La cantidad debe ser mayor a 0.";
+    }
+
+    ArrayList<DetalleVenta> items = ventaActual.getItems();
+
+    if (indiceProducto < 0 || indiceProducto >= items.size()) {
+        return "No se pudo identificar el producto seleccionado.";
+    }
+
+    DetalleVenta detalleSeleccionado =
+            items.get(indiceProducto);
+
+    Producto producto =
+            detalleSeleccionado.getProducto();
+
+    HashMap<Integer, Double> requeridoPorInsumo =
+            new HashMap<>();
+
+    /*
+     * Se acumula todo el pedido excepto el producto
+     * que se está editando.
+     */
+    String errorPedido = acumularConsumoPedidoActualExcepto(
+            requeridoPorInsumo,
+            indiceProducto,
+            -1
+    );
+
+    if (errorPedido != null) {
+        return errorPedido;
+    }
+
+    /*
+     * Se vuelve a agregar el producto, pero utilizando
+     * la nueva cantidad.
+     */
+    String errorProducto = acumularConsumoProducto(
+            requeridoPorInsumo,
+            producto,
+            nuevaCantidad
+    );
+
+    if (errorProducto != null) {
+        return errorProducto;
+    }
+
+    String errorStock = validarDisponibilidadAcumulada(
+            requeridoPorInsumo,
+            "actualizar la cantidad de " + producto.getNombre()
+    );
+
+    if (errorStock != null) {
+        return errorStock;
+    }
+
+    detalleSeleccionado.setCantidad(nuevaCantidad);
+    ventaActual.calcularTotal();
+
+    return null;
+}
+
+
+/**
+ * Actualiza la cantidad de un combo del pedido actual.
+ */
+public String actualizarCantidadComboGUI(
+        int indiceCombo,
+        int nuevaCantidad
+) {
+    if (ventaActual == null) {
+        return "No existe un pedido actual.";
+    }
+
+    if (nuevaCantidad <= 0) {
+        return "La cantidad debe ser mayor a 0.";
+    }
+
+    ArrayList<DetalleCombo> combos =
+            ventaActual.getCombos();
+
+    if (indiceCombo < 0 || indiceCombo >= combos.size()) {
+        return "No se pudo identificar el combo seleccionado.";
+    }
+
+    DetalleCombo detalleSeleccionado =
+            combos.get(indiceCombo);
+
+    Combo combo = menu.buscarCombo(
+            detalleSeleccionado.getNroCombo()
+    );
+
+    if (combo == null) {
+        return "No se encontró la configuración del combo #"
+                + detalleSeleccionado.getNroCombo()
+                + ".";
+    }
+
+    HashMap<Integer, Double> requeridoPorInsumo =
+            new HashMap<>();
+
+    /*
+     * Se acumula todo el pedido excepto el combo
+     * que se encuentra en edición.
+     */
+    String errorPedido = acumularConsumoPedidoActualExcepto(
+            requeridoPorInsumo,
+            -1,
+            indiceCombo
+    );
+
+    if (errorPedido != null) {
+        return errorPedido;
+    }
+
+    /*
+     * Se agrega nuevamente el combo usando la cantidad nueva.
+     */
+    String errorCombo = acumularConsumoCombo(
+            requeridoPorInsumo,
+            combo,
+            nuevaCantidad
+    );
+
+    if (errorCombo != null) {
+        return errorCombo;
+    }
+
+    String errorStock = validarDisponibilidadAcumulada(
+            requeridoPorInsumo,
+            "actualizar la cantidad del combo #"
+                    + combo.getNroCombo()
+    );
+
+    if (errorStock != null) {
+        return errorStock;
+    }
+
+    detalleSeleccionado.setCantidad(nuevaCantidad);
+    ventaActual.calcularTotal();
+
+    return null;
+}
+
+
+/**
+ * Acumula el consumo completo del pedido, excepto el producto
+ * o combo que se encuentra en edición.
+ *
+ * Utilizar -1 significa que no se excluirá ningún elemento
+ * de ese tipo.
+ */
+private String acumularConsumoPedidoActualExcepto(
+        HashMap<Integer, Double> requeridoPorInsumo,
+        int indiceProductoExcluir,
+        int indiceComboExcluir
+) {
+    if (ventaActual == null) {
+        return null;
+    }
+
+    for (int i = 0; i < ventaActual.getItems().size(); i++) {
+        if (i == indiceProductoExcluir) {
+            continue;
+        }
+
+        DetalleVenta detalle =
+                ventaActual.getItems().get(i);
+
+        Producto producto =
+                menu.buscarProducto(
+                        detalle.getProducto().getID()
+                );
+
+        if (producto == null) {
+            producto = detalle.getProducto();
+        }
+
+        String error = acumularConsumoProducto(
+                requeridoPorInsumo,
+                producto,
+                detalle.getCantidad()
+        );
+
+        if (error != null) {
+            return error;
+        }
+    }
+
+    for (int i = 0; i < ventaActual.getCombos().size(); i++) {
+        if (i == indiceComboExcluir) {
+            continue;
+        }
+
+        DetalleCombo detalleCombo =
+                ventaActual.getCombos().get(i);
+
+        Combo combo =
+                menu.buscarCombo(
+                        detalleCombo.getNroCombo()
+                );
+
+        if (combo == null) {
+            return "No se encontró la configuración del combo #"
+                    + detalleCombo.getNroCombo()
+                    + ".";
+        }
+
+        String error = acumularConsumoCombo(
+                requeridoPorInsumo,
+                combo,
+                detalleCombo.getCantidad()
+        );
+
+        if (error != null) {
+            return error;
+        }
+    }
+
+    return null;
+}
     
     
     

@@ -79,9 +79,9 @@ public class BuscarInsumos extends javax.swing.JFrame {
         btnInvetario = new javax.swing.JButton();
         btnCerrar = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
-        PiePag = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        PiePag = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         Encabezado1 = new javax.swing.JPanel();
@@ -125,26 +125,33 @@ public class BuscarInsumos extends javax.swing.JFrame {
 
         jTextField1.addActionListener(this::jTextField1ActionPerformed);
 
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("Ingrese ID o nombre del Insumo");
+
         javax.swing.GroupLayout BarraNavLayout = new javax.swing.GroupLayout(BarraNav);
         BarraNav.setLayout(BarraNavLayout);
         BarraNavLayout.setHorizontalGroup(
             BarraNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BarraNavLayout.createSequentialGroup()
-                .addContainerGap(22, Short.MAX_VALUE)
+                .addContainerGap(30, Short.MAX_VALUE)
                 .addGroup(BarraNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnFinanzas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnMenu, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnInvetario, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnCerrar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
                 .addContainerGap())
         );
         BarraNavLayout.setVerticalGroup(
             BarraNavLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BarraNavLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addGap(33, 33, 33)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(73, 73, 73)
+                .addGap(37, 37, 37)
                 .addComponent(btnFinanzas, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -159,31 +166,25 @@ public class BuscarInsumos extends javax.swing.JFrame {
         PiePag.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
         PiePag.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Powered by StarTech");
-
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Logo");
+        jLabel10.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setText("Powered by StarTech");
 
         javax.swing.GroupLayout PiePagLayout = new javax.swing.GroupLayout(PiePag);
         PiePag.setLayout(PiePagLayout);
         PiePagLayout.setHorizontalGroup(
             PiePagLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PiePagLayout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addComponent(jLabel5)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(22, 22, 22)
+                .addComponent(jLabel10)
+                .addContainerGap(1110, Short.MAX_VALUE))
         );
         PiePagLayout.setVerticalGroup(
             PiePagLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PiePagLayout.createSequentialGroup()
-                .addGroup(PiePagLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
-                    .addComponent(jLabel5))
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PiePagLayout.createSequentialGroup()
+                .addContainerGap(16, Short.MAX_VALUE)
+                .addComponent(jLabel10)
+                .addGap(7, 7, 7))
         );
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -488,6 +489,8 @@ public class BuscarInsumos extends javax.swing.JFrame {
         configurarTabla();
         return;
     }
+
+    // Intentar buscar por ID primero
     try {
         int id = Integer.parseInt(texto);
         Insumo ins = inventario.buscarId(id);
@@ -508,10 +511,35 @@ public class BuscarInsumos extends javax.swing.JFrame {
         } else {
             javax.swing.JOptionPane.showMessageDialog(this, "Insumo no encontrado.");
         }
+        return;
     } catch (NumberFormatException e) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Ingrese un ID numérico válido.");
+        // No es un número, buscar por nombre
     }
+
+    // Buscar por nombre (parcial, sin importar mayúsculas)
+    javax.swing.table.DefaultTableModel modelo = new javax.swing.table.DefaultTableModel(
+        new String[]{"ID", "Nombre", "Unidad", "Stock", "Stock Minimo", "Precio de Compra", "Cantidad por Pizza"}, 0
+    );
+    for (Insumo ins : inventario.getInsumos()) {
+        if (ins.getNombre().toLowerCase().contains(texto.toLowerCase())) {
+            modelo.addRow(new Object[]{
+                ins.getId(),
+                ins.getNombre(),
+                ins.getUnidad(),
+                String.format("%.2f", ins.getStockActual()),
+                String.format("%.2f", ins.getStockMinimo()),
+                String.format("%.2f", ins.getPrecioCompra()),
+                String.format("%.2f", ins.getCantidadPorPizza())
+            });
+        }
     }
+
+    if (modelo.getRowCount() == 0) {
+        javax.swing.JOptionPane.showMessageDialog(this, "No se encontraron insumos con ese nombre.");
+    } else {
+        jTable1.setModel(modelo);
+    }
+}
     
     public void mostrarTabla(){
         configurarTabla();
@@ -575,8 +603,8 @@ public class BuscarInsumos extends javax.swing.JFrame {
     private javax.swing.JButton btnFinanzas;
     private javax.swing.JButton btnInvetario;
     private javax.swing.JButton btnMenu;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;

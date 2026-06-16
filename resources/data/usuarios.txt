@@ -11,4 +11,4 @@
 12,Ricardo Gómez,ricardo.gom,123,GERENTE
 13,Patricia Díaz,patricia.diaz,123,CLIENTE
 14,Javier Sánchez,javier.san,123,CAJERO
-15,Mónica Ramírez,monica.ram,123,COCINA
+15,Mónica Ramírez,monicas,123,COCINA

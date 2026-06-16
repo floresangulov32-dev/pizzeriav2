@@ -19,41 +19,24 @@ public class AgregarComboGUI extends javax.swing.JFrame {
     /**
      * Creates new form MenuGerente
      */
-    public AgregarComboGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        
-        cargarCombos();
-        configurarBusquedaCombos();
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    }
-    
-   
-    
-    public AgregarComboGUI(String rol, String nombre) {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        this.rolUsuario = rol;
-        this.nombreUsuario = nombre;
-        mostrarUsuario();
-        configurarHover();        
-        activarBoton(btnInicio);
-        cargarCombos();
-        configurarBusquedaCombos();
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+            
+        public AgregarComboGUI() {
+            initComponents();
 
-    }
+            this.rolUsuario = "Cajero";
+            this.nombreUsuario = "";
+
+            inicializarVentanaAgregarCombo();
+        }
+
+        public AgregarComboGUI(String rol, String nombre) {
+            initComponents();
+
+            this.rolUsuario = rol;
+            this.nombreUsuario = nombre;
+
+            inicializarVentanaAgregarCombo();
+        }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -445,10 +428,12 @@ public class AgregarComboGUI extends javax.swing.JFrame {
         this.dispose();
         new LoginGUI().setVisible(true);
     }
+    
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        
         int fila = jTable1.getSelectedRow();
 
         if (fila == -1) {
@@ -461,9 +446,12 @@ public class AgregarComboGUI extends javax.swing.JFrame {
             return;
         }
 
-        int filaModelo = jTable1.convertRowIndexToModel(fila);
+        int filaModelo =
+                jTable1.convertRowIndexToModel(fila);
 
-        if (filaModelo < 0 || filaModelo >= combosMostrados.size()) {
+        if (filaModelo < 0
+                || filaModelo >= combosMostrados.size()) {
+
             javax.swing.JOptionPane.showMessageDialog(
                     this,
                     "No se pudo identificar el combo seleccionado.",
@@ -473,38 +461,481 @@ public class AgregarComboGUI extends javax.swing.JFrame {
             return;
         }
 
-        int cantidad = (int) jSpinner1.getValue();
+        Integer cantidad =
+                obtenerCantidadIngresadaValida();
 
-        pizzeria.model.Combo comboSeleccionado = combosMostrados.get(filaModelo);
+        if (cantidad == null) {
+            return;
+        }
 
-        String error = ContextoVentasGUI.getInstancia()
-                .getGestorVenta()
-                .agregarComboGUI(comboSeleccionado, cantidad);
+        pizzeria.model.Combo comboSeleccionado =
+                combosMostrados.get(filaModelo);
+
+        String error =
+                ContextoVentasGUI.getInstancia()
+                        .getGestorVenta()
+                        .agregarComboGUI(
+                                comboSeleccionado,
+                                cantidad
+                        );
 
         if (error != null) {
-            javax.swing.JOptionPane.showMessageDialog(
-                    this,
+            mostrarMensajeStock(
                     error,
-                    "No se pudo agregar combo",
-                    javax.swing.JOptionPane.WARNING_MESSAGE
+                    "No se pudo agregar combo"
             );
-        return;
-    }
+            return;
+        }
 
-    new NuevoPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
-    this.dispose();
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Se agregaron "
+                        + cantidad
+                        + " unidad(es) del Combo #"
+                        + comboSeleccionado.getNroCombo()
+                        + " al pedido.",
+                "Combo agregado",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+
+        new NuevoPedidoGUI(
+                rolUsuario,
+                nombreUsuario
+        ).setVisible(true);
+
+        this.dispose();
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
+private void mostrarMensajeStock(String mensaje, String titulo) {
+    if (mensaje == null || mensaje.trim().isEmpty()) {
+        return;
+    }
+
+    int cantidadLineas = mensaje.split("\\R").length;
+
+    javax.swing.JTextArea areaMensaje =
+            new javax.swing.JTextArea(mensaje);
+
+    areaMensaje.setEditable(false);
+    areaMensaje.setLineWrap(true);
+    areaMensaje.setWrapStyleWord(true);
+    areaMensaje.setCaretPosition(0);
+
+    java.awt.Font fuente =
+            javax.swing.UIManager.getFont("Label.font");
+
+    if (fuente != null) {
+        areaMensaje.setFont(fuente);
+    }
+
+    java.awt.Color fondo =
+            javax.swing.UIManager.getColor("Panel.background");
+
+    if (fondo != null) {
+        areaMensaje.setBackground(fondo);
+    }
+
+    int alto = Math.max(
+            140,
+            Math.min(320, cantidadLineas * 24)
+    );
+
+    javax.swing.JScrollPane scrollMensaje =
+            new javax.swing.JScrollPane(areaMensaje);
+
+    scrollMensaje.setPreferredSize(
+            new java.awt.Dimension(560, alto)
+    );
+
+    scrollMensaje.setBorder(
+            javax.swing.BorderFactory.createEmptyBorder()
+    );
+
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            scrollMensaje,
+            titulo,
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         new NuevoPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
     
+    
+private void inicializarVentanaAgregarCombo() {
+    aplicarEstructuraVisualCajero();
+    reconstruirInterfazAgregarCombo();
+
+    configurarValidacionCantidad();
+
+    mostrarUsuario();
+    configurarHover();
+    activarBoton(btnInicio);
+
+    jLabel7.setText(
+            "Solo se muestran combos que pueden prepararse con el stock disponible."
+    );
+
+    jLabel9.setText(
+            "LISTA DE COMBOS DISPONIBLES"
+    );
+
+    configurarTablaCombos();
+    cargarCombos();
+    configurarBusquedaCombos();
+
+    cargarImagen(
+            lblLogo,
+            "resources/imagenes/logoCasaDelSabor.jpeg"
+    );
+}
+    
+private void configurarValidacionCantidad() {
+    javax.swing.JSpinner.DefaultEditor editor =
+            (javax.swing.JSpinner.DefaultEditor)
+                    jSpinner1.getEditor();
+
+    javax.swing.JFormattedTextField campoCantidad =
+            editor.getTextField();
+
+    campoCantidad.setFocusLostBehavior(
+            javax.swing.JFormattedTextField.PERSIST
+    );
+}
+
+private Integer obtenerCantidadIngresadaValida() {
+    javax.swing.JSpinner.DefaultEditor editor =
+            (javax.swing.JSpinner.DefaultEditor)
+                    jSpinner1.getEditor();
+
+    javax.swing.JFormattedTextField campoCantidad =
+            editor.getTextField();
+
+    String texto =
+            campoCantidad.getText().trim();
+
+    if (texto.isEmpty()) {
+        mostrarErrorCantidad(
+                "Ingrese una cantidad."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        return null;
+    }
+
+    if (!texto.matches("-?\\d+")) {
+        mostrarErrorCantidad(
+                "La cantidad debe ser un número entero positivo.\n"
+                        + "No se permiten letras ni números decimales."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    long valor;
+
+    try {
+        valor = Long.parseLong(texto);
+
+    } catch (NumberFormatException e) {
+        mostrarErrorCantidad(
+                "La cantidad ingresada no es válida."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    if (valor <= 0) {
+        mostrarErrorCantidad(
+                "La cantidad debe ser mayor a 0."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    if (valor > Integer.MAX_VALUE) {
+        mostrarErrorCantidad(
+                "La cantidad ingresada es demasiado grande."
+        );
+
+        campoCantidad.requestFocusInWindow();
+        campoCantidad.selectAll();
+        return null;
+    }
+
+    int cantidad = (int) valor;
+
+    jSpinner1.setValue(cantidad);
+
+    return cantidad;
+}
+
+private void mostrarErrorCantidad(String mensaje) {
+    javax.swing.JOptionPane.showMessageDialog(
+            this,
+            mensaje,
+            "Cantidad inválida",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+    );
+}
+
+    
+    private void aplicarEstructuraVisualCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    if (lblLogo != null) {
+        lblLogo.setPreferredSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMinimumSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMaximumSize(new java.awt.Dimension(75, 75));
+    }
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    Encabezado.setMinimumSize(new java.awt.Dimension(1280, 100));
+
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    PiePag.setMinimumSize(new java.awt.Dimension(1280, 47));
+
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMinimumSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMaximumSize(new java.awt.Dimension(280, 573));
+
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setMinimumSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+
+    reconstruirEstructuraBaseCajero();
+
+    revalidate();
+    repaint();
+}
+    
+    
+    private void reconstruirEstructuraBaseCajero() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout(0, 0));
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    configurarBarraLateral();
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout(0, 0));
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.setPreferredSize(new java.awt.Dimension(1280, 573));
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+}
+    
+    
+    
+    private void configurarBarraLateral() {
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    configurarBotonLateral(btnInicio, tamBoton);
+    configurarBotonLateral(btnUsuarios, tamBoton);
+    configurarBotonLateral(btnReportes, tamBoton);
+    configurarBotonLateral(btnCerrar, tamBoton);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+}
+    
+    
+    private void configurarBotonLateral(javax.swing.JButton boton, java.awt.Dimension tamano) {
+    boton.setPreferredSize(tamano);
+    boton.setMinimumSize(tamano);
+    boton.setMaximumSize(tamano);
+
+    boton.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    boton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+
+    boton.setFocusPainted(false);
+    boton.setContentAreaFilled(true);
+    boton.setOpaque(true);
+    boton.setBorderPainted(false);
+}
+    
+    
+    private void reconstruirInterfazAgregarCombo() {
+    Interfaz.removeAll();
+    Interfaz.setLayout(new java.awt.BorderLayout());
+    Interfaz.setBackground(java.awt.Color.WHITE);
+    Interfaz.setBorder(javax.swing.BorderFactory.createEmptyBorder(30, 45, 25, 45));
+
+    javax.swing.JPanel panelContenido = new javax.swing.JPanel();
+    panelContenido.setOpaque(false);
+    panelContenido.setLayout(new javax.swing.BoxLayout(panelContenido, javax.swing.BoxLayout.Y_AXIS));
+
+    javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.BorderLayout());
+    panelBotones.setOpaque(false);
+    panelBotones.setMaximumSize(new java.awt.Dimension(820, 42));
+    panelBotones.setPreferredSize(new java.awt.Dimension(820, 42));
+    panelBotones.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jButton2.setPreferredSize(new java.awt.Dimension(180, 40));
+    jButton1.setPreferredSize(new java.awt.Dimension(220, 40));
+
+    panelBotones.add(jButton2, java.awt.BorderLayout.WEST);
+    panelBotones.add(jButton1, java.awt.BorderLayout.EAST);
+
+    jLabel19.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    jLabel7.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    javax.swing.JPanel panelFiltros = new javax.swing.JPanel(new java.awt.GridLayout(1, 2, 80, 0));
+    panelFiltros.setOpaque(false);
+    panelFiltros.setMaximumSize(new java.awt.Dimension(820, 65));
+    panelFiltros.setPreferredSize(new java.awt.Dimension(820, 65));
+    panelFiltros.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    javax.swing.JPanel panelBuscar = crearBloqueFiltro(jLabel6, jTextField1);
+    javax.swing.JPanel panelCantidad = crearBloqueFiltro(jLabel3, jSpinner1);
+
+    jTextField1.setPreferredSize(new java.awt.Dimension(320, 32));
+    jSpinner1.setPreferredSize(new java.awt.Dimension(80, 32));
+
+    panelFiltros.add(panelBuscar);
+    panelFiltros.add(panelCantidad);
+
+    reconstruirPanelListaCombos();
+
+    panelContenido.add(panelBotones);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(16));
+    panelContenido.add(jLabel19);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(6));
+    panelContenido.add(jLabel7);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(26));
+    panelContenido.add(panelFiltros);
+    panelContenido.add(javax.swing.Box.createVerticalStrut(16));
+    panelContenido.add(jPanel2);
+
+    Interfaz.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+    Interfaz.revalidate();
+    Interfaz.repaint();
+}
+    
+    
+    private javax.swing.JPanel crearBloqueFiltro(javax.swing.JLabel etiqueta, java.awt.Component campo) {
+    javax.swing.JPanel panel = new javax.swing.JPanel();
+    panel.setOpaque(false);
+    panel.setLayout(new javax.swing.BoxLayout(panel, javax.swing.BoxLayout.Y_AXIS));
+
+    etiqueta.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+    campo.setMaximumSize(new java.awt.Dimension(320, 32));
+    campo.setPreferredSize(new java.awt.Dimension(320, 32));
+
+    panel.add(etiqueta);
+    panel.add(javax.swing.Box.createVerticalStrut(6));
+    panel.add(campo);
+
+    return panel;
+}
+    
+    private void reconstruirPanelListaCombos() {
+    jPanel2.removeAll();
+    jPanel2.setBackground(java.awt.Color.WHITE);
+    jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)),
+            javax.swing.BorderFactory.createEmptyBorder(18, 22, 18, 22)
+    ));
+    jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
+    jPanel2.setMaximumSize(new java.awt.Dimension(820, 245));
+    jPanel2.setPreferredSize(new java.awt.Dimension(820, 245));
+    jPanel2.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jLabel9.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jScrollPane1.setPreferredSize(new java.awt.Dimension(770, 175));
+    jScrollPane1.setMaximumSize(new java.awt.Dimension(770, 175));
+    jScrollPane1.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+    jPanel2.add(jLabel9);
+    jPanel2.add(javax.swing.Box.createVerticalStrut(10));
+    jPanel2.add(jScrollPane1);
+
+    jPanel2.revalidate();
+    jPanel2.repaint();
+}
+    
+    
+    private void configurarTablaCombos() {
+    javax.swing.table.DefaultTableModel modelo = new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{
+                "Combo", "Contenido", "Precio"
+            }
+    ) {
+        boolean[] canEdit = new boolean[]{
+            false, false, false
+        };
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return canEdit[columnIndex];
+        }
+    };
+
+    jTable1.setModel(modelo);
+    jTable1.setRowHeight(25);
+    jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+    if (jTable1.getColumnModel().getColumnCount() >= 3) {
+        jTable1.getColumnModel().getColumn(0).setPreferredWidth(150);
+        jTable1.getColumnModel().getColumn(1).setPreferredWidth(460);
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(120);
+    }
+}
+    
+    
     private void mostrarUsuario() {
     
-        Rol.setText(rolUsuario + ": " + nombreUsuario);
+            if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+            rolUsuario = "Cajero";
+        }
+
+        if (nombreUsuario == null) {
+            nombreUsuario = "";
+        }
+
+        if (nombreUsuario.trim().isEmpty()) {
+            Rol.setText(rolUsuario);
+        } else {
+            Rol.setText(rolUsuario + ": " + nombreUsuario);
+        }
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -561,10 +992,10 @@ public class AgregarComboGUI extends javax.swing.JFrame {
     
     //////////////////////NUEVO METODO DE CARGAR COMBOS
     private void cargarCombos() {
-        cargarCombos("");
-    }
+            cargarCombos("");
+        }
 
-    private void cargarCombos(String filtro) {
+        private void cargarCombos(String filtro) {
         javax.swing.table.DefaultTableModel modelo =
                 (javax.swing.table.DefaultTableModel) jTable1.getModel();
 
@@ -572,13 +1003,39 @@ public class AgregarComboGUI extends javax.swing.JFrame {
         combosMostrados.clear();
 
         java.util.ArrayList<pizzeria.model.Combo> combos =
-                ContextoVentasGUI.getInstancia().getMenu().getCombos();
+                ContextoVentasGUI.getInstancia()
+                        .getMenu()
+                        .getCombos();
 
-        String filtroLower = filtro == null ? "" : filtro.trim().toLowerCase();
+        pizzeria.controller.GestorVenta gestorVenta =
+                ContextoVentasGUI.getInstancia()
+                        .getGestorVenta();
+
+        String filtroLower = filtro == null
+                ? ""
+                : filtro.trim().toLowerCase();
 
         for (pizzeria.model.Combo combo : combos) {
-            String nombreCombo = "Combo #" + combo.getNroCombo();
-            String contenidoCombo = obtenerContenidoCombo(combo);
+
+            /*
+             * MENÚ DINÁMICO:
+             *
+             * El combo solo aparece cuando todos los ingredientes
+             * de todos sus productos permiten preparar por lo
+             * menos una unidad adicional.
+             */
+            boolean disponible =
+                    gestorVenta.puedeAgregarCombo(combo, 1);
+
+            if (!disponible) {
+                continue;
+            }
+
+            String nombreCombo =
+                    "Combo #" + combo.getNroCombo();
+
+            String contenidoCombo =
+                    obtenerContenidoCombo(combo);
 
             boolean coincide = filtroLower.isEmpty()
                     || nombreCombo.toLowerCase().contains(filtroLower)

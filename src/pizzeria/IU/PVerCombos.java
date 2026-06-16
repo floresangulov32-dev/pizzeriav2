@@ -59,6 +59,7 @@ public class PVerCombos extends javax.swing.JPanel {
         btnEliminarC = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        btnModificar = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -121,11 +122,20 @@ public class PVerCombos extends javax.swing.JPanel {
         jTable1.setRowHeight(40);
         jScrollPane1.setViewportView(jTable1);
 
+        btnModificar.setBackground(new java.awt.Color(168, 27, 29));
+        btnModificar.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnModificar.setForeground(new java.awt.Color(255, 255, 255));
+        btnModificar.setText("Modificar Combo");
+        btnModificar.addActionListener(this::btnModificarActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 994, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(489, Short.MAX_VALUE)
+                .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(285, 285, 285))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(7, 7, 7)
@@ -151,7 +161,10 @@ public class PVerCombos extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 561, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(164, 164, 164)
+                .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(351, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(4, 4, 4)
@@ -262,6 +275,37 @@ public class PVerCombos extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnEliminarCActionPerformed
 
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        int fila = jTable1.getSelectedRow();
+        if (fila == -1) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un combo de la tabla.");
+            return;
+        }
+        String celda = jTable1.getValueAt(fila, 0).toString(); // "Combo #1"
+        int idCombo = Integer.parseInt(celda.replace("Combo #", "").trim());
+        
+
+        Combo comboSeleccionado = menu.buscarCombo(idCombo);
+
+        if (comboSeleccionado == null) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No se encontró el combo.");
+            return;
+        }
+
+        PModificarCombos panel = new PModificarCombos(
+            interfaz,
+            menu,
+            archivoMenu,
+            comboSeleccionado,
+            inventario
+        );
+        cargarPanel(panel);
+    }//GEN-LAST:event_btnModificarActionPerformed
+
 private void configurarPlaceholder() {
         idBuscar.setText("Ingrese un Nro de Combo:");
         idBuscar.setForeground(java.awt.Color.GRAY);
@@ -327,6 +371,7 @@ private void cargarTablaCombos() {
     private javax.swing.JButton btnAgregarC;
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnEliminarC;
+    private javax.swing.JButton btnModificar;
     private javax.swing.JTextField idBuscar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;

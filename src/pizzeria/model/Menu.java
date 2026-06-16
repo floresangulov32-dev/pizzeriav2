@@ -59,6 +59,27 @@ public class Menu{
         return null;
     }
     
+    public ArrayList<Producto> buscarProductosPorNombre(String texto) {
+        ArrayList<Producto> resultado = new ArrayList<>();
+        String busqueda = texto.trim().toLowerCase();
+        for (Producto p : productos) {
+            if (p.getNombre().toLowerCase().contains(busqueda)) {
+                resultado.add(p);
+            }
+        }
+        return resultado;
+    }
+    
+    public Producto buscarProductoNombre(String texto){
+        for (Producto p : productos) {
+            String nom = p.getNombre().trim();
+            if (nom.equalsIgnoreCase(texto.trim())) {
+                return p;
+            }
+        }
+        return null;
+    }
+    
      public ArrayList<Producto> getProductosPorTipo(TipoProducto tipo){
         ArrayList<Producto> filtrados = new ArrayList<>();
         for(Producto p : productos){
@@ -104,6 +125,33 @@ public class Menu{
             if(c.getNroCombo() == nro){
                 return c;
             }
+        }
+        return null;
+    }
+    
+    public Combo buscarComboDuplicado(ArrayList<Producto> productosNuevos) {
+        for (Combo c : combos) {
+            ArrayList<Producto> productosCombo = c.getCombo();
+            if (productosCombo.size() != productosNuevos.size()) {
+                continue;
+            }
+
+            boolean mismosProductos = true;
+            for (Producto p : productosNuevos) {
+                boolean encontrado = false;
+                for (Producto pc : productosCombo) {
+                    if (pc.getID() == p.getID()) {
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (!encontrado) {
+                    mismosProductos = false;
+                    break;
+                }
+            }
+
+            if (mismosProductos) return c;
         }
         return null;
     }
@@ -168,6 +216,26 @@ public class Menu{
             res+= c.verCombo()+"\n";
         }
         return res;
+    }
+    
+    public boolean productoDisponible(Producto p, Inventario inventario) {
+        if (p.getIngredientes().isEmpty()) return true;
+        for (int idIng : p.getIngredientes()) {
+            Insumo ins = inventario.buscarId(idIng);
+            if (ins == null || ins.getStockActual() <= 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean comboDisponible(Combo c, Inventario inventario) {
+        for (Producto p : c.getCombo()) {
+            if (!productoDisponible(p, inventario)) {
+                return false;
+            }
+        }
+        return true;
     }
     
     

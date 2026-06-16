@@ -109,13 +109,14 @@ public void cargarTablas() {
     cargarTablaCombos();
 }
 
-private void cargarTablaPizzas() {
+    private void cargarTablaPizzas() {
     javax.swing.table.DefaultTableModel model =
         (javax.swing.table.DefaultTableModel) jTable1.getModel();
     model.setRowCount(0);
 
     for (Producto p : menu.getProductos()) {
-        if (p.getTipo() == pizzeria.model.TipoProducto.PRODUCTO) {
+        if (p.getTipo() == pizzeria.model.TipoProducto.PRODUCTO
+                && menu.productoDisponible(p, inventario)) {
             model.addRow(new Object[]{
                 p.getID(),
                 p.getNombre(),
@@ -128,48 +129,52 @@ private void cargarTablaPizzas() {
     jTable1.getColumnModel().getColumn(2).setPreferredWidth(100);
 }
 
-private void cargarTablaRefrescos() {
-    javax.swing.table.DefaultTableModel model =
-        (javax.swing.table.DefaultTableModel) jTable2.getModel();
-    model.setRowCount(0);
+    private void cargarTablaRefrescos() {
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable2.getModel();
+        model.setRowCount(0);
 
-    for (Producto p : menu.getProductos()) {
-        if (p.getTipo() == pizzeria.model.TipoProducto.REFRESCO) {
+        for (Producto p : menu.getProductos()) {
+            if (p.getTipo() == pizzeria.model.TipoProducto.REFRESCO
+                    && menu.productoDisponible(p, inventario)) {
+                model.addRow(new Object[]{
+                    p.getID(),
+                    p.getNombre(),
+                    String.format("%.2f Bs.", p.getPrecio())
+                });
+            }
+        }
+        jTable2.getColumnModel().getColumn(0).setPreferredWidth(30);
+        jTable2.getColumnModel().getColumn(1).setPreferredWidth(250);
+        jTable2.getColumnModel().getColumn(2).setPreferredWidth(100);
+    }
+
+    private void cargarTablaCombos() {
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable3.getModel();
+        model.setRowCount(0);
+
+        for (Combo c : menu.getCombos()) {
+            if (!menu.comboDisponible(c, inventario)) {
+                continue;
+            }
+
+            StringBuilder productos = new StringBuilder();
+            for (int i = 0; i < c.getCombo().size(); i++) {
+                productos.append(c.getCombo().get(i).getNombre());
+                if (i < c.getCombo().size() - 1) productos.append(", ");
+            }
+
             model.addRow(new Object[]{
-                p.getID(),
-                p.getNombre(),
-                String.format("%.2f Bs.", p.getPrecio())
+                "Combo #" + c.getNroCombo(),
+                productos.toString(),
+                String.format("%.2f Bs.", c.getPrecio())
             });
         }
+        jTable3.getColumnModel().getColumn(0).setPreferredWidth(80);
+        jTable3.getColumnModel().getColumn(1).setPreferredWidth(250);
+        jTable3.getColumnModel().getColumn(2).setPreferredWidth(70);
     }
-    jTable2.getColumnModel().getColumn(0).setPreferredWidth(30);
-    jTable2.getColumnModel().getColumn(1).setPreferredWidth(250);
-    jTable2.getColumnModel().getColumn(2).setPreferredWidth(100);
-}   
-
-private void cargarTablaCombos() {
-    javax.swing.table.DefaultTableModel model =
-        (javax.swing.table.DefaultTableModel) jTable3.getModel();
-    model.setRowCount(0);
-
-    for (Combo c : menu.getCombos()) {
-        // Construye descripción con los nombres de los productos
-        StringBuilder productos = new StringBuilder();
-        for (int i = 0; i < c.getCombo().size(); i++) {
-            productos.append(c.getCombo().get(i).getNombre());
-            if (i < c.getCombo().size() - 1) productos.append(", ");
-        }
-
-        model.addRow(new Object[]{
-            "Combo #" + c.getNroCombo(),
-            productos.toString(),
-            String.format("%.2f Bs.", c.getPrecio())
-        });
-    }
-    jTable3.getColumnModel().getColumn(0).setPreferredWidth(80);
-    jTable3.getColumnModel().getColumn(1).setPreferredWidth(250);
-    jTable3.getColumnModel().getColumn(2).setPreferredWidth(70);
-}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -189,7 +194,6 @@ private void cargarTablaCombos() {
         Rol = new javax.swing.JLabel();
         PiePag = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         Interfaz = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -288,10 +292,6 @@ private void cargarTablaCombos() {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Powered by StarTech");
 
-        jLabel5.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Logo");
-
         javax.swing.GroupLayout PiePagLayout = new javax.swing.GroupLayout(PiePag);
         PiePag.setLayout(PiePagLayout);
         PiePagLayout.setHorizontalGroup(
@@ -299,16 +299,13 @@ private void cargarTablaCombos() {
             .addGroup(PiePagLayout.createSequentialGroup()
                 .addGap(12, 12, 12)
                 .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         PiePagLayout.setVerticalGroup(
             PiePagLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PiePagLayout.createSequentialGroup()
-                .addGroup(PiePagLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
-                    .addComponent(jLabel2))
+                .addGap(6, 6, 6)
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -593,20 +590,20 @@ private void cargarTablaCombos() {
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         this.dispose();
     
-    if (rolUsuario == null || rolUsuario.isEmpty()) {
-        // Vino desde PantallaInicial
-        new PantallaInicial().setVisible(true);
-        
-    } else if (rolUsuario.equalsIgnoreCase("CLIENTE")) {
-        // Vino desde InterfazCliente
-        new InterfazCliente(rolUsuario, nombreUsuario).setVisible(true);
-        
-    } else if (rolUsuario.equalsIgnoreCase("GERENTE")){
-        // Vino desde GestionMenu (Gerente u otro rol)
-        new GestionMenu(rolUsuario, nombreUsuario).setVisible(true);
-    }else {
-        new VentasGUI(rolUsuario, nombreUsuario).setVisible(true);
-    }
+        if (rolUsuario == null || rolUsuario.isEmpty()) {
+            // Vino desde PantallaInicial
+            new PantallaInicial().setVisible(true);
+
+        } else if (rolUsuario.equalsIgnoreCase("CLIENTE")) {
+            // Vino desde InterfazCliente
+            new InterfazCliente(rolUsuario, nombreUsuario).setVisible(true);
+
+        } else if (rolUsuario.equalsIgnoreCase("GERENTE")){
+            // Vino desde GestionMenu (Gerente u otro rol)
+            new GestionMenu(rolUsuario, nombreUsuario).setVisible(true);
+        }else {
+            new VentasGUI(rolUsuario, nombreUsuario).setVisible(true);
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
     
     private void mostrarUsuario() {
@@ -637,6 +634,8 @@ private void cargarTablaCombos() {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
     }
+    
+    
  
     
     public static void main(String args[]) {
@@ -672,7 +671,6 @@ private void cargarTablaCombos() {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;

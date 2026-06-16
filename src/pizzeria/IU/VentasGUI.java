@@ -19,22 +19,18 @@ public class VentasGUI extends javax.swing.JFrame {
      * Creates new form MenuGerente
      */
     public VentasGUI() {
-        initComponents();
-        setSize(1280, 720);
-        setLocationRelativeTo(null);
-        Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
-        BarraNav.setPreferredSize(new java.awt.Dimension(280, 560));
-        PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
-        
-        configurarHover();        
-        activarBoton(btnInicio);
-        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+            initComponents();
+
+        this.rolUsuario = "Cajero";
+        this.nombreUsuario = "";
+
+        inicializarVentanaVentas();
     }
     
    
     
     public VentasGUI(String rol, String nombre) {
-    initComponents();
+            initComponents();
     setSize(1280, 720);
     setLocationRelativeTo(null);
     Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
@@ -46,7 +42,7 @@ public class VentasGUI extends javax.swing.JFrame {
     configurarHover();        
     activarBoton(btnInicio);
     cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    
+    inicializarVentanaVentas();
     
 }
 
@@ -521,9 +517,12 @@ public class VentasGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btnUsuariosActionPerformed
 
     private void btnReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportesActionPerformed
-        // TODO add your handling code here:
+        // TODO add your handling code here:        
         FrameVerMenu ventana = new FrameVerMenu(rolUsuario, nombreUsuario);
+        ventana.setSize(this.getSize());
+        ventana.setLocation(this.getLocation());
         ventana.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnReportesActionPerformed
 
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
@@ -539,9 +538,36 @@ public class VentasGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code 
-        ContextoVentasGUI.getInstancia().getGestorVenta().crearVenta(1);
-        new NuevoPedidoGUI(rolUsuario,nombreUsuario).setVisible(true);
-        this.dispose();
+        pizzeria.model.Venta ventaActual = ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .getVentaActual();
+
+    if (ventaActual != null
+            && (!ventaActual.getItems().isEmpty() || !ventaActual.getCombos().isEmpty())) {
+
+        int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                "Ya existe un pedido en curso.\n¿Desea descartarlo y crear uno nuevo?",
+                "Pedido en curso",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+
+        if (respuesta != javax.swing.JOptionPane.YES_OPTION) {
+            new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
+            this.dispose();
+            return;
+        }
+
+        ContextoVentasGUI.getInstancia()
+                .getGestorVenta()
+                .cancelarArmadoPedido();
+    }
+
+    ContextoVentasGUI.getInstancia().getGestorVenta().crearVenta(1);
+
+    new NuevoPedidoGUI(rolUsuario, nombreUsuario).setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -552,7 +578,19 @@ public class VentasGUI extends javax.swing.JFrame {
     
     private void mostrarUsuario() {
     
+        if (rolUsuario == null || rolUsuario.trim().isEmpty()) {
+        rolUsuario = "Cajero";
+    }
+
+    if (nombreUsuario == null) {
+        nombreUsuario = "";
+    }
+
+    if (nombreUsuario.trim().isEmpty()) {
+        Rol.setText(rolUsuario);
+    } else {
         Rol.setText(rolUsuario + ": " + nombreUsuario);
+    }
     }
     
     private void cargarPanel(javax.swing.JPanel panel) {
@@ -626,6 +664,181 @@ public class VentasGUI extends javax.swing.JFrame {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
     }
+    
+    private void inicializarVentanaVentas() {
+        aplicarEstructuraVisualCajero();
+
+        mostrarUsuario();
+        configurarHover();
+        activarBoton(btnInicio);
+
+        cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
+
+        configurarTablaPedidoActual();
+        cargarPedidoActualEnPantalla();
+    }
+    
+    private void aplicarEstructuraVisualCajero() {
+    setSize(1280, 720);
+    setMinimumSize(new java.awt.Dimension(1280, 720));
+    setMaximumSize(new java.awt.Dimension(1280, 720));
+    setPreferredSize(new java.awt.Dimension(1280, 720));
+    setResizable(false);
+    setLocationRelativeTo(null);
+
+    if (lblLogo != null) {
+        lblLogo.setPreferredSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMinimumSize(new java.awt.Dimension(75, 75));
+        lblLogo.setMaximumSize(new java.awt.Dimension(75, 75));
+    }
+
+    Encabezado.setPreferredSize(new java.awt.Dimension(1280, 100));
+    Encabezado.setMinimumSize(new java.awt.Dimension(1280, 100));
+
+    PiePag.setPreferredSize(new java.awt.Dimension(1280, 47));
+    PiePag.setMinimumSize(new java.awt.Dimension(1280, 47));
+
+    BarraNav.setPreferredSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMinimumSize(new java.awt.Dimension(280, 573));
+    BarraNav.setMaximumSize(new java.awt.Dimension(280, 573));
+
+    Interfaz.setPreferredSize(new java.awt.Dimension(1000, 573));
+    Interfaz.setBackground(java.awt.Color.WHITE);
+
+    reconstruirEstructuraBaseCajero();
+
+    revalidate();
+    repaint();
+}
+    
+    private void reconstruirEstructuraBaseCajero() {
+    getContentPane().removeAll();
+
+    Fondo.removeAll();
+    Fondo.setLayout(new java.awt.BorderLayout(0, 0));
+    Fondo.setBackground(java.awt.Color.WHITE);
+
+    configurarBarraLateral();
+
+    javax.swing.JPanel cuerpo = new javax.swing.JPanel(new java.awt.BorderLayout(0, 0));
+    cuerpo.setBackground(java.awt.Color.WHITE);
+    cuerpo.setPreferredSize(new java.awt.Dimension(1280, 573));
+    cuerpo.add(BarraNav, java.awt.BorderLayout.WEST);
+    cuerpo.add(Interfaz, java.awt.BorderLayout.CENTER);
+
+    Fondo.add(Encabezado, java.awt.BorderLayout.NORTH);
+    Fondo.add(cuerpo, java.awt.BorderLayout.CENTER);
+    Fondo.add(PiePag, java.awt.BorderLayout.SOUTH);
+
+    setContentPane(Fondo);
+}
+    
+    private void configurarBarraLateral() {
+    BarraNav.removeAll();
+    BarraNav.setLayout(new javax.swing.BoxLayout(BarraNav, javax.swing.BoxLayout.Y_AXIS));
+    BarraNav.setBackground(new java.awt.Color(28, 28, 28));
+    BarraNav.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(217, 217, 217)));
+
+    java.awt.Dimension tamBoton = new java.awt.Dimension(250, 60);
+
+    configurarBotonLateral(btnInicio, tamBoton);
+    configurarBotonLateral(btnUsuarios, tamBoton);
+    configurarBotonLateral(btnReportes, tamBoton);
+    configurarBotonLateral(btnCerrar, tamBoton);
+
+    BarraNav.add(javax.swing.Box.createVerticalStrut(58));
+    BarraNav.add(btnInicio);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(60));
+    BarraNav.add(btnUsuarios);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(49));
+    BarraNav.add(btnReportes);
+    BarraNav.add(javax.swing.Box.createVerticalStrut(55));
+    BarraNav.add(btnCerrar);
+    BarraNav.add(javax.swing.Box.createVerticalGlue());
+}
+    
+    private void configurarBotonLateral(javax.swing.JButton boton, java.awt.Dimension tamano) {
+    boton.setPreferredSize(tamano);
+    boton.setMinimumSize(tamano);
+    boton.setMaximumSize(tamano);
+    boton.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+    boton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+    boton.setFocusPainted(false);
+}
+    
+    private void configurarTablaPedidoActual() {
+    javax.swing.table.DefaultTableModel modelo = new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{
+                "#", "Producto/Combo", "Cant.", "Subtotal"
+            }
+    ) {
+        boolean[] canEdit = new boolean[]{
+            false, false, false, false
+        };
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return canEdit[columnIndex];
+        }
+    };
+
+    jTable1.setModel(modelo);
+    jTable1.setRowHeight(25);
+}
+    private void cargarPedidoActualEnPantalla() {
+    javax.swing.table.DefaultTableModel modelo =
+            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+
+    modelo.setRowCount(0);
+
+    pizzeria.model.Venta ventaActual = ContextoVentasGUI.getInstancia()
+            .getGestorVenta()
+            .getVentaActual();
+
+    if (ventaActual == null
+            || (ventaActual.getItems().isEmpty() && ventaActual.getCombos().isEmpty())) {
+
+        jLabel7.setText("No hay productos en el pedido");
+        jLabel8.setText("Crea un nuevo pedido para comenzar.");
+
+        jLabel11.setText("Bs. 0.00");
+        jLabel12.setText("Bs. 0.00");
+        jLabel13.setText("Bs. 0.00");
+
+        return;
+    }
+
+    int contador = 1;
+
+    for (pizzeria.model.DetalleVenta item : ventaActual.getItems()) {
+        modelo.addRow(new Object[]{
+            contador++,
+            item.getProducto().getNombre(),
+            item.getCantidad(),
+            "Bs. " + String.format("%.2f", item.getSubTotal())
+        });
+    }
+
+    for (pizzeria.model.DetalleCombo combo : ventaActual.getCombos()) {
+        modelo.addRow(new Object[]{
+            contador++,
+            "Combo #" + combo.getNroCombo(),
+            combo.getCantidad(),
+            "Bs. " + String.format("%.2f", combo.getSubTotal())
+        });
+    }
+
+    ventaActual.calcularTotal();
+
+    jLabel7.setText("Pedido en curso");
+    jLabel8.setText("Puedes continuar editando o revisar el pedido.");
+
+    jLabel11.setText("Bs. " + String.format("%.2f", ventaActual.getTotal()));
+    jLabel12.setText("Bs. 0.00");
+    jLabel13.setText("Bs. " + String.format("%.2f", ventaActual.getTotal()));
+}
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

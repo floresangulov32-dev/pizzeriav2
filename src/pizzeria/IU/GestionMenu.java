@@ -66,7 +66,7 @@ public class GestionMenu extends javax.swing.JFrame {
     configurarHover();        
     
     cargarImagen(lblLogo, "resources/imagenes/logoCasaDelSabor.jpeg");
-    cargarImagen(ImgPres, "resources/imagenes/logoCasaDelSabor.jpg");
+    cargarImagen(ImgPres, "resources/imagenes/Combo1.jpg");
     
     
         archivoMenu = new ArchivoMenu();
@@ -105,7 +105,6 @@ public class GestionMenu extends javax.swing.JFrame {
         btnCerrar = new javax.swing.JButton();
         PiePag = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         Interfaz = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -260,10 +259,6 @@ public class GestionMenu extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Powered by StarTech");
 
-        jLabel5.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Logo");
-
         javax.swing.GroupLayout PiePagLayout = new javax.swing.GroupLayout(PiePag);
         PiePag.setLayout(PiePagLayout);
         PiePagLayout.setHorizontalGroup(
@@ -271,16 +266,13 @@ public class GestionMenu extends javax.swing.JFrame {
             .addGroup(PiePagLayout.createSequentialGroup()
                 .addGap(12, 12, 12)
                 .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         PiePagLayout.setVerticalGroup(
             PiePagLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PiePagLayout.createSequentialGroup()
-                .addGroup(PiePagLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
-                    .addComponent(jLabel2))
+                .addContainerGap()
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -400,8 +392,12 @@ public class GestionMenu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVerMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerMenuActionPerformed
-        FrameVerMenu ventana = new FrameVerMenu(rolUsuario, nombreUsuario, menu, inventario, archivoMenu);
+        FrameVerMenu ventana = new FrameVerMenu(rolUsuario, nombreUsuario);
+        ventana.setSize(this.getSize());
+        ventana.setLocation(this.getLocation());
         ventana.setVisible(true);
+        this.dispose();
+        
     }//GEN-LAST:event_btnVerMenuActionPerformed
 
     private void btnProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductosActionPerformed
@@ -498,11 +494,11 @@ public class GestionMenu extends javax.swing.JFrame {
     }
  
     private void cargarPanel(javax.swing.JPanel panel) {
-        Interfaz.removeAll();                    // limpia el contenido anterior
+        Interfaz.removeAll();                    
         Interfaz.setLayout(new java.awt.BorderLayout());
         Interfaz.add(panel, java.awt.BorderLayout.CENTER);
-        Interfaz.revalidate();                   // refresca el layout
-        Interfaz.repaint();                      // redibuja
+        Interfaz.revalidate();                   
+        Interfaz.repaint();                      
 }
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -545,7 +541,6 @@ public class GestionMenu extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
