@@ -243,7 +243,8 @@ public class PVerProductos extends javax.swing.JPanel {
             p.getID(),
             p.getNombre(),
             String.format("%.2f", p.getPrecio()),
-            p.getDescripcion(), "xd"
+            p.getDescripcion(), 
+            construirIngredientes(p)
         });
     }
     }//GEN-LAST:event_btnBuscarActionPerformed
